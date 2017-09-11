@@ -2,9 +2,7 @@
 
 namespace PrismaDB.QueryParser
 {
-    // Loosely based on SQL89 grammar from Gold parser. Supports some extra TSQL constructs.
-
-    [Language("SQL", "89", "SQL 89 grammar")]
+    [Language("SQL", "5.7", "MySQL grammar")]
     public class SqlGrammar : Grammar
     {
         public SqlGrammar() : base(false)
@@ -15,8 +13,18 @@ namespace PrismaDB.QueryParser
             NonGrammarTerminals.Add(comment);
             NonGrammarTerminals.Add(lineComment);
             var number = new NumberLiteral("number");
-            var string_literal = new StringLiteral("string", "'", StringOptions.AllowsDoubledQuote);
-            var Id_simple = TerminalFactory.CreateSqlExtIdentifier(this, "id_simple"); //covers normal identifiers (abc) and quoted id's ([abc d], "abc d")
+
+            var string_literal = new StringLiteral("string");
+            string_literal.AddStartEnd("'", StringOptions.AllowsDoubledQuote);
+            string_literal.AddStartEnd("\"", StringOptions.AllowsDoubledQuote);
+            
+            var Id_simple = new IdentifierTerminal("id_simple");
+            {
+                var ttt = new StringLiteral("id_simple_qouted");
+                ttt.AddStartEnd("`", StringOptions.NoEscapes);
+                ttt.SetOutputTerminal(this, Id_simple);
+            }
+
             var comma = ToTerm(",");
             var dot = ToTerm(".");
             var CREATE = ToTerm("CREATE");
