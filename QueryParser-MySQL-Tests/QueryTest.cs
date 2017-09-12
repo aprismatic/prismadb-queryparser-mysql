@@ -1,9 +1,9 @@
-﻿using System;
-using Xunit;
-using PrismaDB.QueryParser;
-using PrismaDB.QueryAST;
+﻿using PrismaDB.QueryAST;
 using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
+using PrismaDB.QueryParser;
+using System;
+using Xunit;
 
 namespace PrismaDB_QueryParser_Test
 {

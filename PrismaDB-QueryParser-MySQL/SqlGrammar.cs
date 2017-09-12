@@ -130,7 +130,7 @@ namespace PrismaDB.QueryParser
             var inStmt = new NonTerminal("inStmt");
 
             var insertDataList = new NonTerminal("insertDataList"); // new
-            var AutoIncrementOpt = new NonTerminal("newidOpt"); // new
+            var AutoIncrementOpt = new NonTerminal("AutoIncrementOpt"); // new
 
             var encryptionOpt = new NonTerminal("encryptionOpt");
             var encryptTypeList = new NonTerminal("encryptTypeList");
@@ -145,10 +145,10 @@ namespace PrismaDB.QueryParser
             //ID
             Id.Rule = MakePlusRule(Id, dot, Id_simple);
 
-            stmt.Rule = createTableStmt //| alterStmt | createIndexStmt
+            stmt.Rule = createTableStmt //| createIndexStmt | alterStmt
                                         //| dropTableStmt | dropIndexStmt
                       | selectStmt | insertStmt | updateStmt | deleteStmt | useStmt
-                      | "GO";
+                      | ";";
             //Create table
             createTableStmt.Rule = CREATE + TABLE + Id + "(" + fieldDefList + ")"; //+ constraintListOpt;
             fieldDefList.Rule = MakePlusRule(fieldDefList, comma, fieldDef);

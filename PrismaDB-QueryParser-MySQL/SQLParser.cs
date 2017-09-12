@@ -170,8 +170,8 @@ namespace PrismaDB.QueryParser
                         colDef.EncryptionFlags = CheckEncryption(FindChildNode(fieldDefNode, "encryptionOpt"));
 
                         // Check for row id
-                        ParseTreeNode newidNode = FindChildNode(FindChildNode(fieldDefNode, "newidOpt"), "DEFAULT NEWID()");
-                        if (newidNode != null) colDef.isRowId = true;
+                        ParseTreeNode AutoIncrementNode = FindChildNode(FindChildNode(fieldDefNode, "AutoIncrementOpt"), "AUTO_INCREMENT");
+                        if (AutoIncrementNode != null) colDef.isRowId = true;
 
                         createQuery.ColumnDefinitions.Add(colDef);
                     }
