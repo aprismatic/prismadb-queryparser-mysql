@@ -130,7 +130,7 @@ namespace PrismaDB.QueryParser
             var inStmt = new NonTerminal("inStmt");
 
             var insertDataList = new NonTerminal("insertDataList"); // new
-            var newidOpt = new NonTerminal("newidOpt"); // new
+            var AutoIncrementOpt = new NonTerminal("newidOpt"); // new
 
             var encryptionOpt = new NonTerminal("encryptionOpt");
             var encryptTypeList = new NonTerminal("encryptTypeList");
@@ -152,16 +152,16 @@ namespace PrismaDB.QueryParser
             //Create table
             createTableStmt.Rule = CREATE + TABLE + Id + "(" + fieldDefList + ")"; //+ constraintListOpt;
             fieldDefList.Rule = MakePlusRule(fieldDefList, comma, fieldDef);
-            fieldDef.Rule = Id + typeName + typeParamsOpt + encryptionOpt + nullSpecOpt + newidOpt;
+            fieldDef.Rule = Id + typeName + typeParamsOpt + encryptionOpt + nullSpecOpt + AutoIncrementOpt;
 
             encryptionOpt.Rule = ENCRYPTED + FOR + "(" + encryptTypeList + ")" | Empty;
             encryptTypeList.Rule = MakePlusRule(encryptTypeList, comma, encryptType);
             encryptType.Rule = ToTerm("TEXT") | ToTerm("INTEGER_ADDITION") | ToTerm("INTEGER_MULTIPLICATION") | ToTerm("SEARCH");
 
             nullSpecOpt.Rule = NULL | NOT + NULL | Empty;
-            typeName.Rule = ToTerm("BIT") | "int" | "char" | "varchar" | "nchar" | "nvarchar" | "binary" | "varbinary" | "uniqueidentifier";
+            typeName.Rule = ToTerm("BIT") | "int" | "char" | "varchar" | "nchar" | "nvarchar" | "binary" | "varbinary";
             typeParamsOpt.Rule = "(" + number + ")" | "(" + number + comma + number + ")" | Empty;
-            newidOpt.Rule = "DEFAULT NEWID()" | Empty;
+            AutoIncrementOpt.Rule = "AUTO_INCREMENT" | Empty;
             //constraintDef.Rule = CONSTRAINT + Id + constraintTypeOpt;
             //constraintListOpt.Rule = MakeStarRule(constraintListOpt, constraintDef);
             //constraintTypeOpt.Rule = PRIMARY + KEY + idlistPar | UNIQUE + idlistPar | NOT + NULL + idlistPar
