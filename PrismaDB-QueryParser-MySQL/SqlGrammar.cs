@@ -122,7 +122,7 @@ namespace PrismaDB.QueryParser
             var inExpr = new NonTerminal("inExpr");
             //var parSelectStmt = new NonTerminal("parSelectStmt");
             var notOpt = new NonTerminal("notOpt");
-            //var funCall = new NonTerminal("funCall");
+            var funCall = new NonTerminal("funCall");
             var stmtLine = new NonTerminal("stmtLine");
             var semiOpt = new NonTerminal("semiOpt");
             var stmtList = new NonTerminal("stmtList");
@@ -249,7 +249,7 @@ namespace PrismaDB.QueryParser
             //Expression
             exprList.Rule = MakePlusRule(exprList, comma, expression);
             expression.Rule = term | unExpr | binExpr;// | betweenExpr; //-- BETWEEN doesn't work - yet; brings a few parsing conflicts 
-            term.Rule = Id | string_literal | number | tuple; //| funCall | parSelectStmt;// | inStmt;
+            term.Rule = Id | string_literal | number | tuple | funCall; //| parSelectStmt;// | inStmt;
             tuple.Rule = "(" + exprList + ")";
             //parSelectStmt.Rule = "(" + selectStmt + ")";
             unExpr.Rule = unOp + term;
@@ -262,6 +262,7 @@ namespace PrismaDB.QueryParser
             betweenExpr.Rule = expression + notOpt + "BETWEEN" + expression + "AND" + expression;
             notOpt.Rule = Empty | NOT;
             //funCall covers some psedo-operators and special forms like ANY(...), SOME(...), ALL(...), EXISTS(...), IN(...)
+            funCall.Rule = Id + "()";
             //funCall.Rule = Id + "(" + funArgs + ")";
             //funArgs.Rule = selectStmt | exprList;
             //inStmt.Rule = expression + "IN" + "(" + exprList + ")";
