@@ -175,9 +175,10 @@ namespace PrismaDB.QueryParser
             var t_BINARY = ToTerm("BINARY");
             var t_VARBINARY = ToTerm("VARBINARY");
             var t_UNIQUEIDENTIFIER = ToTerm("UNIQUEIDENTIFIER");
+            var t_DATETIME = ToTerm("DATETIME");
 
             typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_NCHAR | t_NVARCHAR | et_TEXT | t_BINARY | t_VARBINARY |
-                            t_UNIQUEIDENTIFIER;
+                            t_UNIQUEIDENTIFIER | t_DATETIME;
             typeParamsOpt.Rule = "(" + number + ")" | "(" + number + comma + number + ")" | Empty;
             AutoIncrementOpt.Rule = "AUTO_INCREMENT" | Empty;
             //constraintDef.Rule = CONSTRAINT + Id + constraintTypeOpt;
