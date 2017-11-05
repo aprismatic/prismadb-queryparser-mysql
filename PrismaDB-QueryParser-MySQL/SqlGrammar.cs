@@ -24,6 +24,8 @@ namespace PrismaDB.QueryParser
                 ttt.AddStartEnd("`", StringOptions.NoEscapes);
                 ttt.SetOutputTerminal(this, Id_simple);
             }
+            Id_simple.AllFirstChars += "@";
+            Id_simple.AllChars += "@";
 
             var comma = ToTerm(",");
             var dot = ToTerm(".");
@@ -227,9 +229,9 @@ namespace PrismaDB.QueryParser
             deleteStmt.Rule = DELETE + FROM + Id + whereClauseOpt;
 
             //Select stmt
-            selectStmt.Rule = SELECT + selList + fromClauseOpt + whereClauseOpt;
-            //+ selRestrOpt + intoClauseOpt + groupClauseOpt + havingClauseOpt + orderClauseOpt
-            //selRestrOpt.Rule = Empty | "ALL" | "DISTINCT";
+            selectStmt.Rule = SELECT + selList + fromClauseOpt + whereClauseOpt + selRestrOpt;
+            // + intoClauseOpt + groupClauseOpt + havingClauseOpt + orderClauseOpt
+            selRestrOpt.Rule = Empty | "ALL" | "DISTINCT" | "LIMIT" + number;
             selList.Rule = columnItemList | "*";
             columnItemList.Rule = MakePlusRule(columnItemList, comma, columnItem);
             columnItem.Rule = columnSource + aliasOpt;

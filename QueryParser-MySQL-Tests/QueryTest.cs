@@ -195,5 +195,20 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal("string", (((ScalarFunction)actual.SelectExpressions[1]).Parameters[0] as StringConstant)?.strvalue);
             Assert.Equal(12, (((ScalarFunction)actual.SelectExpressions[1]).Parameters[1] as IntConstant)?.intvalue);
         }
+
+        [Fact]
+        public void Parse_Variables()
+        {
+            // Setup
+            var parser = new SqlParser();
+            var test = "select @@version_comment limit 1";
+
+            // Act
+            var result = parser.ParseToAST(test);
+
+            // Assert
+            var actual = (SelectQuery)result[0];
+            Assert.Equal(new Identifier("@@version_comment"), actual.SelectExpressions[0].ColumnName);
+        }
     }
 }
