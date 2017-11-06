@@ -240,7 +240,8 @@ namespace PrismaDB.QueryParser
                                 if (idNode != null)
                                     // Set alias
                                     expr.ColumnName = BuildColumnRef(idNode).ColumnName;
-                                else if (expr.GetType() != typeof(ColumnRef))
+                                else if (expr.GetType() != typeof(ColumnRef)
+                                      && expr.GetType() != typeof(MySQLVariable))
                                     // Set original expression
                                     expr.ColumnName = new Identifier(source.Substring(exprNode.Span.EndPosition - exprNode.Span.Length, exprNode.Span.Length));
 
@@ -267,9 +268,14 @@ namespace PrismaDB.QueryParser
                 {
                     selQuery.Where = BuildWhereClause(mainNode);
                 }
+                // Check for LIMIT
+                else if (mainNode.Term.Name.Equals("selRestrOpt"))
+                {
+                    if (FindChildNode(mainNode, "LIMIT") != null)
+                        selQuery.Limit = Convert.ToUInt32(FindChildNode(mainNode, "number").Token.Value);
+                }
             }
         }
-
 
         /// <summary>
         /// Builds Where Clause.
@@ -606,7 +612,7 @@ namespace PrismaDB.QueryParser
                 }
                 else if (node.Term.Name.Equals("number"))
                 {
-                    expr = new IntConstant(Convert.ToInt32(node.Token.ValueString));
+                    expr = new IntConstant(Convert.ToInt32(node.Token.Value));
                 }
                 else if (node.Term.Name.Equals("binExpr"))
                 {
@@ -649,6 +655,14 @@ namespace PrismaDB.QueryParser
                     if (node.ChildNodes.Count == 1)
                     {
                         expr = BuildExpression(node.ChildNodes[0]);
+                    }
+                }
+                else if (node.Term.Name.Equals("variable"))
+                {
+                    if (node.ChildNodes.Count == 3)
+                    {
+                        if (node.ChildNodes[2].ChildNodes[0] != null)
+                            expr = new MySQLVariable(node.ChildNodes[2].ChildNodes[0].Token.ValueString);
                     }
                 }
             }

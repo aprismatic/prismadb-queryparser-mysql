@@ -27,6 +27,7 @@ namespace PrismaDB.QueryParser
 
             var comma = ToTerm(",");
             var dot = ToTerm(".");
+            var at = ToTerm("@");
             var CREATE = ToTerm("CREATE");
             var NULL = ToTerm("NULL");
             var NOT = ToTerm("NOT");
@@ -128,6 +129,7 @@ namespace PrismaDB.QueryParser
             var stmtList = new NonTerminal("stmtList");
             var funArgs = new NonTerminal("funArgs");
             var inStmt = new NonTerminal("inStmt");
+            var variable = new NonTerminal("variable");
 
             var insertDataList = new NonTerminal("insertDataList"); // new
             var AutoIncrementOpt = new NonTerminal("AutoIncrementOpt"); // new
@@ -227,8 +229,9 @@ namespace PrismaDB.QueryParser
             deleteStmt.Rule = DELETE + FROM + Id + whereClauseOpt;
 
             //Select stmt
-            selectStmt.Rule = SELECT + selList + fromClauseOpt + whereClauseOpt;
-            //+ selRestrOpt + intoClauseOpt + groupClauseOpt + havingClauseOpt + orderClauseOpt
+            selectStmt.Rule = SELECT + selList + fromClauseOpt + whereClauseOpt + selRestrOpt;
+            // + intoClauseOpt + groupClauseOpt + havingClauseOpt + orderClauseOpt
+            selRestrOpt.Rule = Empty | "LIMIT" + number;
             //selRestrOpt.Rule = Empty | "ALL" | "DISTINCT";
             selList.Rule = columnItemList | "*";
             columnItemList.Rule = MakePlusRule(columnItemList, comma, columnItem);
@@ -252,7 +255,8 @@ namespace PrismaDB.QueryParser
             //Expression
             exprList.Rule = MakePlusRule(exprList, comma, expression);
             expression.Rule = term | unExpr | binExpr;// | betweenExpr; //-- BETWEEN doesn't work - yet; brings a few parsing conflicts 
-            term.Rule = Id | string_literal | number | tuple | funCall; //| parSelectStmt;// | inStmt;
+            term.Rule = Id | string_literal | number | tuple | funCall | variable; //| parSelectStmt;// | inStmt;
+            variable.Rule = at + at + Id;
             tuple.Rule = "(" + exprList + ")";
             //parSelectStmt.Rule = "(" + selectStmt + ")";
             unExpr.Rule = unOp + term;
