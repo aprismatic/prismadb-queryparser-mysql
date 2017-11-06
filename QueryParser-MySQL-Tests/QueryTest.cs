@@ -203,15 +203,23 @@ namespace PrismaDB_QueryParser_Test
         {
             // Setup
             var parser = new SqlParser();
-            var test = "select @@version_comment limit 1";
+            var test = "select @@version_comment limit 1; " +
+                       "select @@`version_comment` limit 1";
 
             // Act
             var result = parser.ParseToAST(test);
 
             // Assert
-            var actual = (SelectQuery)result[0];
-            Assert.Equal(new MySQLVariable("version_comment"), actual.SelectExpressions[0]);
-            Assert.Equal((uint)1, actual.Limit);
+            {
+                var actual = (SelectQuery)result[0];
+                Assert.Equal(new MySQLVariable("version_comment"), actual.SelectExpressions[0]);
+                Assert.Equal((uint)1, actual.Limit);
+            }
+            {
+                var actual = (SelectQuery)result[1];
+                Assert.Equal(new MySQLVariable("version_comment"), actual.SelectExpressions[0]);
+                Assert.Equal((uint)1, actual.Limit);
+            }
         }
     }
 }
