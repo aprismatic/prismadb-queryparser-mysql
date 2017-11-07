@@ -212,12 +212,12 @@ namespace PrismaDB_QueryParser_Test
             // Assert
             {
                 var actual = (SelectQuery)result[0];
-                Assert.Equal(new MySQLVariable("version_comment"), actual.SelectExpressions[0]);
+                Assert.Equal(new MySQLVariable("version_comment", "@@version_comment"), actual.SelectExpressions[0]);
                 Assert.Equal((uint)1, actual.Limit);
             }
             {
                 var actual = (SelectQuery)result[1];
-                Assert.Equal(new MySQLVariable("version_comment"), actual.SelectExpressions[0]);
+                Assert.Equal(new MySQLVariable("version_comment", "@@`version_comment`"), actual.SelectExpressions[0]);
                 Assert.Equal((uint)1, actual.Limit);
             }
         }

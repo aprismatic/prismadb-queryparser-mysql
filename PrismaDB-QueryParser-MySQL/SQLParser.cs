@@ -240,8 +240,7 @@ namespace PrismaDB.QueryParser
                                 if (idNode != null)
                                     // Set alias
                                     expr.ColumnName = BuildColumnRef(idNode).ColumnName;
-                                else if (expr.GetType() != typeof(ColumnRef)
-                                      && expr.GetType() != typeof(MySQLVariable))
+                                else if (expr.GetType() != typeof(ColumnRef))
                                     // Set original expression
                                     expr.ColumnName = new Identifier(source.Substring(exprNode.Span.EndPosition - exprNode.Span.Length, exprNode.Span.Length));
 
@@ -659,11 +658,7 @@ namespace PrismaDB.QueryParser
                 }
                 else if (node.Term.Name.Equals("variable"))
                 {
-                    if (node.ChildNodes.Count == 3)
-                    {
-                        if (node.ChildNodes[2].ChildNodes[0] != null)
-                            expr = new MySQLVariable(node.ChildNodes[2].ChildNodes[0].Token.ValueString);
-                    }
+                    expr = new MySQLVariable(node.Token.ValueString);
                 }
             }
             return expr;
