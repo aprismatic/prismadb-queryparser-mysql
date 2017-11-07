@@ -3,7 +3,6 @@ using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
 using PrismaDB.QueryParser;
 using System;
-using System.Collections.Generic;
 using Xunit;
 
 namespace PrismaDB_QueryParser_Test
@@ -194,8 +193,6 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal(new Identifier("TEST('string',12)"), ((ScalarFunction)actual.SelectExpressions[1]).ColumnName);
             Assert.Equal("string", (((ScalarFunction)actual.SelectExpressions[1]).Parameters[0] as StringConstant)?.strvalue);
             Assert.Equal(12, (((ScalarFunction)actual.SelectExpressions[1]).Parameters[1] as IntConstant)?.intvalue);
-
-            Assert.Null(actual.Limit);
         }
 
         [Fact]
@@ -204,7 +201,7 @@ namespace PrismaDB_QueryParser_Test
             // Setup
             var parser = new SqlParser();
             var test = "select @@version_comment limit 1; " +
-                       "select @@`version_comment` limit 1";
+                       "select @@`version_comment`";
 
             // Act
             var result = parser.ParseToAST(test);
@@ -218,7 +215,7 @@ namespace PrismaDB_QueryParser_Test
             {
                 var actual = (SelectQuery)result[1];
                 Assert.Equal(new MySQLVariable("version_comment", "@@`version_comment`"), actual.SelectExpressions[0]);
-                Assert.Equal((uint)1, actual.Limit);
+                Assert.Null(actual.Limit);
             }
         }
     }

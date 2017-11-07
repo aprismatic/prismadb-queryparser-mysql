@@ -61,6 +61,7 @@ namespace PrismaDB.QueryParser
             var ENCRYPTED = ToTerm("ENCRYPTED");
             var FOR = ToTerm("FOR");
             var USE = ToTerm("USE");
+            var LIMIT = ToTerm("LIMIT");
 
             //Non-terminals
             var Id = new NonTerminal("Id");
@@ -233,7 +234,7 @@ namespace PrismaDB.QueryParser
             //Select stmt
             selectStmt.Rule = SELECT + selList + fromClauseOpt + whereClauseOpt + selRestrOpt;
             // + intoClauseOpt + groupClauseOpt + havingClauseOpt + orderClauseOpt
-            selRestrOpt.Rule = Empty | "LIMIT" + number;
+            selRestrOpt.Rule = Empty | LIMIT + number;
             //selRestrOpt.Rule = Empty | "ALL" | "DISTINCT";
             selList.Rule = columnItemList | "*";
             columnItemList.Rule = MakePlusRule(columnItemList, comma, columnItem);
@@ -318,7 +319,7 @@ namespace PrismaDB.QueryParser
             if (String.IsNullOrEmpty(details.Prefix))
                 return null;
 
-            if (!ReadBody(source, details))
+            if (!ReadBody(source, details)) // TODO: Allow for special chars for quoted variables
                 return null;
             if (details.Error != null)
                 return context.CreateErrorToken(details.Error);
