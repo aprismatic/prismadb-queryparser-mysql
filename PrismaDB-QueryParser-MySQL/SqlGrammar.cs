@@ -1,4 +1,6 @@
-﻿using Irony.Parsing;
+﻿using Irony;
+using Irony.Parsing;
+using System;
 
 namespace PrismaDB.QueryParser
 {
@@ -25,9 +27,10 @@ namespace PrismaDB.QueryParser
                 ttt.SetOutputTerminal(this, Id_simple);
             }
 
+            var Variable = new VariableTerminal("variable");
+
             var comma = ToTerm(",");
             var dot = ToTerm(".");
-            var at = ToTerm("@");
             var CREATE = ToTerm("CREATE");
             var NULL = ToTerm("NULL");
             var NOT = ToTerm("NOT");
@@ -129,7 +132,6 @@ namespace PrismaDB.QueryParser
             var stmtList = new NonTerminal("stmtList");
             var funArgs = new NonTerminal("funArgs");
             var inStmt = new NonTerminal("inStmt");
-            var variable = new NonTerminal("variable");
 
             var insertDataList = new NonTerminal("insertDataList"); // new
             var AutoIncrementOpt = new NonTerminal("AutoIncrementOpt"); // new
@@ -255,8 +257,7 @@ namespace PrismaDB.QueryParser
             //Expression
             exprList.Rule = MakePlusRule(exprList, comma, expression);
             expression.Rule = term | unExpr | binExpr;// | betweenExpr; //-- BETWEEN doesn't work - yet; brings a few parsing conflicts 
-            term.Rule = Id | string_literal | number | tuple | funCall | variable; //| parSelectStmt;// | inStmt;
-            variable.Rule = at + at + Id;
+            term.Rule = Id | string_literal | number | tuple | funCall | Variable; //| parSelectStmt;// | inStmt;
             tuple.Rule = "(" + exprList + ")";
             //parSelectStmt.Rule = "(" + selectStmt + ")";
             unExpr.Rule = unOp + term;
@@ -295,5 +296,96 @@ namespace PrismaDB.QueryParser
             binOp.SetFlag(TermFlags.InheritPrecedence);
 
         }//constructor
+    }
+
+    class VariableTerminal : IdentifierTerminal
+    {
+        private static string _varPrefix = "@@";
+        private static char _varQuote = '`';
+
+        public VariableTerminal(string name) : base(name) { }
+
+        public override Token TryMatch(ParsingContext context, ISourceStream source)
+        {
+            Token token;
+
+            CompoundTokenDetails details = new CompoundTokenDetails();
+            InitDetails(context, details);
+
+            if (context.VsLineScanState.Value == 0)
+                ReadPrefix(source, details);
+
+            if (String.IsNullOrEmpty(details.Prefix))
+                return null;
+
+            if (!ReadBody(source, details))
+                return null;
+            if (details.Error != null)
+                return context.CreateErrorToken(details.Error);
+            if (details.IsPartial)
+            {
+                details.Value = details.Body;
+            }
+            else
+            {
+                ReadSuffix(source, details);
+                if (details.StartSymbol != details.EndSymbol)
+                {
+                    if (string.IsNullOrEmpty(details.Error))
+                        details.Error = Resources.ErrNoClosingBrace;
+                    return context.CreateErrorToken(details.Error);
+                }
+                if (!ConvertValue(details, context))
+                {
+                    if (string.IsNullOrEmpty(details.Error))
+                        details.Error = Resources.ErrInvNumber;
+                    return context.CreateErrorToken(details.Error); // "Failed to convert the value: {0}"
+                }
+            }
+                token = CreateToken(context, source, details);
+
+            if (details.IsPartial)
+            {
+                //Save terminal state so we can continue
+                context.VsLineScanState.TokenSubType = (byte)details.SubTypeIndex;
+                context.VsLineScanState.TerminalFlags = (short)details.Flags;
+                context.VsLineScanState.TerminalIndex = this.MultilineIndex;
+            }
+            else
+                context.VsLineScanState.Value = 0;
+
+            return token;
+        }
+        
+        protected override void ReadPrefix(ISourceStream source, CompoundTokenDetails details)
+        {
+
+            if (source.PreviewChar != _varPrefix[0])
+                return;
+
+            if (string.Compare(source.Text, source.PreviewPosition, _varPrefix, 0, _varPrefix.Length) != 0)
+                return;
+
+            source.PreviewPosition += _varPrefix.Length;
+            details.Prefix = _varPrefix;
+
+            if (source.PreviewChar == _varQuote)
+            {
+                source.PreviewPosition++;
+                details.StartSymbol = _varQuote.ToString();
+            }
+        }
+
+        protected override void ReadSuffix(ISourceStream source, CompoundTokenDetails details)
+        {
+            if (details.StartSymbol != _varQuote.ToString())
+                return;
+
+            if (source.PreviewChar != _varQuote)
+                return;
+
+            source.PreviewPosition++;
+            details.EndSymbol = _varQuote.ToString();
+        }
     }
 }
