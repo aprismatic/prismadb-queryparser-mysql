@@ -27,9 +27,9 @@ namespace PrismaDB.QueryParser
         public List<Query> ParseToAST(string source)
         {
             // Declare list of queries
-            List<Query> queries = new List<Query>();
-            ParseTree parseTree = Parse(source);
-            ParseTreeNode node = parseTree.Root;
+            var queries = new List<Query>();
+            var parseTree = Parse(source);
+            var node = parseTree.Root;
 
             if (node != null)
             {
@@ -42,35 +42,35 @@ namespace PrismaDB.QueryParser
                     {
                         if (stmtNode.Term.Name.Equals("selectStmt"))
                         {
-                            SelectQuery selQuery = new SelectQuery();
+                            var selQuery = new SelectQuery();
                             BuildSelectQuery(selQuery, stmtNode, source);
                             queries.Add(selQuery);
                         }
 
                         else if (stmtNode.Term.Name.Equals("insertStmt"))
                         {
-                            InsertQuery insQuery = new InsertQuery();
+                            var insQuery = new InsertQuery();
                             BuildInsertQuery(insQuery, stmtNode);
                             queries.Add(insQuery);
                         }
 
                         else if (stmtNode.Term.Name.Equals("updateStmt"))
                         {
-                            UpdateQuery updQuery = new UpdateQuery();
+                            var updQuery = new UpdateQuery();
                             BuildUpdateQuery(updQuery, stmtNode);
                             queries.Add(updQuery);
                         }
 
                         else if (stmtNode.Term.Name.Equals("deleteStmt"))
                         {
-                            DeleteQuery delQuery = new DeleteQuery();
+                            var delQuery = new DeleteQuery();
                             BuildDeleteQuery(delQuery, stmtNode);
                             queries.Add(delQuery);
                         }
 
                         else if (stmtNode.Term.Name.Equals("createTableStmt"))
                         {
-                            CreateTableQuery createQuery = new CreateTableQuery();
+                            var createQuery = new CreateTableQuery();
                             BuildCreateTableQuery(createQuery, stmtNode);
                             queries.Add(createQuery);
                         }
@@ -96,23 +96,12 @@ namespace PrismaDB.QueryParser
             language = new LanguageData(grammar);
             parser = new Parser(language);
 
-            ParseTree parseTree = null;
+            if (parser == null || !parser.Language.CanParse())
+                return null;
 
-            if (parser == null || !parser.Language.CanParse()) return null;
-            parseTree = null;
-            GC.Collect();
-            try
-            {
-                parser.Parse(source);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                parseTree = parser.Context.CurrentParseTree;
-            }
+            parser.Parse(source);
+            var parseTree = parser.Context.CurrentParseTree;
+
             return parseTree;
         }
 
@@ -140,7 +129,7 @@ namespace PrismaDB.QueryParser
                         var colDef = new ColumnDefinition(BuildColumnRef(FindChildNode(fieldDefNode, "Id")).ColumnName);
 
                         // Check for datatype
-                        ParseTreeNode dataTypeNode = FindChildNode(fieldDefNode, "typeName");
+                        var dataTypeNode = FindChildNode(fieldDefNode, "typeName");
                         if (FindChildNode(dataTypeNode, "INT") != null)
                         {
                             colDef.DataType = SQLDataType.INT;
@@ -167,8 +156,9 @@ namespace PrismaDB.QueryParser
                         }
 
                         // Check for datatype length
-                        ParseTreeNode paraNode = FindChildNode(FindChildNode(fieldDefNode, "typeParams"), "number");
-                        if (paraNode != null) colDef.Length = Convert.ToInt32(paraNode.Token.ValueString);
+                        var paraNode = FindChildNode(FindChildNode(fieldDefNode, "typeParams"), "number");
+                        if (paraNode != null)
+                            colDef.Length = Convert.ToInt32(paraNode.Token.ValueString);
 
                         // Check for nullable
                         colDef.Nullable = CheckNull(FindChildNode(fieldDefNode, "nullSpecOpt"));
@@ -177,8 +167,9 @@ namespace PrismaDB.QueryParser
                         colDef.EncryptionFlags = CheckEncryption(FindChildNode(fieldDefNode, "encryptionOpt"));
 
                         // Check for row id
-                        ParseTreeNode AutoIncrementNode = FindChildNode(FindChildNode(fieldDefNode, "AutoIncrementOpt"), "AUTO_INCREMENT");
-                        if (AutoIncrementNode != null) colDef.isRowId = true;
+                        var AutoIncrementNode = FindChildNode(FindChildNode(fieldDefNode, "AutoIncrementOpt"), "AUTO_INCREMENT");
+                        if (AutoIncrementNode != null)
+                            colDef.isRowId = true;
 
                         createQuery.ColumnDefinitions.Add(colDef);
                     }
@@ -222,25 +213,23 @@ namespace PrismaDB.QueryParser
                 // Check and build columns to select from
                 if (mainNode.Term.Name.Equals("selList"))
                 {
-                    ParseTreeNode listNode = FindChildNode(mainNode, "columnItemList");
+                    var listNode = FindChildNode(mainNode, "columnItemList");
 
                     if (listNode != null)
                     {
                         foreach (ParseTreeNode columnNode in listNode.ChildNodes)
                         {
                             // Find expression and column name nodes
-                            ParseTreeNode sourceNode = FindChildNode(columnNode, "columnSource");
-                            ParseTreeNode idNode = FindChildNode(columnNode, "Id");
+                            var sourceNode = FindChildNode(columnNode, "columnSource");
+                            var idNode = FindChildNode(columnNode, "Id");
 
                             foreach (ParseTreeNode exprNode in sourceNode.ChildNodes)
                             {
                                 // Build expression
-                                Expression expr = BuildExpression(exprNode);
-                                if (idNode != null)
-                                    // Set alias
+                                var expr = BuildExpression(exprNode);
+                                if (idNode != null) // Set alias
                                     expr.ColumnName = BuildColumnRef(idNode).ColumnName;
-                                else if (expr.GetType() != typeof(ColumnRef))
-                                    // Set original expression
+                                else if (expr.GetType() != typeof(ColumnRef)) // Set original expression
                                     expr.ColumnName = new Identifier(source.Substring(exprNode.Span.EndPosition - exprNode.Span.Length, exprNode.Span.Length));
 
                                 selQuery.SelectExpressions.Add(expr);
@@ -251,7 +240,7 @@ namespace PrismaDB.QueryParser
                 // Check table to select from
                 else if (mainNode.Term.Name.Equals("fromClauseOpt"))
                 {
-                    ParseTreeNode listNode = FindChildNode(mainNode, "idlist");
+                    var listNode = FindChildNode(mainNode, "idlist");
 
                     if (listNode != null)
                     {
@@ -282,12 +271,12 @@ namespace PrismaDB.QueryParser
         /// <returns>Resulting Where clause</returns>
         private WhereClause BuildWhereClause(ParseTreeNode node)
         {
-            WhereClause where = new WhereClause();
+            var where = new WhereClause();
             Expression expr = null;
             foreach (ParseTreeNode exprNode in node.ChildNodes)
             {
                 // Build expression tree from Irony tree
-                Expression tempExpr = BuildExpression(exprNode);
+                var tempExpr = BuildExpression(exprNode);
                 if (tempExpr != null)
                 {
                     expr = tempExpr;
@@ -320,29 +309,27 @@ namespace PrismaDB.QueryParser
             if (expr == null)
                 return true;
 
-
             if (expr.GetType() == typeof(OrClause))
             {
-                OrClause or = (OrClause)expr;
+                var or = (OrClause)expr;
                 // If a child of an OrClause is an AndClause, it is not in CNF
                 if (or.left.GetType() == typeof(AndClause))
                     return false;
-                else if (or.right.GetType() == typeof(AndClause))
+                if (or.right.GetType() == typeof(AndClause))
                     return false;
-                else
-                    // Continue checking children (of children)
-                    return (CheckCNF(or.left) && CheckCNF(or.right));
+
+                // Continue checking children (of children)
+                return (CheckCNF(or.left) && CheckCNF(or.right));
             }
-            else if (expr.GetType() == typeof(AndClause))
+
+            if (expr.GetType() == typeof(AndClause))
             {
                 // AndClause can have either OrClause or AndClause as children
-                AndClause and = (AndClause)expr;
+                var and = (AndClause)expr;
                 return (CheckCNF(and.left) && CheckCNF(and.right));
             }
-            else
-            {
-                return true;
-            }
+
+            return true;
         }
 
 
@@ -412,29 +399,29 @@ namespace PrismaDB.QueryParser
             // And continue to call ConvertToCNF recursively for the children
             if (expr.GetType() == typeof(OrClause))
             {
-                OrClause or = (OrClause)expr;
+                var or = (OrClause)expr;
                 if (or.left.GetType() == typeof(AndClause))
                 {
-                    AndClause childAnd = (AndClause)or.left;
+                    var childAnd = (AndClause)or.left;
 
-                    Expression q = childAnd.left.Clone();
-                    Expression r = childAnd.right.Clone();
-                    Expression p = or.right.Clone();
+                    var q = childAnd.left.Clone() as Expression;
+                    var r = childAnd.right.Clone() as Expression;
+                    var p = or.right.Clone() as Expression;
 
-                    AndClause newAnd = new AndClause(new OrClause(p, q), new OrClause(p, r));
+                    var newAnd = new AndClause(new OrClause(p, q), new OrClause(p, r));
                     newAnd.left = ConvertToCNF(newAnd.left);
                     newAnd.right = ConvertToCNF(newAnd.right);
                     return newAnd;
                 }
                 else if (or.right.GetType() == typeof(AndClause))
                 {
-                    AndClause childAnd = (AndClause)or.right;
+                    var childAnd = (AndClause)or.right;
 
-                    Expression q = childAnd.left.Clone();
-                    Expression r = childAnd.right.Clone();
-                    Expression p = or.left.Clone();
+                    var q = childAnd.left.Clone() as Expression;
+                    var r = childAnd.right.Clone() as Expression;
+                    var p = or.left.Clone() as Expression;
 
-                    AndClause newAnd = new AndClause(new OrClause(p, q), new OrClause(p, r));
+                    var newAnd = new AndClause(new OrClause(p, q), new OrClause(p, r));
                     newAnd.left = ConvertToCNF(newAnd.left);
                     newAnd.right = ConvertToCNF(newAnd.right);
                     return newAnd;
@@ -448,7 +435,7 @@ namespace PrismaDB.QueryParser
             }
             else if (expr.GetType() == typeof(AndClause))
             {
-                AndClause and = (AndClause)expr;
+                var and = (AndClause)expr;
                 and.left = ConvertToCNF(and.left);
                 and.right = ConvertToCNF(and.right);
                 return and;
@@ -572,7 +559,7 @@ namespace PrismaDB.QueryParser
         /// <returns>List of Expressions</returns>
         private List<Expression> BuildExpressions(ParseTreeNode node)
         {
-            List<Expression> exprs = new List<Expression>();
+            var exprs = new List<Expression>();
 
             if (node != null)
             {
@@ -695,15 +682,15 @@ namespace PrismaDB.QueryParser
             if (node == null)
                 return ColumnEncryptionFlags.None;
 
-            ParseTreeNode encryptTypeParNode = FindChildNode(node, "encryptTypePar");
+            var encryptTypeParNode = FindChildNode(node, "encryptTypePar");
             if (encryptTypeParNode == null || FindChildNode(node, "ENCRYPTED") == null)
                 return ColumnEncryptionFlags.None;
 
-            ParseTreeNode encryptTypeNodes = FindChildNode(encryptTypeParNode, "encryptTypeList");
+            var encryptTypeNodes = FindChildNode(encryptTypeParNode, "encryptTypeList");
             if (encryptTypeNodes == null)
                 return ColumnEncryptionFlags.Store;
 
-            ColumnEncryptionFlags flags = ColumnEncryptionFlags.None;
+            var flags = ColumnEncryptionFlags.None;
             foreach (ParseTreeNode childNode in encryptTypeNodes.ChildNodes)
             {
                 if (FindChildNode(childNode, "STORE") != null)
