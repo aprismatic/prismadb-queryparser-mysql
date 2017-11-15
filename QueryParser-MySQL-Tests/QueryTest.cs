@@ -9,7 +9,7 @@ namespace PrismaDB_QueryParser_Test
 {
     public class QueryTest
     {
-        [Fact]
+        [Fact(DisplayName = "Parse CREATE TABLE w\\partial encryption")]
         public void Parse_CreateTable_WithPartialEncryption()
         {
             // Setup
@@ -56,7 +56,7 @@ namespace PrismaDB_QueryParser_Test
             Assert.True(actual.ColumnDefinitions[5].Nullable);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Parse CREATE TABLE w\\TEXT")]
         public void Parse_CreateTable_TEXT()
         {
             // Setup
@@ -89,7 +89,7 @@ namespace PrismaDB_QueryParser_Test
             Assert.Null(actual.ColumnDefinitions[1].Length);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Parse CREATE TABLE w\\DATETIME")]
         public void Parse_CreateTable_DATETIME()
         {
             // Setup
@@ -112,7 +112,7 @@ namespace PrismaDB_QueryParser_Test
             Assert.Null(actual.ColumnDefinitions[0].Length);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Parse INSERT INTO")]
         public void Parse_InsertInto()
         {
             // Setup
@@ -141,7 +141,7 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal("&", (actual.Values[1][3] as StringConstant)?.strvalue);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Parse USE")]
         public void Parse_Use()
         {
             // Setup
@@ -153,7 +153,7 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal("Database switching not supported.", ex.Message);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Parse SELECT w\\functions")]
         public void Parse_Function()
         {
             // Setup
@@ -171,7 +171,7 @@ namespace PrismaDB_QueryParser_Test
             Assert.Empty(((ScalarFunction)actual.SelectExpressions[0]).Parameters);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Parse SELECT w\\functions w\\params")]
         public void Parse_FunctionWithParams()
         {
             // Setup
@@ -195,7 +195,7 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal(12, (((ScalarFunction)actual.SelectExpressions[1]).Parameters[1] as IntConstant)?.intvalue);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Parse variables")]
         public void Parse_Variables()
         {
             // Setup
