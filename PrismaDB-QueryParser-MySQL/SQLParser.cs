@@ -75,6 +75,13 @@ namespace PrismaDB.QueryParser
                             queries.Add(createQuery);
                         }
 
+                        else if (stmtNode.Term.Name.Equals("alterStmt"))
+                        {
+                            var alterQuery = new AlterTableQuery();
+                            BuildAlterTableQuery(alterQuery, stmtNode);
+                            queries.Add(alterQuery);
+                        }
+
                         else if (stmtNode.Term.Name.Equals("useStmt"))
                         {
                             throw new NotSupportedException("Database switching not supported.");
@@ -125,54 +132,32 @@ namespace PrismaDB.QueryParser
                 {
                     foreach (ParseTreeNode fieldDefNode in mainNode.ChildNodes)
                     {
-                        // Create and set name of column definition
-                        var colDef = new ColumnDefinition(BuildColumnRef(FindChildNode(fieldDefNode, "Id")).ColumnName);
-
-                        // Check for datatype
-                        var dataTypeNode = FindChildNode(fieldDefNode, "typeName");
-                        if (FindChildNode(dataTypeNode, "INT") != null)
-                        {
-                            colDef.DataType = SQLDataType.INT;
-                        }
-                        else if (FindChildNode(dataTypeNode, "VARCHAR") != null)
-                        {
-                            colDef.DataType = SQLDataType.VARCHAR;
-                        }
-                        else if (FindChildNode(dataTypeNode, "UNIQUEIDENTIFIER") != null)
-                        {
-                            colDef.DataType = SQLDataType.MSSQL_UNIQUEIDENTIFIER;
-                        }
-                        else if (FindChildNode(dataTypeNode, "VARBINARY") != null)
-                        {
-                            colDef.DataType = SQLDataType.VARBINARY;
-                        }
-                        else if (FindChildNode(dataTypeNode, "TEXT") != null)
-                        {
-                            colDef.DataType = SQLDataType.TEXT;
-                        }
-                        else if (FindChildNode(dataTypeNode, "DATETIME") != null)
-                        {
-                            colDef.DataType = SQLDataType.DATETIME;
-                        }
-
-                        // Check for datatype length
-                        var paraNode = FindChildNode(FindChildNode(fieldDefNode, "typeParams"), "number");
-                        if (paraNode != null)
-                            colDef.Length = Convert.ToInt32(paraNode.Token.ValueString);
-
-                        // Check for nullable
-                        colDef.Nullable = CheckNull(FindChildNode(fieldDefNode, "nullSpecOpt"));
-
-                        // Check for encryption
-                        colDef.EncryptionFlags = CheckEncryption(FindChildNode(fieldDefNode, "encryptionOpt"));
-
-                        // Check for row id
-                        var AutoIncrementNode = FindChildNode(FindChildNode(fieldDefNode, "AutoIncrementOpt"), "AUTO_INCREMENT");
-                        if (AutoIncrementNode != null)
-                            colDef.isRowId = true;
-
-                        createQuery.ColumnDefinitions.Add(colDef);
+                        createQuery.ColumnDefinitions.Add(BuildColumnDefinition(fieldDefNode));
                     }
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Builds a Alter Table Query.
+        /// </summary>
+        /// <param name="alterQuery">Resulting AlterTableQuery object</param>
+        /// <param name="node">Parent node of query</param>
+        private void BuildAlterTableQuery(AlterTableQuery alterQuery, ParseTreeNode node)
+        {
+            foreach (ParseTreeNode mainNode in node.ChildNodes)
+            {
+                // Check for table name
+                if (mainNode.Term.Name.Equals("Id"))
+                {
+                    alterQuery.TableName = BuildTableRef(mainNode);
+                }
+                // Check for column
+                else if (mainNode.Term.Name.Equals("alterCmd"))
+                {
+                    // Only MODIFY COLUMN is supported now
+                    alterQuery.ColumnDefinitions.Add(BuildColumnDefinition(FindChildNode(mainNode, "fieldDef")));
                 }
             }
         }
@@ -263,6 +248,62 @@ namespace PrismaDB.QueryParser
                 }
             }
         }
+
+
+        /// <summary>
+        /// Builds Column Definition.
+        /// </summary>
+        /// <param name="node">Column Definition node</param>
+        /// <returns>Resulting Column Definition</returns>
+        private ColumnDefinition BuildColumnDefinition(ParseTreeNode node)
+        {
+            // Create and set name of column definition
+            var colDef = new ColumnDefinition(BuildColumnRef(FindChildNode(node, "Id")).ColumnName);
+
+            // Check for datatype
+            ParseTreeNode dataTypeNode = FindChildNode(node, "typeName");
+            if (FindChildNode(dataTypeNode, "INT") != null)
+            {
+                colDef.DataType = SQLDataType.INT;
+            }
+            else if (FindChildNode(dataTypeNode, "VARCHAR") != null)
+            {
+                colDef.DataType = SQLDataType.VARCHAR;
+            }
+            else if (FindChildNode(dataTypeNode, "UNIQUEIDENTIFIER") != null)
+            {
+                colDef.DataType = SQLDataType.MSSQL_UNIQUEIDENTIFIER;
+            }
+            else if (FindChildNode(dataTypeNode, "VARBINARY") != null)
+            {
+                colDef.DataType = SQLDataType.VARBINARY;
+            }
+            else if (FindChildNode(dataTypeNode, "TEXT") != null)
+            {
+                colDef.DataType = SQLDataType.TEXT;
+            }
+            else if (FindChildNode(dataTypeNode, "DATETIME") != null)
+            {
+                colDef.DataType = SQLDataType.DATETIME;
+            }
+
+            // Check for datatype length
+            ParseTreeNode paraNode = FindChildNode(FindChildNode(node, "typeParams"), "number");
+            if (paraNode != null) colDef.Length = Convert.ToInt32(paraNode.Token.ValueString);
+
+            // Check for nullable
+            colDef.Nullable = CheckNull(FindChildNode(node, "nullSpecOpt"));
+
+            // Check for encryption
+            colDef.EncryptionFlags = CheckEncryption(FindChildNode(node, "encryptionOpt"));
+
+            // Check for row id
+            ParseTreeNode newidNode = FindChildNode(FindChildNode(node, "newidOpt"), "DEFAULT NEWID()");
+            if (newidNode != null) colDef.isRowId = true;
+
+            return colDef;
+        }
+
 
         /// <summary>
         /// Builds Where Clause.
