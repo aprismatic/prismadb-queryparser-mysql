@@ -195,6 +195,33 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal(12, (((ScalarFunction)actual.SelectExpressions[1]).Parameters[1] as IntConstant)?.intvalue);
         }
 
+        [Fact(DisplayName = "Parse ALTER TABLE")]
+        public void Parse_AlterTable()
+        {
+            // Setup
+            var parser = new SqlParser();
+            var test = "ALTER TABLE table1 " +
+                       "MODIFY COLUMN col1 TEXT ENCRYPTED FOR (STORE, SEARCH) NULL";
+
+            // Act
+            var result = parser.ParseToAST(test);
+
+            // Assert
+            var actual = (AlterTableQuery)result[0];
+
+            Assert.Equal(new TableRef("table1"), actual.TableName);
+            Assert.Equal(AlterType.MODIFY, actual.AlterType);
+
+            Assert.Equal(new Identifier("col1"), actual.ColumnDefinitions[0].ColumnName);
+            Assert.Equal(SQLDataType.TEXT, actual.ColumnDefinitions[0].DataType);
+            Assert.NotEqual(ColumnEncryptionFlags.None, ColumnEncryptionFlags.Store & actual.ColumnDefinitions[0].EncryptionFlags);
+            Assert.NotEqual(ColumnEncryptionFlags.None, ColumnEncryptionFlags.Search & actual.ColumnDefinitions[0].EncryptionFlags);
+            Assert.Equal(ColumnEncryptionFlags.None, ColumnEncryptionFlags.IntegerAddition & actual.ColumnDefinitions[0].EncryptionFlags);
+            Assert.Equal(ColumnEncryptionFlags.None, ColumnEncryptionFlags.IntegerMultiplication & actual.ColumnDefinitions[0].EncryptionFlags);
+            Assert.True(actual.ColumnDefinitions[0].Nullable);
+            Assert.Null(actual.ColumnDefinitions[0].Length);
+        }
+
         [Fact(DisplayName = "Parse variables")]
         public void Parse_Variables()
         {
