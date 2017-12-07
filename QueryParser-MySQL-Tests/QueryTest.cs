@@ -129,7 +129,7 @@ namespace PrismaDB_QueryParser_Test
         {
             // Setup
             var parser = new SqlParser();
-            var test = "INSERT INTO `tt1` (tt1.col1, `tt1`.col2, `tt1`.`col3`, tt1.`col4`) VALUES ( 1, 2 , 'hey', \"hi\" ), (0,050,'  ', '&')";
+            var test = "INSERT INTO `tt1` (tt1.col1, `tt1`.col2, `tt1`.`col3`, tt1.`col4`) VALUES ( 1, 12.345 , 'hey', \"hi\" ), (0,050,'  ', '&')";
 
             // Act
             var result = parser.ParseToAST(test);
@@ -147,6 +147,7 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal(new Identifier("col4"), actual.Columns[3].ColumnName);
             Assert.Equal(new TableRef("tt1"), actual.Columns[3].Table);
             Assert.Equal(2, actual.Values.Count);
+            Assert.Equal("12.345", (actual.Values[0][1] as StringConstant)?.strvalue);
             Assert.Equal("hey", (actual.Values[0][2] as StringConstant)?.strvalue);
             Assert.Equal(50, (actual.Values[1][1] as IntConstant)?.intvalue);
             Assert.Equal("  ", (actual.Values[1][2] as StringConstant)?.strvalue);
