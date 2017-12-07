@@ -20,7 +20,9 @@ namespace PrismaDB_QueryParser_Test
                        "ccc VARCHAR(80) NOT NULL, " +
                        "ddd VARCHAR(20) ENCRYPTED FOR (STORE, SEARCH), " +
                        "eee TEXT NULL, " +
-                       "fff TEXT ENCRYPTED NULL" + ")";
+                       "fff TEXT ENCRYPTED NULL, " +
+                       "ggg DOUBLE, " +
+                       "hhh ENUM('ABC', 'def') ENCRYPTED NULL" + ")";
 
             // Act
             var result = parser.ParseToAST(test);
@@ -54,6 +56,16 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal(SQLDataType.TEXT, actual.ColumnDefinitions[5].DataType);
             Assert.Equal(ColumnEncryptionFlags.Store, actual.ColumnDefinitions[5].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[5].Nullable);
+            Assert.Equal(new Identifier("ggg"), actual.ColumnDefinitions[6].ColumnName);
+            Assert.Equal(SQLDataType.DOUBLE, actual.ColumnDefinitions[6].DataType);
+            Assert.Equal(ColumnEncryptionFlags.None, actual.ColumnDefinitions[6].EncryptionFlags);
+            Assert.True(actual.ColumnDefinitions[6].Nullable);
+            Assert.Equal(new Identifier("hhh"), actual.ColumnDefinitions[7].ColumnName);
+            Assert.Equal(SQLDataType.ENUM, actual.ColumnDefinitions[7].DataType);
+            Assert.Equal(ColumnEncryptionFlags.Store, actual.ColumnDefinitions[7].EncryptionFlags);
+            Assert.True(actual.ColumnDefinitions[7].Nullable);
+            Assert.Equal(new StringConstant("ABC"), actual.ColumnDefinitions[7].EnumValues[0]);
+            Assert.Equal(new StringConstant("def"), actual.ColumnDefinitions[7].EnumValues[1]);
         }
 
         [Fact(DisplayName = "Parse CREATE TABLE w\\TEXT")]

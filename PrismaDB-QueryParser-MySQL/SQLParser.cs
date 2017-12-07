@@ -289,10 +289,22 @@ namespace PrismaDB.QueryParser
             {
                 colDef.DataType = SQLDataType.DATETIME;
             }
+            else if (FindChildNode(dataTypeNode, "DOUBLE") != null)
+            {
+                colDef.DataType = SQLDataType.DOUBLE;
+            }
+            else if (FindChildNode(dataTypeNode, "ENUM") != null)
+            {
+                colDef.DataType = SQLDataType.ENUM;
+            }
 
             // Check for datatype length
             ParseTreeNode paraNode = FindChildNode(FindChildNode(node, "typeParams"), "number");
             if (paraNode != null) colDef.Length = Convert.ToInt32(paraNode.Token.ValueString);
+
+            // Check for enum values
+            ParseTreeNode enumNode = FindChildNode(FindChildNode(node, "typeParams"), "enumValueList");
+            if (enumNode != null) colDef.EnumValues = GetEnumValues(enumNode);
 
             // Check for nullable
             colDef.Nullable = CheckNull(FindChildNode(node, "nullSpecOpt"));
@@ -692,6 +704,28 @@ namespace PrismaDB.QueryParser
                 }
             }
             return expr;
+        }
+
+
+        /// <summary>
+        /// Get ENUM values.
+        /// </summary>
+        /// <param name="node">Parent node of query</param>
+        /// <returns>List of ENUM values</returns>
+        public List<StringConstant> GetEnumValues(ParseTreeNode node)
+        {
+            var enumValues = new List<StringConstant>();
+            if (node != null)
+            {
+                foreach (var enumStr in node.ChildNodes)
+                {
+                    if (enumStr.Term.Name.Equals("string"))
+                    {
+                        enumValues.Add(new StringConstant(enumStr.Token.ValueString));
+                    }
+                }
+            }
+            return enumValues;
         }
 
 

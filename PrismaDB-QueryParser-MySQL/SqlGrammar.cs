@@ -136,12 +136,14 @@ namespace PrismaDB.QueryParser
             var inStmt = new NonTerminal("inStmt");
 
             var insertDataList = new NonTerminal("insertDataList"); // new
-            var AutoIncrementOpt = new NonTerminal("AutoIncrementOpt"); // new
+            var autoIncrementOpt = new NonTerminal("autoIncrementOpt"); // new
 
             var encryptionOpt = new NonTerminal("encryptionOpt");
             var encryptTypePar = new NonTerminal("encryptTypePar");
             var encryptTypeList = new NonTerminal("encryptTypeList");
             var encryptType = new NonTerminal("encryptType");
+
+            var enumValueList = new NonTerminal("enumValueList");
 
             //BNF Rules
             this.Root = stmtList;
@@ -159,7 +161,7 @@ namespace PrismaDB.QueryParser
             //Create table
             createTableStmt.Rule = CREATE + TABLE + Id + "(" + fieldDefList + ")"; //+ constraintListOpt;
             fieldDefList.Rule = MakePlusRule(fieldDefList, comma, fieldDef);
-            fieldDef.Rule = Id + typeName + typeParamsOpt + encryptionOpt + nullSpecOpt + AutoIncrementOpt;
+            fieldDef.Rule = Id + typeName + typeParamsOpt + encryptionOpt + nullSpecOpt + autoIncrementOpt;
 
             encryptionOpt.Rule = ENCRYPTED + encryptTypePar | Empty;
             encryptTypePar.Rule = FOR + "(" + encryptTypeList + ")" | Empty;
@@ -184,11 +186,14 @@ namespace PrismaDB.QueryParser
             var t_VARBINARY = ToTerm("VARBINARY");
             var t_UNIQUEIDENTIFIER = ToTerm("UNIQUEIDENTIFIER");
             var t_DATETIME = ToTerm("DATETIME");
+            var t_DOUBLE = ToTerm("DOUBLE");
+            var t_ENUM = ToTerm("ENUM");
 
             typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_NCHAR | t_NVARCHAR | t_TEXT | t_BINARY | t_VARBINARY |
-                            t_UNIQUEIDENTIFIER | t_DATETIME;
-            typeParamsOpt.Rule = "(" + number + ")" | "(" + number + comma + number + ")" | Empty;
-            AutoIncrementOpt.Rule = "AUTO_INCREMENT" | Empty;
+                            t_UNIQUEIDENTIFIER | t_DATETIME | t_DOUBLE | t_ENUM;
+            typeParamsOpt.Rule = "(" + number + ")" | "(" + number + comma + number + ")" | "(" + enumValueList + ")" | Empty;
+            enumValueList.Rule = MakePlusRule(enumValueList, comma, string_literal);
+            autoIncrementOpt.Rule = "AUTO_INCREMENT" | Empty;
             //constraintDef.Rule = CONSTRAINT + Id + constraintTypeOpt;
             //constraintListOpt.Rule = MakeStarRule(constraintListOpt, constraintDef);
             //constraintTypeOpt.Rule = PRIMARY + KEY + idlistPar | UNIQUE + idlistPar | NOT + NULL + idlistPar
