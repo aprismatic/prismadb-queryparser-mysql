@@ -270,7 +270,7 @@ namespace PrismaDB.QueryParser
             //parSelectStmt.Rule = "(" + selectStmt + ")";
             unExpr.Rule = unOp + term;
             unOp.Rule = NOT | "+" | "-" | "~";
-            binExpr.Rule = expression + binOp + expression;
+            binExpr.Rule = expression + binOp + expression | "(" + expression + binOp + expression + ")";
             binOp.Rule = ToTerm("+") | "-" | "*" | "/" | "%" //arithmetic
                        | "&" | "|" | "^"                     //bit
                        | "=" | ">" | "<" | ">=" | "<=" | "<>" | "!=" | "!<" | "!>"

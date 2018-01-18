@@ -166,6 +166,24 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal("Database switching not supported.", ex.Message);
         }
 
+        [Fact(DisplayName = "Parse SELECT")]
+        public void Parse_Select()
+        {
+            // Setup
+            var parser = new SqlParser();
+            var test = "SELECT (a+b)*(a+b), ((a+b)*(a+b)), (((a+b)*(a+b))) FROM t";
+
+            // Act
+            var result = parser.ParseToAST(test);
+
+            // Assert
+            var actual = (SelectQuery)result[0];
+
+            Assert.Equal("(a+b)*(a+b)", (actual.SelectExpressions[0]).ColumnName.id);
+            Assert.Equal("((a+b)*(a+b))", (actual.SelectExpressions[1]).ColumnName.id);
+            Assert.Equal("((a+b)*(a+b))", (actual.SelectExpressions[2]).ColumnName.id);
+        }
+
         [Fact(DisplayName = "Parse SELECT w\\functions")]
         public void Parse_Function()
         {
