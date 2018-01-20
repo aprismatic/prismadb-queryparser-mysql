@@ -186,11 +186,12 @@ namespace PrismaDB.QueryParser
             var t_VARBINARY = ToTerm("VARBINARY");
             var t_UNIQUEIDENTIFIER = ToTerm("UNIQUEIDENTIFIER");
             var t_DATETIME = ToTerm("DATETIME");
+            var t_TIMESTAMP = ToTerm("TIMESTAMP");
             var t_DOUBLE = ToTerm("DOUBLE");
             var t_ENUM = ToTerm("ENUM");
 
             typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_NCHAR | t_NVARCHAR | t_TEXT | t_BINARY | t_VARBINARY |
-                            t_UNIQUEIDENTIFIER | t_DATETIME | t_DOUBLE | t_ENUM;
+                            t_UNIQUEIDENTIFIER | t_DATETIME | t_TIMESTAMP | t_DOUBLE | t_ENUM;
             typeParamsOpt.Rule = "(" + number + ")" | "(" + number + comma + number + ")" | "(" + enumValueList + ")" | Empty;
             enumValueList.Rule = MakePlusRule(enumValueList, comma, string_literal);
             autoIncrementOpt.Rule = "AUTO_INCREMENT" | Empty;

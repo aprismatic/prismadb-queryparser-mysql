@@ -289,6 +289,10 @@ namespace PrismaDB.QueryParser
             {
                 colDef.DataType = SQLDataType.DATETIME;
             }
+            else if (FindChildNode(dataTypeNode, "TIMESTAMP") != null)
+            {
+                colDef.DataType = SQLDataType.TIMESTAMP;
+            }
             else if (FindChildNode(dataTypeNode, "DOUBLE") != null)
             {
                 colDef.DataType = SQLDataType.DOUBLE;
