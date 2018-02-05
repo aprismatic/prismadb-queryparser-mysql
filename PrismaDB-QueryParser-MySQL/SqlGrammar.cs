@@ -197,7 +197,7 @@ namespace PrismaDB.QueryParser
                             t_UNIQUEIDENTIFIER | t_DATETIME | t_TIMESTAMP | t_DOUBLE | t_ENUM;
             typeParamsOpt.Rule = "(" + number + ")" | "(" + number + comma + number + ")" | "(" + enumValueList + ")" | Empty;
             enumValueList.Rule = MakePlusRule(enumValueList, comma, string_literal);
-            autoDefaultOpt.Rule = AUTO_INCREMENT| DEFAULT + term | Empty;
+            autoDefaultOpt.Rule = AUTO_INCREMENT | DEFAULT + term | Empty;
             //constraintDef.Rule = CONSTRAINT + Id + constraintTypeOpt;
             //constraintListOpt.Rule = MakeStarRule(constraintListOpt, constraintDef);
             //constraintTypeOpt.Rule = PRIMARY + KEY + idlistPar | UNIQUE + idlistPar | NOT + NULL + idlistPar
