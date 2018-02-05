@@ -22,8 +22,8 @@ namespace PrismaDB_QueryParser_Test
                        "eee TEXT NULL, " +
                        "fff TEXT ENCRYPTED NULL, " +
                        "ggg DOUBLE, " +
-                       "hhh ENUM('ABC', 'def') ENCRYPTED NULL" + ")";
-
+                       "hhh ENUM('ABC', 'def') ENCRYPTED NULL, " +
+                       "iii TIMESTAMP ENCRYPTED DEFAULT CURRENT_TIMESTAMP" + ")";
             // Act
             var result = parser.ParseToAST(test);
 
@@ -63,6 +63,12 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal(new Identifier("hhh"), actual.ColumnDefinitions[7].ColumnName);
             Assert.Equal(SQLDataType.ENUM, actual.ColumnDefinitions[7].DataType);
             Assert.Equal(ColumnEncryptionFlags.Store, actual.ColumnDefinitions[7].EncryptionFlags);
+            Assert.True(actual.ColumnDefinitions[7].Nullable);
+            Assert.Null(actual.ColumnDefinitions[7].DefaultValue);
+            Assert.Equal(new Identifier("iii"), actual.ColumnDefinitions[8].ColumnName);
+            Assert.Equal(SQLDataType.TIMESTAMP, actual.ColumnDefinitions[8].DataType);
+            Assert.Equal(ColumnEncryptionFlags.Store, actual.ColumnDefinitions[8].EncryptionFlags);
+            Assert.Equal(new Identifier("CURRENT_TIMESTAMP"), ((ScalarFunction)actual.ColumnDefinitions[8].DefaultValue).FunctionName);
             Assert.True(actual.ColumnDefinitions[7].Nullable);
             Assert.Equal(new StringConstant("ABC"), actual.ColumnDefinitions[7].EnumValues[0]);
             Assert.Equal(new StringConstant("def"), actual.ColumnDefinitions[7].EnumValues[1]);
