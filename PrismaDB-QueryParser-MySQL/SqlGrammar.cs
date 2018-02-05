@@ -63,6 +63,9 @@ namespace PrismaDB.QueryParser
             var FOR = ToTerm("FOR");
             var USE = ToTerm("USE");
             var LIMIT = ToTerm("LIMIT");
+            var AUTO_INCREMENT = ToTerm("AUTO_INCREMENT");
+            var DEFAULT = ToTerm("DEFAULT");
+            var CURRENT_TIMESTAMP = ToTerm("CURRENT_TIMESTAMP");
 
             //Non-terminals
             var Id = new NonTerminal("Id");
@@ -136,7 +139,7 @@ namespace PrismaDB.QueryParser
             var inStmt = new NonTerminal("inStmt");
 
             var insertDataList = new NonTerminal("insertDataList"); // new
-            var autoIncrementOpt = new NonTerminal("autoIncrementOpt"); // new
+            var autoDefaultOpt = new NonTerminal("autoDefaultOpt"); // new
 
             var encryptionOpt = new NonTerminal("encryptionOpt");
             var encryptTypePar = new NonTerminal("encryptTypePar");
@@ -161,7 +164,7 @@ namespace PrismaDB.QueryParser
             //Create table
             createTableStmt.Rule = CREATE + TABLE + Id + "(" + fieldDefList + ")"; //+ constraintListOpt;
             fieldDefList.Rule = MakePlusRule(fieldDefList, comma, fieldDef);
-            fieldDef.Rule = Id + typeName + typeParamsOpt + encryptionOpt + nullSpecOpt + autoIncrementOpt;
+            fieldDef.Rule = Id + typeName + typeParamsOpt + encryptionOpt + nullSpecOpt + autoDefaultOpt;
 
             encryptionOpt.Rule = ENCRYPTED + encryptTypePar | Empty;
             encryptTypePar.Rule = FOR + "(" + encryptTypeList + ")" | Empty;
@@ -194,7 +197,7 @@ namespace PrismaDB.QueryParser
                             t_UNIQUEIDENTIFIER | t_DATETIME | t_TIMESTAMP | t_DOUBLE | t_ENUM;
             typeParamsOpt.Rule = "(" + number + ")" | "(" + number + comma + number + ")" | "(" + enumValueList + ")" | Empty;
             enumValueList.Rule = MakePlusRule(enumValueList, comma, string_literal);
-            autoIncrementOpt.Rule = "AUTO_INCREMENT" | Empty;
+            autoDefaultOpt.Rule = AUTO_INCREMENT | DEFAULT + term | Empty;
             //constraintDef.Rule = CONSTRAINT + Id + constraintTypeOpt;
             //constraintListOpt.Rule = MakeStarRule(constraintListOpt, constraintDef);
             //constraintTypeOpt.Rule = PRIMARY + KEY + idlistPar | UNIQUE + idlistPar | NOT + NULL + idlistPar
@@ -281,7 +284,7 @@ namespace PrismaDB.QueryParser
             //funCall covers some psedo-operators and special forms like ANY(...), SOME(...), ALL(...), EXISTS(...), IN(...)
             //funCall.Rule = Id + "()";
             //funCall.Rule = Id + "(" + Empty | exprList + ")";
-            funCall.Rule = Id + "(" + funArgs + ")";
+            funCall.Rule = Id + "(" + funArgs + ")" | CURRENT_TIMESTAMP;
             funArgs.Rule = Empty | exprList;
             //funArgs.Rule = selectStmt | exprList;
             //inStmt.Rule = expression + "IN" + "(" + exprList + ")";

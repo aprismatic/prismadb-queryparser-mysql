@@ -316,9 +316,10 @@ namespace PrismaDB.QueryParser
             // Check for encryption
             colDef.EncryptionFlags = CheckEncryption(FindChildNode(node, "encryptionOpt"));
 
-            // Check for row id
-            ParseTreeNode newidNode = FindChildNode(FindChildNode(node, "newidOpt"), "DEFAULT NEWID()");
-            if (newidNode != null) colDef.isRowId = true;
+            // Check for autoDefault value
+            ParseTreeNode autoDefaultNode = FindChildNode(node, "autoDefaultOpt");
+            if (FindChildNode(autoDefaultNode, "DEFAULT") != null)
+                colDef.DefaultValue = BuildExpression(autoDefaultNode.ChildNodes[1]);
 
             return colDef;
         }
@@ -845,6 +846,10 @@ namespace PrismaDB.QueryParser
                 {
                     ((ScalarFunction)exp).Parameters = BuildExpressions(node.ChildNodes[1].ChildNodes[0]);
                 }
+            }
+            else if (node.ChildNodes.Count == 1 && node.ChildNodes[0].Term.Name.Equals("CURRENT_TIMESTAMP"))
+            {
+                exp = new ScalarFunction(node.ChildNodes[0].Token.ValueString);
             }
             return exp;
         }
