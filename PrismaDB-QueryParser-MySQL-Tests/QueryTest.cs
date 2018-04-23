@@ -1,11 +1,11 @@
-﻿using PrismaDB.QueryAST;
+﻿using System;
+using Xunit;
+using PrismaDB.QueryAST;
 using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
-using PrismaDB.QueryParser;
-using System;
-using Xunit;
+using PrismaDB.QueryParser.MySQL;
 
-namespace PrismaDB_QueryParser_Test
+namespace PrismaDB_QueryParser_MySQL_Tests
 {
     public class QueryTest
     {

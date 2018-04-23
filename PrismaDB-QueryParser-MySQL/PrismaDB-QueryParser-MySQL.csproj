@@ -6,6 +6,7 @@
     <Company>Nanyang Technological Unviersity</Company>
     <Product>PrismaDB-QueryParser-MySQL</Product>
     <Authors>Vasily Sidorov (bazzilic)</Authors>
+    <RootNamespace>PrismaDB.QueryParser.MySQL</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Irony.Core" Version="1.0.7" />

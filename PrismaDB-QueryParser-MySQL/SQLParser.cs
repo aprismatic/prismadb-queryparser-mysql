@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 
 
-namespace PrismaDB.QueryParser
+namespace PrismaDB.QueryParser.MySQL
 {
     /// <summary>
     /// Parses SQL statment strings into PrismaDB Query AST.
@@ -265,46 +265,80 @@ namespace PrismaDB.QueryParser
 
             // Check for datatype
             ParseTreeNode dataTypeNode = FindChildNode(node, "typeName");
+
+            var requiredLength = false;
+            var prohibitedLength = false;
+
             if (FindChildNode(dataTypeNode, "INT") != null)
             {
                 colDef.DataType = SQLDataType.INT;
+                prohibitedLength = true;
+            }
+            else if (FindChildNode(dataTypeNode, "CHAR") != null)
+            {
+                colDef.DataType = SQLDataType.VARCHAR;
             }
             else if (FindChildNode(dataTypeNode, "VARCHAR") != null)
             {
                 colDef.DataType = SQLDataType.VARCHAR;
-            }
-            else if (FindChildNode(dataTypeNode, "UNIQUEIDENTIFIER") != null)
-            {
-                colDef.DataType = SQLDataType.MSSQL_UNIQUEIDENTIFIER;
-            }
-            else if (FindChildNode(dataTypeNode, "VARBINARY") != null)
-            {
-                colDef.DataType = SQLDataType.VARBINARY;
+                requiredLength = true;
             }
             else if (FindChildNode(dataTypeNode, "TEXT") != null)
             {
                 colDef.DataType = SQLDataType.TEXT;
+                prohibitedLength = true;
+            }
+            else if (FindChildNode(dataTypeNode, "BINARY") != null)
+            {
+                colDef.DataType = SQLDataType.VARBINARY;
+            }
+            else if (FindChildNode(dataTypeNode, "VARBINARY") != null)
+            {
+                colDef.DataType = SQLDataType.VARBINARY;
+                requiredLength = true;
             }
             else if (FindChildNode(dataTypeNode, "DATETIME") != null)
             {
                 colDef.DataType = SQLDataType.DATETIME;
+                prohibitedLength = true;
             }
             else if (FindChildNode(dataTypeNode, "TIMESTAMP") != null)
             {
                 colDef.DataType = SQLDataType.TIMESTAMP;
+                prohibitedLength = true;
             }
             else if (FindChildNode(dataTypeNode, "DOUBLE") != null)
             {
                 colDef.DataType = SQLDataType.DOUBLE;
+                prohibitedLength = true;
             }
             else if (FindChildNode(dataTypeNode, "ENUM") != null)
             {
                 colDef.DataType = SQLDataType.ENUM;
+                prohibitedLength = true;
             }
 
             // Check for datatype length
-            ParseTreeNode paraNode = FindChildNode(FindChildNode(node, "typeParams"), "number");
-            if (paraNode != null) colDef.Length = Convert.ToInt32(paraNode.Token.ValueString);
+            ParseTreeNode paraNode = FindChildNode(node, "typeParams");
+            if (paraNode != null)
+            {
+                ParseTreeNode numberNode = FindChildNode(paraNode, "number");
+                if (numberNode != null)
+                {
+                    if (prohibitedLength)
+                        throw new ArgumentException("Datatype cannot have length");
+
+                    colDef.Length = Convert.ToInt32(numberNode.Token.ValueString);
+                }
+            }
+            else
+            {
+                if (requiredLength)
+                    throw new ArgumentException("Length is required");
+
+                if (!prohibitedLength)
+                    colDef.Length = 1;
+            }
 
             // Check for enum values
             ParseTreeNode enumNode = FindChildNode(FindChildNode(node, "typeParams"), "enumValueList");

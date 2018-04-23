@@ -2,7 +2,7 @@
 using Irony.Parsing;
 using System;
 
-namespace PrismaDB.QueryParser
+namespace PrismaDB.QueryParser.MySQL
 {
     [Language("SQL", "5.7", "MySQL grammar")]
     public class SqlGrammar : Grammar
@@ -34,19 +34,19 @@ namespace PrismaDB.QueryParser
             var CREATE = ToTerm("CREATE");
             var NULL = ToTerm("NULL");
             var NOT = ToTerm("NOT");
-            //var UNIQUE = ToTerm("UNIQUE"); 
-            //var WITH = ToTerm("WITH");
+            var UNIQUE = ToTerm("UNIQUE"); 
+            var WITH = ToTerm("WITH");
             var TABLE = ToTerm("TABLE");
             var ALTER = ToTerm("ALTER");
-            //var ADD = ToTerm("ADD"); 
+            var ADD = ToTerm("ADD"); 
             var COLUMN = ToTerm("COLUMN");
             var MODIFY = ToTerm("MODIFY");
-            //var DROP = ToTerm("DROP"); 
-            //var CONSTRAINT = ToTerm("CONSTRAINT");
-            //var INDEX = ToTerm("INDEX"); 
-            //var ON = ToTerm("ON");
-            //var KEY = ToTerm("KEY");
-            //var PRIMARY = ToTerm("PRIMARY");
+            var DROP = ToTerm("DROP"); 
+            var CONSTRAINT = ToTerm("CONSTRAINT");
+            var INDEX = ToTerm("INDEX"); 
+            var ON = ToTerm("ON");
+            var KEY = ToTerm("KEY");
+            var PRIMARY = ToTerm("PRIMARY");
             var INSERT = ToTerm("INSERT");
             var INTO = ToTerm("INTO");
             var UPDATE = ToTerm("UPDATE");
@@ -56,14 +56,13 @@ namespace PrismaDB.QueryParser
             var SELECT = ToTerm("SELECT");
             var FROM = ToTerm("FROM");
             var AS = ToTerm("AS");
-            //var COUNT = ToTerm("COUNT");
-            //var JOIN = ToTerm("JOIN");
-            //var BY = ToTerm("BY");
+            var COUNT = ToTerm("COUNT");
+            var JOIN = ToTerm("JOIN");
+            var BY = ToTerm("BY");
             var ENCRYPTED = ToTerm("ENCRYPTED");
             var FOR = ToTerm("FOR");
             var USE = ToTerm("USE");
             var LIMIT = ToTerm("LIMIT");
-            var AUTO_INCREMENT = ToTerm("AUTO_INCREMENT");
             var DEFAULT = ToTerm("DEFAULT");
             var CURRENT_TIMESTAMP = ToTerm("CURRENT_TIMESTAMP");
 
@@ -71,7 +70,7 @@ namespace PrismaDB.QueryParser
             var Id = new NonTerminal("Id");
             var stmt = new NonTerminal("stmt");
             var createTableStmt = new NonTerminal("createTableStmt");
-            //var createIndexStmt = new NonTerminal("createIndexStmt");
+            var createIndexStmt = new NonTerminal("createIndexStmt");
             var alterStmt = new NonTerminal("alterStmt");
             var dropTableStmt = new NonTerminal("dropTableStmt");
             var dropIndexStmt = new NonTerminal("dropIndexStmt");
@@ -87,7 +86,7 @@ namespace PrismaDB.QueryParser
             var typeSpec = new NonTerminal("typeSpec");
             var typeParamsOpt = new NonTerminal("typeParams");
             var constraintDef = new NonTerminal("constraintDef");
-            //var constraintListOpt = new NonTerminal("constraintListOpt");
+            var constraintListOpt = new NonTerminal("constraintListOpt");
             var constraintTypeOpt = new NonTerminal("constraintTypeOpt");
             var idlist = new NonTerminal("idlist");
             var idlistPar = new NonTerminal("idlistPar");
@@ -129,7 +128,7 @@ namespace PrismaDB.QueryParser
             var binOp = new NonTerminal("binOp");
             var betweenExpr = new NonTerminal("betweenExpr");
             var inExpr = new NonTerminal("inExpr");
-            //var parSelectStmt = new NonTerminal("parSelectStmt");
+            var parSelectStmt = new NonTerminal("parSelectStmt");
             var notOpt = new NonTerminal("notOpt");
             var funCall = new NonTerminal("funCall");
             var stmtLine = new NonTerminal("stmtLine");
@@ -138,8 +137,8 @@ namespace PrismaDB.QueryParser
             var funArgs = new NonTerminal("funArgs");
             var inStmt = new NonTerminal("inStmt");
 
-            var insertDataList = new NonTerminal("insertDataList"); // new
-            var autoDefaultOpt = new NonTerminal("autoDefaultOpt"); // new
+            var insertDataList = new NonTerminal("insertDataList");
+            var autoDefaultOpt = new NonTerminal("autoDefaultOpt");
 
             var encryptionOpt = new NonTerminal("encryptionOpt");
             var encryptTypePar = new NonTerminal("encryptTypePar");
@@ -182,22 +181,19 @@ namespace PrismaDB.QueryParser
             var t_INT = ToTerm("INT");
             var t_CHAR = ToTerm("CHAR");
             var t_VARCHAR = ToTerm("VARCHAR");
-            var t_NCHAR = ToTerm("NCHAR");
-            var t_NVARCHAR = ToTerm("NVARCHAR");
             var t_TEXT = ToTerm("TEXT");
             var t_BINARY = ToTerm("BINARY");
             var t_VARBINARY = ToTerm("VARBINARY");
-            var t_UNIQUEIDENTIFIER = ToTerm("UNIQUEIDENTIFIER");
             var t_DATETIME = ToTerm("DATETIME");
             var t_TIMESTAMP = ToTerm("TIMESTAMP");
             var t_DOUBLE = ToTerm("DOUBLE");
             var t_ENUM = ToTerm("ENUM");
 
-            typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_NCHAR | t_NVARCHAR | t_TEXT | t_BINARY | t_VARBINARY |
-                            t_UNIQUEIDENTIFIER | t_DATETIME | t_TIMESTAMP | t_DOUBLE | t_ENUM;
-            typeParamsOpt.Rule = "(" + number + ")" | "(" + number + comma + number + ")" | "(" + enumValueList + ")" | Empty;
+            typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_TEXT | t_BINARY | t_VARBINARY |
+                            t_DATETIME | t_TIMESTAMP | t_DOUBLE | t_ENUM;
+            typeParamsOpt.Rule = "(" + number + ")" | "(" + enumValueList + ")" | Empty; // | "(" + number + comma + number + ")"
             enumValueList.Rule = MakePlusRule(enumValueList, comma, string_literal);
-            autoDefaultOpt.Rule = AUTO_INCREMENT | DEFAULT + term | Empty;
+            autoDefaultOpt.Rule = DEFAULT + term | Empty;
             //constraintDef.Rule = CONSTRAINT + Id + constraintTypeOpt;
             //constraintListOpt.Rule = MakeStarRule(constraintListOpt, constraintDef);
             //constraintTypeOpt.Rule = PRIMARY + KEY + idlistPar | UNIQUE + idlistPar | NOT + NULL + idlistPar
@@ -208,9 +204,9 @@ namespace PrismaDB.QueryParser
             //Create Index
             //createIndexStmt.Rule = CREATE + uniqueOpt + INDEX + Id + ON + Id + orderList + withClauseOpt;
             //uniqueOpt.Rule = Empty | UNIQUE;
-            //orderList.Rule = MakePlusRule(orderList, comma, orderMember);
-            //orderMember.Rule = Id + orderDirOpt;
-            //orderDirOpt.Rule = Empty | "ASC" | "DESC";
+            orderList.Rule = MakePlusRule(orderList, comma, orderMember);
+            orderMember.Rule = Id + orderDirOpt;
+            orderDirOpt.Rule = Empty | "ASC" | "DESC";
             //withClauseOpt.Rule = Empty | WITH + PRIMARY | WITH + "Disallow" + NULL | WITH + "Ignore" + NULL;
 
             //Alter 
@@ -264,7 +260,7 @@ namespace PrismaDB.QueryParser
             whereClauseOpt.Rule = Empty | "WHERE" + expression;
             //groupClauseOpt.Rule = Empty | "GROUP" + BY + idlist;
             //havingClauseOpt.Rule = Empty | "HAVING" + expression;
-            //orderClauseOpt.Rule = Empty | "ORDER" + BY + orderList;
+            orderClauseOpt.Rule = Empty | "ORDER" + BY + orderList;
 
             //Expression
             exprList.Rule = MakePlusRule(exprList, comma, expression);
@@ -279,7 +275,7 @@ namespace PrismaDB.QueryParser
                        | "&" | "|" | "^"                     //bit
                        | "=" | ">" | "<" | ">=" | "<=" | "<>" | "!=" | "!<" | "!>"
                        | "AND" | "OR" | "LIKE" | NOT + "LIKE" | "IN" | NOT + "IN";
-            betweenExpr.Rule = expression + notOpt + "BETWEEN" + expression + "AND" + expression;
+            //betweenExpr.Rule = expression + notOpt + "BETWEEN" + expression + "AND" + expression;
             notOpt.Rule = Empty | NOT;
             //funCall covers some psedo-operators and special forms like ANY(...), SOME(...), ALL(...), EXISTS(...), IN(...)
             //funCall.Rule = Id + "()";
