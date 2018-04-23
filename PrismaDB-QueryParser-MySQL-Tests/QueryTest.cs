@@ -183,7 +183,7 @@ namespace PrismaDB_QueryParser_MySQL_Tests
 
             // Assert 
             var actual = (ExportSettingsCommand) result[0];
-            Assert.Equal("/home/user/settings.json", actual.FileUri);
+            Assert.Equal("/home/user/settings.json", actual.FileUri.strvalue);
         }
 
         [Fact(DisplayName = "Parse SELECT w\\functions")]
