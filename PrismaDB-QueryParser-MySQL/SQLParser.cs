@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Irony.Parsing;
 using PrismaDB.Commons;
 using PrismaDB.QueryAST;
+using PrismaDB.QueryAST.DCL;
 using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
 
@@ -75,6 +76,15 @@ namespace PrismaDB.QueryParser.MySQL
                                 var alterQuery = new AlterTableQuery();
                                 BuildAlterTableQuery(alterQuery, stmtNode);
                                 queries.Add(alterQuery);
+                            }
+
+                            else if (stmtNode.Term.Name.Equals("exportSettingsCmd"))
+                            {
+                                var exportCommand = new ExportSettingsCommand
+                                {
+                                    FileUri = FindChildNode(stmtNode, "string").Token.ValueString
+                                };
+                                queries.Add(exportCommand);
                             }
 
                             else if (stmtNode.Term.Name.Equals("useStmt"))
@@ -224,6 +234,11 @@ namespace PrismaDB.QueryParser.MySQL
                     if (FindChildNode(mainNode, "LIMIT") != null)
                         selQuery.Limit = Convert.ToUInt32(FindChildNode(mainNode, "number").Token.Value);
                 }
+                // Check for ORDER BY 
+                else if (mainNode.Term.Name.Equals("orderClauseOpt"))
+                {
+                    selQuery.OrderBy = BuildOrderByClause(mainNode);
+                }
         }
 
 
@@ -330,6 +345,34 @@ namespace PrismaDB.QueryParser.MySQL
                 colDef.DefaultValue = BuildExpression(autoDefaultNode.ChildNodes[1]);
 
             return colDef;
+        }
+
+
+        /// <summary>
+        ///     Builds Order By clause.
+        /// </summary>
+        /// <param name="node">Parent node of clause</param>
+        /// <returns>Resulting Order By clause</returns>
+        private List<Tuple<Expression, OrderDirection>> BuildOrderByClause(ParseTreeNode node)
+        {
+            var orderBy = new List<Tuple<Expression, OrderDirection>>();
+
+            var listNode = FindChildNode(node, "orderList");
+
+            if (listNode != null)
+                foreach (var orderMemberNode in listNode.ChildNodes)
+                {
+                    var cofRef = BuildColumnRef(FindChildNode(orderMemberNode, "Id"));
+
+                    var direction = OrderDirection.ASC;
+                    var dirNode = FindChildNode(orderMemberNode, "orderDirOpt");
+                    if (FindChildNode(dirNode, "DESC") != null)
+                        direction = OrderDirection.DESC;
+
+                    orderBy.Add(new Tuple<Expression, OrderDirection>(cofRef, direction));
+                }
+
+            return orderBy;
         }
 
 
@@ -536,8 +579,11 @@ namespace PrismaDB.QueryParser.MySQL
 
                             updQuery.UpdateExpressions.Add(new Pair<ColumnRef, Constant>(colRef, constant));
                         }
-                // Check for where clause
-                else if (mainNode.Term.Name.Equals("whereClauseOpt")) updQuery.Where = BuildWhereClause(mainNode);
+                        // Check for where clause
+                        else if (mainNode.Term.Name.Equals("whereClauseOpt"))
+                        {
+                            updQuery.Where = BuildWhereClause(mainNode);
+                        }
         }
 
 
