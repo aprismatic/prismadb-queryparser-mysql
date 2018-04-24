@@ -7,7 +7,7 @@ using PrismaDB.QueryAST.DML;
 
 namespace PrismaDB.QueryParser.MySQL
 {
-    public partial class SqlParser
+    public partial class MySqlParser
     {
         /// <summary>
         ///     Builds a Insert Query.

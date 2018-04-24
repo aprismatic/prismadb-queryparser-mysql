@@ -2,7 +2,7 @@
 
 namespace PrismaDB.QueryParser.MySQL
 {
-    public partial class SqlParser
+    public partial class MySqlParser
     {
         /// <summary>
         ///     Checks if expression tree is in full CNF form recursively.

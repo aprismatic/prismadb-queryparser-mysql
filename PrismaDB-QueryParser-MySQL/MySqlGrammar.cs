@@ -5,9 +5,9 @@ namespace PrismaDB.QueryParser.MySQL
 {
     // Reference: https://github.com/IronyProject/Irony/tree/master/Irony.Samples/SQL
     [Language("Prisma/DB MySQL", "0.1", "Extended MySQL grammer for Prisma/DB")]
-    public class SqlGrammar : Grammar
+    public class MySqlGrammar : Grammar
     {
-        public SqlGrammar() : base(false)
+        public MySqlGrammar() : base(false)
         {
             // SQL is case insensitive
             // Terminals
