@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrismaDB-QueryParser-MySQL", "PrismaDB-QueryParser-MySQL\PrismaDB-QueryParser-MySQL.csproj", "{93410D56-100F-4D7C-9F53-3135BF6F1B71}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueryParser-MySQL-Tests", "QueryParser-MySQL-Tests\QueryParser-MySQL-Tests.csproj", "{E4E39E80-9B33-4693-99B7-32B06814BA21}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrismaDB-QueryParser-MySQL-Tests", "PrismaDB-QueryParser-MySQL-Tests\PrismaDB-QueryParser-MySQL-Tests.csproj", "{E4E39E80-9B33-4693-99B7-32B06814BA21}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
