@@ -290,7 +290,7 @@ namespace PrismaDB.QueryParser.MySQL
                 }
                 else if (node.Term.Name.Equals("variable"))
                 {
-                    expr = new MySQLVariable(node.Token.ValueString);
+                    expr = new MySqlVariable(node.Token.ValueString);
                 }
             }
 

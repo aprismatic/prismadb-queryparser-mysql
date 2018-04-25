@@ -69,50 +69,50 @@ namespace PrismaDB.QueryParser.MySQL
 
             if (FindChildNode(dataTypeNode, "INT") != null)
             {
-                colDef.DataType = SQLDataType.INT;
+                colDef.DataType = SqlDataType.INT;
                 prohibitedLength = true;
             }
             else if (FindChildNode(dataTypeNode, "CHAR") != null)
             {
-                colDef.DataType = SQLDataType.VARCHAR;
+                colDef.DataType = SqlDataType.VARCHAR;
             }
             else if (FindChildNode(dataTypeNode, "VARCHAR") != null)
             {
-                colDef.DataType = SQLDataType.VARCHAR;
+                colDef.DataType = SqlDataType.VARCHAR;
                 requiredLength = true;
             }
             else if (FindChildNode(dataTypeNode, "TEXT") != null)
             {
-                colDef.DataType = SQLDataType.TEXT;
+                colDef.DataType = SqlDataType.TEXT;
                 prohibitedLength = true;
             }
             else if (FindChildNode(dataTypeNode, "BINARY") != null)
             {
-                colDef.DataType = SQLDataType.VARBINARY;
+                colDef.DataType = SqlDataType.VARBINARY;
             }
             else if (FindChildNode(dataTypeNode, "VARBINARY") != null)
             {
-                colDef.DataType = SQLDataType.VARBINARY;
+                colDef.DataType = SqlDataType.VARBINARY;
                 requiredLength = true;
             }
             else if (FindChildNode(dataTypeNode, "DATETIME") != null)
             {
-                colDef.DataType = SQLDataType.DATETIME;
+                colDef.DataType = SqlDataType.DATETIME;
                 prohibitedLength = true;
             }
             else if (FindChildNode(dataTypeNode, "TIMESTAMP") != null)
             {
-                colDef.DataType = SQLDataType.TIMESTAMP;
+                colDef.DataType = SqlDataType.TIMESTAMP;
                 prohibitedLength = true;
             }
             else if (FindChildNode(dataTypeNode, "DOUBLE") != null)
             {
-                colDef.DataType = SQLDataType.DOUBLE;
+                colDef.DataType = SqlDataType.DOUBLE;
                 prohibitedLength = true;
             }
             else if (FindChildNode(dataTypeNode, "ENUM") != null)
             {
-                colDef.DataType = SQLDataType.ENUM;
+                colDef.DataType = SqlDataType.ENUM;
                 prohibitedLength = true;
             }
 
