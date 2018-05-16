@@ -35,6 +35,8 @@ namespace PrismaDB.QueryParser.MySQL
             var TABLE = ToTerm("TABLE");
             var ALTER = ToTerm("ALTER");
             var COLUMN = ToTerm("COLUMN");
+            var ON = ToTerm("ON");
+            var JOIN = ToTerm("JOIN");
             var MODIFY = ToTerm("MODIFY");
             var INSERT = ToTerm("INSERT");
             var INTO = ToTerm("INTO");
@@ -96,6 +98,8 @@ namespace PrismaDB.QueryParser.MySQL
             var asOpt = new NonTerminal("asOpt");
             var aliasOpt = new NonTerminal("aliasOpt");
             var tuple = new NonTerminal("tuple");
+            var joinChainOpt = new NonTerminal("joinChainOpt");
+            var joinKindOpt = new NonTerminal("joinKindOpt");
             var term = new NonTerminal("term");
             var unExpr = new NonTerminal("unExpr");
             var unOp = new NonTerminal("unOp");
@@ -194,7 +198,9 @@ namespace PrismaDB.QueryParser.MySQL
             aliasOpt.Rule = Empty | (asOpt + Id);
             asOpt.Rule = Empty | AS;
             columnSource.Rule = expression;
-            fromClauseOpt.Rule = Empty | (FROM + idlist);
+            fromClauseOpt.Rule = Empty | FROM + idlist + joinChainOpt;
+            joinChainOpt.Rule = Empty | joinKindOpt + JOIN + idlist + ON + Id + "=" + Id;
+            joinKindOpt.Rule = Empty | "INNER";
             whereClauseOpt.Rule = Empty | ("WHERE" + expression);
             orderClauseOpt.Rule = Empty | ("ORDER" + BY + orderList);
             orderList.Rule = MakePlusRule(orderList, comma, orderMember);
