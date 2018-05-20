@@ -210,7 +210,7 @@ namespace PrismaDB.QueryParser.MySQL
             // Expression
             exprList.Rule = MakePlusRule(exprList, comma, expression);
             expression.Rule = term | unExpr | binExpr;
-            term.Rule = Id | string_literal | number | tuple | funCall | Variable;
+            term.Rule = Id | string_literal | number | tuple | funCall | Variable | NULL;
             tuple.Rule = "(" + exprList + ")";
             unExpr.Rule = unOp + term;
             unOp.Rule = NOT | "+" | "-" | "~";

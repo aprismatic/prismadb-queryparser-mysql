@@ -316,6 +316,10 @@ namespace PrismaDB.QueryParser.MySQL
                 {
                     expr = new MySqlVariable(node.Token.ValueString);
                 }
+                else if (node.Term.Name.Equals("NULL"))
+                {
+                    expr = new NullConstant();
+                }
             }
 
             return expr;
