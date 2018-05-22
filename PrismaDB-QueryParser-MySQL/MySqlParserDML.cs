@@ -126,9 +126,9 @@ namespace PrismaDB.QueryParser.MySQL
                                 // Build expression
                                 var expr = BuildExpression(exprNode);
                                 if (idNode != null) // Set alias
-                                    expr.ColumnName = BuildColumnRef(idNode).ColumnName;
+                                    expr.Alias = BuildColumnRef(idNode).ColumnName;
                                 else if (expr.GetType() != typeof(ColumnRef)) // Set original expression
-                                    expr.ColumnName = new Identifier(source.Substring(
+                                    expr.Alias = new Identifier(source.Substring(
                                         exprNode.Span.EndPosition - exprNode.Span.Length, exprNode.Span.Length));
 
                                 selQuery.SelectExpressions.Add(expr);
