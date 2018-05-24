@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using PrismaDB.QueryAST.DML;
+using PrismaDB.QueryAST.Result;
 
 namespace PrismaDB.QueryParser.MySQL
 {
@@ -29,7 +29,7 @@ namespace PrismaDB.QueryParser.MySQL
             return clone;
         }
 
-        public override object Eval(DataRow r)
+        public override object Eval(ResultRow r)
         {
             throw new NotImplementedException();
         }
@@ -84,7 +84,7 @@ namespace PrismaDB.QueryParser.MySQL
             return clone;
         }
 
-        public override object Eval(DataRow r)
+        public override object Eval(ResultRow r)
         {
             throw new NotImplementedException();
         }
