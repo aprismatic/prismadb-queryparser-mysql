@@ -276,8 +276,7 @@ namespace PrismaDB.QueryParser.MySQL
                 }
                 else if (node.Term.Name.Equals("number"))
                 {
-                    int integer;
-                    if (int.TryParse(node.Token.ValueString, out integer))
+                    if (int.TryParse(node.Token.ValueString, out var integer))
                         expr = new IntConstant(integer);
                     else
                         expr = new FloatingPointConstant(Convert.ToDouble(node.Token.Value));

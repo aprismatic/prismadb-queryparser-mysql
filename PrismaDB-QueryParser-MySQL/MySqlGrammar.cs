@@ -56,6 +56,7 @@ namespace PrismaDB.QueryParser.MySQL
             var CURRENT_TIMESTAMP = ToTerm("CURRENT_TIMESTAMP");
             var PRISMADB = ToTerm("PRISMADB");
             var TO = ToTerm("TO");
+            var STAR = ToTerm("*");
 
             // Non-Terminals
             var Id = new NonTerminal("Id");
@@ -192,7 +193,7 @@ namespace PrismaDB.QueryParser.MySQL
             // Select Statement
             selectStmt.Rule = SELECT + selList + fromClauseOpt + whereClauseOpt + selRestrOpt + orderClauseOpt;
             selRestrOpt.Rule = Empty | (LIMIT + number);
-            selList.Rule = columnItemList | "*";
+            selList.Rule = columnItemList | STAR;
             columnItemList.Rule = MakePlusRule(columnItemList, comma, columnItem);
             columnItem.Rule = columnSource + aliasOpt;
             aliasOpt.Rule = Empty | (asOpt + Id);
@@ -221,7 +222,7 @@ namespace PrismaDB.QueryParser.MySQL
                          | "AND" | "OR" | "LIKE" | (NOT + "LIKE") | "IN" | (NOT + "IN");
             notOpt.Rule = Empty | NOT;
             funCall.Rule = (Id + "(" + funArgs + ")") | CURRENT_TIMESTAMP;
-            funArgs.Rule = Empty | exprList;
+            funArgs.Rule = Empty | exprList | STAR;
 
             // Operators
             RegisterOperators(10, "*", "/", "%");

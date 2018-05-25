@@ -397,5 +397,34 @@ namespace ParserTests
                 Assert.Equal(new AllColumns(), actual.SelectExpressions[0]);
             }
         }
+
+        [Fact(DisplayName = "Parse known functions")]
+        public void Parse_KnownFuncs()
+        {
+            // Setup
+            var parser = new MySqlParser();
+            var test = "SELECT RandomFunc(), SuM(col1), CoUNt(col2), coUNT(*), avg (col3)";
+
+            // Act
+            var result = parser.ParseToAst(test)[0] as SelectQuery;
+
+            // Assert
+            Assert.IsType<ScalarFunction>(result.SelectExpressions[0]);
+            Assert.IsNotType<SumAggregationFunction>(result.SelectExpressions[0]);
+            Assert.IsNotType<AvgAggregationFunction>(result.SelectExpressions[0]);
+            Assert.IsNotType<CountAggregationFunction>(result.SelectExpressions[0]);
+
+            Assert.IsType<SumAggregationFunction>(result.SelectExpressions[1]);
+            Assert.IsType<ColumnRef>((result.SelectExpressions[1] as ScalarFunction).Parameters[0]);
+
+            Assert.IsType<CountAggregationFunction>(result.SelectExpressions[2]);
+            Assert.IsType<ColumnRef>((result.SelectExpressions[2] as ScalarFunction).Parameters[0]);
+
+            Assert.IsType<CountAggregationFunction>(result.SelectExpressions[3]);
+            Assert.Empty((result.SelectExpressions[3] as ScalarFunction).Parameters);
+
+            Assert.IsType<AvgAggregationFunction>(result.SelectExpressions[4]);
+            Assert.IsType<ColumnRef>((result.SelectExpressions[4] as ScalarFunction).Parameters[0]);
+        }
     }
 }
