@@ -37,6 +37,12 @@ namespace PrismaDB.QueryParser.MySQL
             var COLUMN = ToTerm("COLUMN");
             var ON = ToTerm("ON");
             var JOIN = ToTerm("JOIN");
+            var INNER = ToTerm("INNER");
+            var OUTER = ToTerm("OUTER");
+            var LEFT = ToTerm("LEFT");
+            var RIGHT = ToTerm("RIGHT");
+            var FULL = ToTerm("FULL");
+            var CROSS = ToTerm("CROSS");
             var MODIFY = ToTerm("MODIFY");
             var INSERT = ToTerm("INSERT");
             var INTO = ToTerm("INTO");
@@ -86,6 +92,7 @@ namespace PrismaDB.QueryParser.MySQL
             var insertDataList = new NonTerminal("insertDataList");
             var assignList = new NonTerminal("assignList");
             var whereClauseOpt = new NonTerminal("whereClauseOpt");
+            var groupClauseOpt = new NonTerminal("groupClauseOpt");
             var assignment = new NonTerminal("assignment");
             var expression = new NonTerminal("expression");
             var exprList = new NonTerminal("exprList");
@@ -99,8 +106,11 @@ namespace PrismaDB.QueryParser.MySQL
             var asOpt = new NonTerminal("asOpt");
             var aliasOpt = new NonTerminal("aliasOpt");
             var tuple = new NonTerminal("tuple");
-            var joinChainOpt = new NonTerminal("joinChainOpt");
+            var joinClauseListOpt = new NonTerminal("joinClauseListOpt");
+            var joinClauseList = new NonTerminal("joinClauseList");
+            var joinClause = new NonTerminal("joinClause");
             var joinKindOpt = new NonTerminal("joinKindOpt");
+            var joinOnOpt = new NonTerminal("joinOnOpt");
             var term = new NonTerminal("term");
             var unExpr = new NonTerminal("unExpr");
             var unOp = new NonTerminal("unOp");
@@ -191,7 +201,7 @@ namespace PrismaDB.QueryParser.MySQL
             deleteStmt.Rule = DELETE + FROM + Id + whereClauseOpt;
 
             // Select Statement
-            selectStmt.Rule = SELECT + selList + fromClauseOpt + whereClauseOpt + selRestrOpt + orderClauseOpt;
+            selectStmt.Rule = SELECT + selList + fromClauseOpt + whereClauseOpt + groupClauseOpt + selRestrOpt + orderClauseOpt;
             selRestrOpt.Rule = Empty | (LIMIT + number);
             selList.Rule = columnItemList | STAR;
             columnItemList.Rule = MakePlusRule(columnItemList, comma, columnItem);
@@ -199,10 +209,14 @@ namespace PrismaDB.QueryParser.MySQL
             aliasOpt.Rule = Empty | (asOpt + Id);
             asOpt.Rule = Empty | AS;
             columnSource.Rule = expression;
-            fromClauseOpt.Rule = Empty | FROM + idlist + joinChainOpt;
-            joinChainOpt.Rule = Empty | joinKindOpt + JOIN + idlist + ON + Id + "=" + Id;
-            joinKindOpt.Rule = Empty | "INNER";
+            fromClauseOpt.Rule = Empty | FROM + idlist + joinClauseListOpt;
+            joinClauseListOpt.Rule = Empty | joinClauseList;
+            joinClauseList.Rule = MakePlusRule(joinClauseList, joinClause);
+            joinClause.Rule = joinKindOpt + JOIN + Id + joinOnOpt;
+            joinKindOpt.Rule = Empty | INNER | LEFT | LEFT + OUTER | RIGHT | RIGHT + OUTER | FULL | FULL + OUTER | CROSS;
+            joinOnOpt.Rule = Empty | ON + Id + "=" + Id;
             whereClauseOpt.Rule = Empty | ("WHERE" + expression);
+            groupClauseOpt.Rule = Empty | ("GROUP" + BY + idlist);
             orderClauseOpt.Rule = Empty | ("ORDER" + BY + orderList);
             orderList.Rule = MakePlusRule(orderList, comma, orderMember);
             orderMember.Rule = Id + orderDirOpt;

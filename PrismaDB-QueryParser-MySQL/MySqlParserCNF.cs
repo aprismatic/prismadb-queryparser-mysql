@@ -85,7 +85,8 @@ namespace PrismaDB.QueryParser.MySQL
                     disjunction.OR.AddRange(BuildDisjunction(((OrClause) expr).right).OR);
                 }
 
-                if (expr.GetType() == typeof(BooleanEquals)) disjunction.OR.Add((BooleanEquals) expr);
+                if (expr is BooleanExpression boolExpr)
+                    disjunction.OR.Add(boolExpr);
             }
 
             return disjunction;
