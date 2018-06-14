@@ -199,7 +199,10 @@ namespace PrismaDB.QueryParser.MySQL
                     flags |= ColumnEncryptionFlags.IntegerAddition;
                 else if (FindChildNode(childNode, "INTEGER_MULTIPLICATION") != null)
                     flags |= ColumnEncryptionFlags.IntegerMultiplication;
-                else if (FindChildNode(childNode, "SEARCH") != null) flags |= ColumnEncryptionFlags.Search;
+                else if (FindChildNode(childNode, "SEARCH") != null)
+                    flags |= ColumnEncryptionFlags.Search;
+                else if (FindChildNode(childNode, "RANGE") != null)
+                    flags |= ColumnEncryptionFlags.Range;
             return flags;
         }
 
