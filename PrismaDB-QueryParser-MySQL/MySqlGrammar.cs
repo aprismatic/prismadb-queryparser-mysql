@@ -149,6 +149,8 @@ namespace PrismaDB.QueryParser.MySQL
             fieldDef.Rule = Id + typeName + typeParamsOpt + encryptionOpt + nullSpecOpt + autoDefaultOpt;
 
             var t_INT = ToTerm("INT");
+            var t_SMALLINT = ToTerm("SMALLINT");
+            var t_TINYINT = ToTerm("TINYINT");
             var t_BIGINT = ToTerm("BIGINT");
             var t_CHAR = ToTerm("CHAR");
             var t_VARCHAR = ToTerm("VARCHAR");
@@ -160,7 +162,7 @@ namespace PrismaDB.QueryParser.MySQL
             var t_DOUBLE = ToTerm("DOUBLE");
             var t_ENUM = ToTerm("ENUM");
             typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_TEXT | t_BINARY | t_VARBINARY | t_DATETIME | t_TIMESTAMP |
-                            t_DOUBLE | t_ENUM | t_BIGINT;
+                            t_DOUBLE | t_ENUM | t_BIGINT | t_SMALLINT | t_TINYINT;
             typeParamsOpt.Rule = ("(" + number + ")") | ("(" + enumValueList + ")") | Empty;
             enumValueList.Rule = MakePlusRule(enumValueList, comma, string_literal);
 

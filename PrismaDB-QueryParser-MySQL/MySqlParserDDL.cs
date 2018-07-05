@@ -72,6 +72,16 @@ namespace PrismaDB.QueryParser.MySQL
                 colDef.DataType = SqlDataType.INT;
                 prohibitedLength = true;
             }
+            else if (FindChildNode(dataTypeNode, "SMALLINT") != null)
+            {
+                colDef.DataType = SqlDataType.SMALLINT;
+                prohibitedLength = true;
+            }
+            else if (FindChildNode(dataTypeNode, "TINYINT") != null)
+            {
+                colDef.DataType = SqlDataType.TINYINT;
+                prohibitedLength = true;
+            }
             else if (FindChildNode(dataTypeNode, "BIGINT") != null)
             {
                 colDef.DataType = SqlDataType.BIGINT;
