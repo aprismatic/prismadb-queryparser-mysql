@@ -261,7 +261,7 @@ namespace ParserTests
             // Setup
             var parser = new MySqlParser();
             var test =
-                "INSERT INTO `tt1` (tt1.col1, `tt1`.col2, `tt1`.`col3`, tt1.`col4`) VALUES ( 1, 12.345 , 'hey', \"hi\" ), (0,050, 3147483647, '  ', '&')";
+                "INSERT INTO `tt1` (tt1.col1, `tt1`.col2, `tt1`.`col3`, tt1.`col4`) VALUES ( -1, 12.345 , 'hey', \"hi\" ), (0,050, 3147483647, '  ', '&')";
 
             // Act
             var result = parser.ParseToAst(test);
@@ -279,6 +279,7 @@ namespace ParserTests
             Assert.Equal(new Identifier("col4"), actual.Columns[3].ColumnName);
             Assert.Equal(new TableRef("tt1"), actual.Columns[3].Table);
             Assert.Equal(2, actual.Values.Count);
+            Assert.Equal(-1, (actual.Values[0][0] as IntConstant)?.intvalue);
             Assert.Equal(12.345m, (actual.Values[0][1] as FloatingPointConstant)?.floatvalue);
             Assert.Equal("hey", (actual.Values[0][2] as StringConstant)?.strvalue);
             Assert.Equal(50, (actual.Values[1][1] as IntConstant)?.intvalue);

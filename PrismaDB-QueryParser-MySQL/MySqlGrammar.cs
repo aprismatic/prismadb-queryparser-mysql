@@ -16,10 +16,11 @@ namespace PrismaDB.QueryParser.MySQL
             var lineComment = new CommentTerminal("line_comment", "--", "\n", "\r\n");
             NonGrammarTerminals.Add(comment);
             NonGrammarTerminals.Add(lineComment);
-            var number = new NumberLiteral("number")
+            var number = new NumberLiteral("number", NumberOptions.AllowSign)
             {
                 DefaultIntTypes = new[] { TypeCode.Int64 },
-                DefaultFloatType = TypeCode.Decimal
+                DefaultFloatType = TypeCode.Decimal,
+                DecimalSeparator = '.'
             };
             var string_literal = new StringLiteral("string");
             string_literal.AddStartEnd("'", StringOptions.AllowsDoubledQuote);
