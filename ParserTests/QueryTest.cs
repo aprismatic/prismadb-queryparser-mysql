@@ -131,7 +131,7 @@ namespace ParserTests
             // Setup
             var parser = new MySqlParser();
             var test = "CREATE TABLE ttt " +
-                       "(aaa INT ENCRYPTED FOR (INTEGER_ADDITION, INTEGER_MULTIPLICATION) NOT NULL, " +
+                       "(aaa INT ENCRYPTED FOR (INTEGER_ADDITION, INTEGER_MULTIPLICATION) NOT NULL AUTO_INCREMENT, " +
                        "`bbb` BIGINT NULL, " +
                        "ccc VARCHAR(80) NOT NULL, " +
                        "ddd VARCHAR(20) ENCRYPTED FOR (STORE, SEARCH), " +
@@ -151,11 +151,13 @@ namespace ParserTests
             Assert.Equal(SqlDataType.INT, actual.ColumnDefinitions[0].DataType);
             Assert.Equal(ColumnEncryptionFlags.IntegerAddition | ColumnEncryptionFlags.IntegerMultiplication,
                 actual.ColumnDefinitions[0].EncryptionFlags);
+            Assert.True(actual.ColumnDefinitions[0].AutoIncrement);
             Assert.False(actual.ColumnDefinitions[0].Nullable);
             Assert.Equal(new Identifier("bbb"), actual.ColumnDefinitions[1].ColumnName);
             Assert.Equal(SqlDataType.BIGINT, actual.ColumnDefinitions[1].DataType);
             Assert.Equal(ColumnEncryptionFlags.None, actual.ColumnDefinitions[1].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[1].Nullable);
+            Assert.False(actual.ColumnDefinitions[1].AutoIncrement);
             Assert.Equal(new Identifier("ccc"), actual.ColumnDefinitions[2].ColumnName);
             Assert.Equal(SqlDataType.VARCHAR, actual.ColumnDefinitions[2].DataType);
             Assert.Equal(80, actual.ColumnDefinitions[2].Length);

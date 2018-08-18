@@ -167,6 +167,8 @@ namespace PrismaDB.QueryParser.MySQL
             var autoDefaultNode = FindChildNode(node, "autoDefaultOpt");
             if (FindChildNode(autoDefaultNode, "DEFAULT") != null)
                 colDef.DefaultValue = BuildExpression(autoDefaultNode.ChildNodes[1]);
+            else if (FindChildNode(autoDefaultNode, "AUTO_INCREMENT") != null)
+                colDef.AutoIncrement = true;
 
             return colDef;
         }
