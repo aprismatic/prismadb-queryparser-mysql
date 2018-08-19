@@ -69,6 +69,7 @@ namespace PrismaDB.QueryParser.MySQL
             var PRISMADB = ToTerm("PRISMADB");
             var TO = ToTerm("TO");
             var STAR = ToTerm("*");
+            var AUTO_INCREMENT = ToTerm("AUTO_INCREMENT");
 
             // Non-Terminals
             var Id = new NonTerminal("Id");
@@ -183,7 +184,7 @@ namespace PrismaDB.QueryParser.MySQL
             encryptType.Rule = et_STORE | et_INTEGER_ADDITION | et_INTEGER_MULTIPLICATION | et_SEARCH | et_RANGE;
 
             nullSpecOpt.Rule = NULL | (NOT + NULL) | Empty;
-            autoDefaultOpt.Rule = (DEFAULT + term) | Empty;
+            autoDefaultOpt.Rule = (DEFAULT + term) | AUTO_INCREMENT | Empty;
 
             // Alter Statement
             alterStmt.Rule = ALTER + TABLE + Id + alterCmd;
