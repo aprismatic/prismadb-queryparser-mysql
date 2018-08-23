@@ -413,6 +413,13 @@ namespace PrismaDB.QueryParser.MySQL
                                     expr = new BooleanIn(true, (ColumnRef)BuildExpression(node.ChildNodes[0]),
                                         BuildExpressions(node.ChildNodes[2]).Cast<Constant>().ToArray());
                             }
+                            else if (FindChildNode(opNode, "IS") != null)
+                            {
+                                if (FindChildNode(FindChildNode(opNode, "notOpt"), "NOT") == null)
+                                    expr = new BooleanIsNull((ColumnRef)BuildExpression(node.ChildNodes[0]));
+                                else
+                                    expr = new BooleanIsNull((ColumnRef)BuildExpression(node.ChildNodes[0]), true);
+                            }
                             else if (FindChildNode(opNode, "AND") != null)
                                 expr = new AndClause(BuildExpression(node.ChildNodes[0]),
                                     BuildExpression(node.ChildNodes[2]));
