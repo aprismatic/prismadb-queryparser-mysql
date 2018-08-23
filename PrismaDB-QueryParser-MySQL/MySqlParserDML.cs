@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Irony.Parsing;
 using PrismaDB.Commons;
 using PrismaDB.QueryAST;
@@ -169,7 +170,7 @@ namespace PrismaDB.QueryParser.MySQL
                 else if (mainNode.Term.Name.Equals("selRestrOpt"))
                 {
                     if (FindChildNode(mainNode, "LIMIT") != null)
-                        selQuery.Limit = Convert.ToUInt32(FindChildNode(mainNode, "number").Token.Value);
+                        selQuery.Limit = (uint)(BigInteger)FindChildNode(mainNode, "number").Token.Value;
                 }
                 // Check for ORDER BY 
                 else if (mainNode.Term.Name.Equals("orderClauseOpt"))
@@ -330,14 +331,21 @@ namespace PrismaDB.QueryParser.MySQL
                 }
                 else if (node.Term.Name.Equals("number"))
                 {
-                    switch (node.Token.Value)
+                    if (node.Token.Details is CompoundTerminalBase.CompoundTokenDetails details && details.Prefix == "0x")
                     {
-                        case Int64 integer:
-                            expr = new IntConstant(integer);
-                            break;
-                        case Decimal floatingPoint:
-                            expr = new FloatingPointConstant(floatingPoint);
-                            break;
+                        expr = new BinaryConstant(((BigInteger)node.Token.Value).ToByteArray());
+                    }
+                    else
+                    {
+                        switch (node.Token.Value)
+                        {
+                            case BigInteger integer:
+                                expr = new IntConstant((long)integer);
+                                break;
+                            case Decimal floatingPoint:
+                                expr = new FloatingPointConstant(floatingPoint);
+                                break;
+                        }
                     }
                 }
                 else if (node.Term.Name.Equals("binExpr"))
