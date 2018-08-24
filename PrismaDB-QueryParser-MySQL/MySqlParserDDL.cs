@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Irony.Parsing;
 using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
@@ -110,6 +111,16 @@ namespace PrismaDB.QueryParser.MySQL
                 colDef.DataType = SqlDataType.VARBINARY;
                 requiredLength = true;
             }
+            else if (FindChildNode(dataTypeNode, "BLOB") != null)
+            {
+                colDef.DataType = SqlDataType.BLOB;
+                prohibitedLength = true;
+            }
+            else if (FindChildNode(dataTypeNode, "DATE") != null)
+            {
+                colDef.DataType = SqlDataType.DATE;
+                prohibitedLength = true;
+            }
             else if (FindChildNode(dataTypeNode, "DATETIME") != null)
             {
                 colDef.DataType = SqlDataType.DATETIME;
@@ -141,7 +152,7 @@ namespace PrismaDB.QueryParser.MySQL
                     if (prohibitedLength)
                         throw new ApplicationException("Datatype cannot have length");
 
-                    colDef.Length = Convert.ToInt32(numberNode.Token.ValueString);
+                    colDef.Length = (int)(BigInteger)numberNode.Token.Value;
                 }
             }
             else

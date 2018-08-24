@@ -18,10 +18,11 @@ namespace PrismaDB.QueryParser.MySQL
             NonGrammarTerminals.Add(lineComment);
             var number = new NumberLiteral("number", NumberOptions.AllowSign)
             {
-                DefaultIntTypes = new[] { TypeCode.Int64 },
+                DefaultIntTypes = new[] { NumberLiteral.TypeCodeBigInt },
                 DefaultFloatType = TypeCode.Decimal,
                 DecimalSeparator = '.'
             };
+            number.AddPrefix("0x", NumberOptions.Hex);
             var string_literal = new StringLiteral("string");
             string_literal.AddStartEnd("'", StringOptions.AllowsDoubledQuote);
             string_literal.AddStartEnd("\"", StringOptions.AllowsDoubledQuote);
@@ -70,7 +71,8 @@ namespace PrismaDB.QueryParser.MySQL
             var TO = ToTerm("TO");
             var STAR = ToTerm("*");
             var AUTO_INCREMENT = ToTerm("AUTO_INCREMENT");
-
+            var PRIMARY = ToTerm("PRIMARY");
+            var KEY = ToTerm("KEY");
             // Non-Terminals
             var Id = new NonTerminal("Id");
             var stmt = new NonTerminal("stmt");
@@ -168,8 +170,10 @@ namespace PrismaDB.QueryParser.MySQL
             var t_TIMESTAMP = ToTerm("TIMESTAMP");
             var t_DOUBLE = ToTerm("DOUBLE");
             var t_ENUM = ToTerm("ENUM");
+            var t_DATE = ToTerm("DATE");
+            var t_BLOB = ToTerm("BLOB");
             typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_TEXT | t_BINARY | t_VARBINARY | t_DATETIME | t_TIMESTAMP |
-                            t_DOUBLE | t_ENUM | t_BIGINT | t_SMALLINT | t_TINYINT;
+                            t_DOUBLE | t_ENUM | t_BIGINT | t_SMALLINT | t_TINYINT | t_DATE | t_BLOB;
             typeParamsOpt.Rule = ("(" + number + ")") | ("(" + enumValueList + ")") | Empty;
             enumValueList.Rule = MakePlusRule(enumValueList, comma, string_literal);
 
@@ -184,7 +188,7 @@ namespace PrismaDB.QueryParser.MySQL
             encryptType.Rule = et_STORE | et_INTEGER_ADDITION | et_INTEGER_MULTIPLICATION | et_SEARCH | et_RANGE;
 
             nullSpecOpt.Rule = NULL | (NOT + NULL) | Empty;
-            autoDefaultOpt.Rule = (DEFAULT + term) | AUTO_INCREMENT | Empty;
+            autoDefaultOpt.Rule = (DEFAULT + term) | AUTO_INCREMENT + PRIMARY + KEY | Empty;
 
             // Alter Statement
             alterStmt.Rule = ALTER + TABLE + Id + alterCmd;
@@ -244,7 +248,7 @@ namespace PrismaDB.QueryParser.MySQL
             binOp.Rule = ToTerm("+") | "-" | "*" | "/" | "%" // Arithmetic
                          | "&" | "|" | "^" // Bit
                          | "=" | ">" | "<" | ">=" | "<=" | "<>" | "!=" | "!<" | "!>"
-                         | "AND" | "OR" | "LIKE" | (NOT + "LIKE") | "IN" | (NOT + "IN");
+                         | "AND" | "OR" | "LIKE" | (NOT + "LIKE") | "IN" | (NOT + "IN") | "IS" + notOpt;
             notOpt.Rule = Empty | NOT;
             funCall.Rule = (Id + "(" + funArgs + ")") | CURRENT_TIMESTAMP;
             funArgs.Rule = Empty | exprList | STAR;
@@ -252,7 +256,7 @@ namespace PrismaDB.QueryParser.MySQL
             // Operators
             RegisterOperators(10, "*", "/", "%");
             RegisterOperators(9, "+", "-");
-            RegisterOperators(8, "=", ">", "<", ">=", "<=", "<>", "!=", "!<", "!>", "LIKE", "IN");
+            RegisterOperators(8, "=", ">", "<", ">=", "<=", "<>", "!=", "!<", "!>", "LIKE", "IN", "IS");
             RegisterOperators(7, "^", "&", "|");
             RegisterOperators(6, NOT);
             RegisterOperators(5, "AND");
