@@ -205,19 +205,21 @@ namespace ParserTests
         }
 
 
-        [Fact(DisplayName = "Parse PRISMADB EXPORT SETTINGS")]
-        public void Parse_ExportSettings()
+        [Fact(DisplayName = "Parse Commands")]
+        public void Parse_Commands()
         {
             // Setup 
             var parser = new MySqlParser();
-            var test = "PRISMADB EXPORT SETTINGS TO '/home/user/settings.json'";
+            var test = "PRISMADB EXPORT SETTINGS TO '/home/user/settings.json';" +
+                       "PRISMADB REGISTER USER 'sherlock' PASS '@22!B';";
 
             // Act 
             var result = parser.ParseToAst(test);
 
             // Assert 
-            var actual = (ExportSettingsCommand)result[0];
-            Assert.Equal("/home/user/settings.json", actual.FileUri.strvalue);
+            Assert.Equal("/home/user/settings.json", ((ExportSettingsCommand)result[0]).FileUri.strvalue);
+            Assert.Equal("sherlock", ((RegisterUserCommand)result[1]).UserId.strvalue);
+            Assert.Equal("@22!B", ((RegisterUserCommand)result[1]).Password.strvalue);
         }
 
         [Fact(DisplayName = "Parse SELECT w\\functions")]

@@ -86,9 +86,9 @@ namespace PrismaDB.QueryParser.MySQL
 
                             else if (stmtNode.Term.Name.Equals("registerUserCmd"))
                             {
-                                //var exportCommand =
-                                //    new ExportSettingsCommand(FindChildNode(stmtNode, "string").Token.ValueString);
-                                //queries.Add(exportCommand);
+                                var registerCommand =
+                                    new RegisterUserCommand(FindChildNode(stmtNode, "string").Token.ValueString, FindChildNode(stmtNode, "string", 1).Token.ValueString);
+                                queries.Add(registerCommand);
                             }
 
                             else if (stmtNode.Term.Name.Equals("useStmt"))

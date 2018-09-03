@@ -150,7 +150,7 @@ namespace PrismaDB.QueryParser.MySQL
             Id.Rule = MakePlusRule(Id, dot, Id_simple);
 
             stmt.Rule = createTableStmt | alterStmt | selectStmt | insertStmt | updateStmt | deleteStmt | useStmt |
-                        exportSettingsCmd;
+                        exportSettingsCmd | registerUserCmd;
 
 
             // Create Statement
