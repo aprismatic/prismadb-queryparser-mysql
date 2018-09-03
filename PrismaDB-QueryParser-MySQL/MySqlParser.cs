@@ -84,6 +84,13 @@ namespace PrismaDB.QueryParser.MySQL
                                 queries.Add(exportCommand);
                             }
 
+                            else if (stmtNode.Term.Name.Equals("registerUserCmd"))
+                            {
+                                var registerCommand =
+                                    new RegisterUserCommand(FindChildNode(stmtNode, "string").Token.ValueString, FindChildNode(stmtNode, "string", 1).Token.ValueString);
+                                queries.Add(registerCommand);
+                            }
+
                             else if (stmtNode.Term.Name.Equals("useStmt"))
                             {
                                 var useStmt = new UseStatement(BuildDatabaseRef(FindChildNode(stmtNode, "Id")));

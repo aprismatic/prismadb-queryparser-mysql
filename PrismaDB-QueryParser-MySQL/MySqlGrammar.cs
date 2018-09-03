@@ -85,6 +85,7 @@ namespace PrismaDB.QueryParser.MySQL
             var useStmt = new NonTerminal("useStmt");
 
             var exportSettingsCmd = new NonTerminal("exportSettingsCmd");
+            var registerUserCmd = new NonTerminal("registerUserCmd");
 
             var fieldDef = new NonTerminal("fieldDef");
             var fieldDefList = new NonTerminal("fieldDefList");
@@ -149,7 +150,7 @@ namespace PrismaDB.QueryParser.MySQL
             Id.Rule = MakePlusRule(Id, dot, Id_simple);
 
             stmt.Rule = createTableStmt | alterStmt | selectStmt | insertStmt | updateStmt | deleteStmt | useStmt |
-                        exportSettingsCmd;
+                        exportSettingsCmd | registerUserCmd;
 
 
             // Create Statement
@@ -196,6 +197,7 @@ namespace PrismaDB.QueryParser.MySQL
 
             // Command Statement 
             exportSettingsCmd.Rule = PRISMADB + "EXPORT" + "SETTINGS" + TO + string_literal;
+            registerUserCmd.Rule = PRISMADB + "REGISTER" + "USER" + string_literal + "PASS" + string_literal;
 
             // Use Statement
             useStmt.Rule = USE + Id;
