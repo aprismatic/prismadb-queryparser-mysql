@@ -33,6 +33,7 @@ namespace PrismaDB.QueryParser.MySQL
                 ttt.AddStartEnd("`", StringOptions.NoEscapes);
                 ttt.SetOutputTerminal(this, Id_simple);
             }
+            Id_simple.AllFirstChars += "*";
             var Variable = new VariableTerminal("variable");
             var comma = ToTerm(",");
             var dot = ToTerm(".");
