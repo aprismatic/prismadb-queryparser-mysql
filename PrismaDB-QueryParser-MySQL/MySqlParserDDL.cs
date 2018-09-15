@@ -60,7 +60,7 @@ namespace PrismaDB.QueryParser.MySQL
         private static ColumnDefinition BuildColumnDefinition(ParseTreeNode node)
         {
             // Create and set name of column definition
-            var colDef = new ColumnDefinition(BuildColumnRef(FindChildNode(node, "Id")).ColumnName);
+            var colDef = new ColumnDefinition(BuildColumnRef(FindChildNode(node, "Id")).ColumnName, SqlDataType.MySQL_INT);
 
             // Check for datatype
             var dataTypeNode = FindChildNode(node, "typeName");
@@ -70,75 +70,75 @@ namespace PrismaDB.QueryParser.MySQL
 
             if (FindChildNode(dataTypeNode, "INT") != null)
             {
-                colDef.DataType = SqlDataType.INT;
-                prohibitedLength = true;
-            }
-            else if (FindChildNode(dataTypeNode, "SMALLINT") != null)
-            {
-                colDef.DataType = SqlDataType.SMALLINT;
+                colDef.DataType = SqlDataType.MySQL_INT;
                 prohibitedLength = true;
             }
             else if (FindChildNode(dataTypeNode, "TINYINT") != null)
             {
-                colDef.DataType = SqlDataType.MYSQL_TINYINT;
+                colDef.DataType = SqlDataType.MySQL_TINYINT;
+                prohibitedLength = true;
+            }
+            else if (FindChildNode(dataTypeNode, "SMALLINT") != null)
+            {
+                colDef.DataType = SqlDataType.MySQL_SMALLINT;
                 prohibitedLength = true;
             }
             else if (FindChildNode(dataTypeNode, "BIGINT") != null)
             {
-                colDef.DataType = SqlDataType.BIGINT;
-                prohibitedLength = true;
-            }
-            else if (FindChildNode(dataTypeNode, "CHAR") != null)
-            {
-                colDef.DataType = SqlDataType.VARCHAR;
-            }
-            else if (FindChildNode(dataTypeNode, "VARCHAR") != null)
-            {
-                colDef.DataType = SqlDataType.VARCHAR;
-                requiredLength = true;
-            }
-            else if (FindChildNode(dataTypeNode, "TEXT") != null)
-            {
-                colDef.DataType = SqlDataType.TEXT;
-                prohibitedLength = true;
-            }
-            else if (FindChildNode(dataTypeNode, "BINARY") != null)
-            {
-                colDef.DataType = SqlDataType.VARBINARY;
-            }
-            else if (FindChildNode(dataTypeNode, "VARBINARY") != null)
-            {
-                colDef.DataType = SqlDataType.VARBINARY;
-                requiredLength = true;
-            }
-            else if (FindChildNode(dataTypeNode, "BLOB") != null)
-            {
-                colDef.DataType = SqlDataType.BLOB;
-                prohibitedLength = true;
-            }
-            else if (FindChildNode(dataTypeNode, "DATE") != null)
-            {
-                colDef.DataType = SqlDataType.DATE;
-                prohibitedLength = true;
-            }
-            else if (FindChildNode(dataTypeNode, "DATETIME") != null)
-            {
-                colDef.DataType = SqlDataType.DATETIME;
-                prohibitedLength = true;
-            }
-            else if (FindChildNode(dataTypeNode, "TIMESTAMP") != null)
-            {
-                colDef.DataType = SqlDataType.TIMESTAMP;
+                colDef.DataType = SqlDataType.MySQL_BIGINT;
                 prohibitedLength = true;
             }
             else if (FindChildNode(dataTypeNode, "DOUBLE") != null)
             {
-                colDef.DataType = SqlDataType.DOUBLE;
+                colDef.DataType = SqlDataType.MySQL_DOUBLE;
+                prohibitedLength = true;
+            }
+            else if (FindChildNode(dataTypeNode, "DATE") != null)
+            {
+                colDef.DataType = SqlDataType.MySQL_DATE;
+                prohibitedLength = true;
+            }
+            else if (FindChildNode(dataTypeNode, "DATETIME") != null)
+            {
+                colDef.DataType = SqlDataType.MySQL_DATETIME;
+                prohibitedLength = true;
+            }
+            else if (FindChildNode(dataTypeNode, "TIMESTAMP") != null)
+            {
+                colDef.DataType = SqlDataType.MySQL_TIMESTAMP;
+                prohibitedLength = true;
+            }
+            else if (FindChildNode(dataTypeNode, "CHAR") != null)
+            {
+                colDef.DataType = SqlDataType.MySQL_CHAR;
+            }
+            else if (FindChildNode(dataTypeNode, "VARCHAR") != null)
+            {
+                colDef.DataType = SqlDataType.MySQL_VARCHAR;
+                requiredLength = true;
+            }
+            else if (FindChildNode(dataTypeNode, "TEXT") != null)
+            {
+                colDef.DataType = SqlDataType.MySQL_TEXT;
+                prohibitedLength = true;
+            }
+            else if (FindChildNode(dataTypeNode, "BINARY") != null)
+            {
+                colDef.DataType = SqlDataType.MySQL_BINARY;
+            }
+            else if (FindChildNode(dataTypeNode, "VARBINARY") != null)
+            {
+                colDef.DataType = SqlDataType.MySQL_VARBINARY;
+                requiredLength = true;
+            }
+            else if (FindChildNode(dataTypeNode, "BLOB") != null)
+            {
+                colDef.DataType = SqlDataType.MySQL_BLOB;
                 prohibitedLength = true;
             }
             else if (FindChildNode(dataTypeNode, "ENUM") != null)
             {
-                colDef.DataType = SqlDataType.ENUM;
+                colDef.DataType = SqlDataType.MySQL_ENUM;
                 prohibitedLength = true;
             }
 
