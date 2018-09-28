@@ -212,7 +212,7 @@ namespace PrismaDB.QueryParser.MySQL
                 return ColumnEncryptionFlags.None;
 
             var encryptTypeParNode = FindChildNode(node, "encryptTypePar");
-            if (encryptTypeParNode == null || FindChildNode(node, "ENCRYPTED") == null)
+            if (encryptTypeParNode == null && FindChildNode(node, "ENCRYPTED") == null)
                 return ColumnEncryptionFlags.None;
 
             var encryptTypeNodes = FindChildNode(encryptTypeParNode, "encryptTypeList");

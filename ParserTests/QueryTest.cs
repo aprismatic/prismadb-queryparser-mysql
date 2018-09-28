@@ -211,7 +211,11 @@ namespace ParserTests
             // Setup 
             var parser = new MySqlParser();
             var test = "PRISMADB EXPORT SETTINGS TO '/home/user/settings.json';" +
-                       "PRISMADB REGISTER USER 'sherlock' PASS '@22!B';";
+                       "PRISMADB REGISTER USER 'sherlock' PASS '@22!B';" +
+                       "PRISMADB UPDATE KEYS;" +
+                       "PRISMADB DECRYPT tt.col1;" +
+                       "PRISMADB ENCRYPT tt.col1;" +
+                       "PRISMADB ENCRYPT tt.col1 FOR (STORE, SEARCH);";
 
             // Act 
             var result = parser.ParseToAst(test);
@@ -220,6 +224,14 @@ namespace ParserTests
             Assert.Equal("/home/user/settings.json", ((ExportSettingsCommand)result[0]).FileUri.strvalue);
             Assert.Equal("sherlock", ((RegisterUserCommand)result[1]).UserId.strvalue);
             Assert.Equal("@22!B", ((RegisterUserCommand)result[1]).Password.strvalue);
+            Assert.Equal(typeof(UpdateKeysCommand), result[2].GetType());
+            Assert.Equal(new ColumnRef("tt", "col1"), ((DecryptColumnCommand)result[3]).Column);
+            Assert.Equal(new ColumnRef("tt", "col1"), ((EncryptColumnCommand)result[4]).Column);
+            Assert.Equal(ColumnEncryptionFlags.Store, ((EncryptColumnCommand)result[4]).EncryptionFlags);
+            Assert.True(((EncryptColumnCommand)result[5]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Store));
+            Assert.True(((EncryptColumnCommand)result[5]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Search));
+            Assert.False(((EncryptColumnCommand)result[5]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.IntegerAddition));
+            Assert.False(((EncryptColumnCommand)result[5]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.IntegerMultiplication));
         }
 
         [Fact(DisplayName = "Parse SELECT w\\functions")]

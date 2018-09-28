@@ -91,6 +91,27 @@ namespace PrismaDB.QueryParser.MySQL
                                 queries.Add(registerCommand);
                             }
 
+                            else if (stmtNode.Term.Name.Equals("updateKeysCmd"))
+                            {
+                                var updateKeysCommand =
+                                    new UpdateKeysCommand();
+                                queries.Add(updateKeysCommand);
+                            }
+
+                            else if (stmtNode.Term.Name.Equals("decryptColumnCmd"))
+                            {
+                                var decryptColumnCommand = 
+                                    new DecryptColumnCommand(BuildColumnRef(FindChildNode(stmtNode, "Id")));
+                                queries.Add(decryptColumnCommand);
+                            }
+
+                            else if (stmtNode.Term.Name.Equals("encryptColumnCmd"))
+                            {
+                                var encryptColumnCommand =
+                                    new EncryptColumnCommand(BuildColumnRef(FindChildNode(stmtNode, "Id")), CheckEncryption(stmtNode));
+                                queries.Add(encryptColumnCommand);
+                            }
+
                             else if (stmtNode.Term.Name.Equals("useStmt"))
                             {
                                 var useStmt = new UseStatement(BuildDatabaseRef(FindChildNode(stmtNode, "Id")));
