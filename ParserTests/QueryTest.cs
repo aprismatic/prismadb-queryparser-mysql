@@ -204,7 +204,6 @@ namespace ParserTests
             Assert.Equal(new StringConstant("def"), actual.ColumnDefinitions[7].EnumValues[1]);
         }
 
-
         [Fact(DisplayName = "Parse Commands")]
         public void Parse_Commands()
         {
