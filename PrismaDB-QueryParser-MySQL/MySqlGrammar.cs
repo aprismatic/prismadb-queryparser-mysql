@@ -87,6 +87,9 @@ namespace PrismaDB.QueryParser.MySQL
 
             var exportSettingsCmd = new NonTerminal("exportSettingsCmd");
             var registerUserCmd = new NonTerminal("registerUserCmd");
+            var updateKeysCmd = new NonTerminal("updateKeysCmd");
+            var decryptColumnCmd = new NonTerminal("decryptColumnCmd");
+            var encryptColumnCmd = new NonTerminal("encryptColumnCmd");
 
             var fieldDef = new NonTerminal("fieldDef");
             var fieldDefList = new NonTerminal("fieldDefList");
@@ -153,7 +156,7 @@ namespace PrismaDB.QueryParser.MySQL
             Id.Rule = MakePlusRule(Id, dot, Id_simple);
 
             stmt.Rule = createTableStmt | alterStmt | selectStmt | insertStmt | updateStmt | deleteStmt | useStmt |
-                        exportSettingsCmd | registerUserCmd;
+                        exportSettingsCmd | registerUserCmd | updateKeysCmd | decryptColumnCmd | encryptColumnCmd;
 
 
             // Create Statement
@@ -198,9 +201,13 @@ namespace PrismaDB.QueryParser.MySQL
             alterStmt.Rule = ALTER + TABLE + Id + alterCmd;
             alterCmd.Rule = MODIFY + COLUMN + fieldDef;
 
-            // Command Statement 
+            // Command Statements 
             exportSettingsCmd.Rule = PRISMADB + "EXPORT" + "SETTINGS" + TO + string_literal;
             registerUserCmd.Rule = PRISMADB + "REGISTER" + "USER" + string_literal + "PASS" + string_literal;
+            updateKeysCmd.Rule = PRISMADB + "UPDATE" + "KEYS";
+            decryptColumnCmd.Rule = PRISMADB + "DECRYPT" + Id;
+            encryptColumnCmd.Rule = PRISMADB + "ENCRYPT" + Id + encryptTypePar;
+
 
             // Use Statement
             useStmt.Rule = USE + Id;
