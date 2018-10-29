@@ -174,13 +174,13 @@ namespace PrismaDB.QueryParser.MySQL
         {
             TableRef exp = null;
 
-            if (node.ChildNodes.Count == 1 && node.ChildNodes[0].Term.Name.Equals("id_simple"))
-                return new TableRef(node.ChildNodes[0].Token.ValueString);
+            if (node.ChildNodes.Count == 1 && node.ChildNodes[0].Term.Name.Equals("IdStar"))
+                return new TableRef(node.ChildNodes[0].ChildNodes[0].Token.ValueString);
 
             if (node.ChildNodes.Count >= 1 && node.ChildNodes[0].Term.Name.Equals("Id"))
-                exp = new TableRef(node.ChildNodes[0].ChildNodes[0].Token.ValueString);
+                exp = new TableRef(node.ChildNodes[0].ChildNodes[0].ChildNodes[0].Token.ValueString);
             if (node.ChildNodes.Count == 2 && node.ChildNodes[1].Term.Name.Equals("Id"))
-                exp.Alias = new Identifier(node.ChildNodes[1].ChildNodes[0].Token.ValueString);
+                exp.Alias = new Identifier(node.ChildNodes[1].ChildNodes[0].ChildNodes[0].Token.ValueString);
             return exp;
         }
 
@@ -195,12 +195,12 @@ namespace PrismaDB.QueryParser.MySQL
             ColumnRef exp = null;
 
             // Without table name
-            if (node.ChildNodes.Count == 1 && node.ChildNodes[0].Term.Name.Equals("id_simple"))
-                exp = new ColumnRef(node.ChildNodes[0].Token.ValueString);
+            if (node.ChildNodes.Count == 1 && node.ChildNodes[0].Term.Name.Equals("IdStar"))
+                exp = new ColumnRef(node.ChildNodes[0].ChildNodes[0].Token.ValueString);
             // With table name
-            else if (node.ChildNodes.Count == 2 && node.ChildNodes[0].Term.Name.Equals("id_simple") &&
-                     node.ChildNodes[1].Term.Name.Equals("id_simple"))
-                exp = new ColumnRef(node.ChildNodes[0].Token.ValueString, node.ChildNodes[1].Token.ValueString);
+            else if (node.ChildNodes.Count == 2 && node.ChildNodes[0].Term.Name.Equals("IdStar") &&
+                     node.ChildNodes[1].Term.Name.Equals("IdStar"))
+                exp = new ColumnRef(node.ChildNodes[0].ChildNodes[0].Token.ValueString, node.ChildNodes[1].ChildNodes[0].Token.ValueString);
             return exp;
         }
 
@@ -214,8 +214,8 @@ namespace PrismaDB.QueryParser.MySQL
         {
             DatabaseRef exp = null;
 
-            if (node.ChildNodes.Count == 1 && node.ChildNodes[0].Term.Name.Equals("id_simple"))
-                exp = new DatabaseRef(node.ChildNodes[0].Token.ValueString);
+            if (node.ChildNodes.Count == 1 && node.ChildNodes[0].Term.Name.Equals("IdStar"))
+                exp = new DatabaseRef(node.ChildNodes[0].ChildNodes[0].Token.ValueString);
             return exp;
         }
 
@@ -238,9 +238,9 @@ namespace PrismaDB.QueryParser.MySQL
                      node.ChildNodes[1].Term.Name.Equals("funArgs"))
             {
                 if (node.ChildNodes[0].ChildNodes.Count == 1 &&
-                    node.ChildNodes[0].ChildNodes[0].Term.Name.Equals("id_simple"))
+                    node.ChildNodes[0].ChildNodes[0].Term.Name.Equals("IdStar"))
                 {
-                    var funcName = node.ChildNodes[0].ChildNodes[0].Token.ValueString.ToUpperInvariant();
+                    var funcName = node.ChildNodes[0].ChildNodes[0].ChildNodes[0].Token.ValueString.ToUpperInvariant();
                     switch (funcName)
                     {
                         case "SUM":
