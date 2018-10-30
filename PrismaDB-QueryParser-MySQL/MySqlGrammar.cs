@@ -33,10 +33,10 @@ namespace PrismaDB.QueryParser.MySQL
                 ttt.AddStartEnd("`", StringOptions.NoEscapes);
                 ttt.SetOutputTerminal(this, Id_simple);
             }
-            Id_simple.AllFirstChars += "*";
             var Variable = new VariableTerminal("variable");
             var comma = ToTerm(",");
             var dot = ToTerm(".");
+            var star = ToTerm("*");
             var CREATE = ToTerm("CREATE");
             var NULL = ToTerm("NULL");
             var NOT = ToTerm("NOT");
@@ -76,6 +76,7 @@ namespace PrismaDB.QueryParser.MySQL
             var KEY = ToTerm("KEY");
             // Non-Terminals
             var Id = new NonTerminal("Id");
+            var IdStar = new NonTerminal("IdStar");
             var stmt = new NonTerminal("stmt");
             var createTableStmt = new NonTerminal("createTableStmt");
             var alterStmt = new NonTerminal("alterStmt");
@@ -153,7 +154,8 @@ namespace PrismaDB.QueryParser.MySQL
             stmtList.Rule = MakePlusRule(stmtList, stmtLine);
 
             // ID
-            Id.Rule = MakePlusRule(Id, dot, Id_simple);
+            IdStar.Rule = Id_simple | star;
+            Id.Rule = MakePlusRule(Id, dot, IdStar);
 
             stmt.Rule = createTableStmt | alterStmt | selectStmt | insertStmt | updateStmt | deleteStmt | useStmt |
                         exportSettingsCmd | registerUserCmd | updateKeysCmd | decryptColumnCmd | encryptColumnCmd;
