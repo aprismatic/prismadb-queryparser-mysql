@@ -231,6 +231,8 @@ namespace PrismaDB.QueryParser.MySQL
                     flags |= ColumnEncryptionFlags.Search;
                 else if (FindChildNode(childNode, "RANGE") != null)
                     flags |= ColumnEncryptionFlags.Range;
+                else if (FindChildNode(childNode, "WILDCARD") != null)
+                    flags |= ColumnEncryptionFlags.Wildcard;
             return flags;
         }
 
