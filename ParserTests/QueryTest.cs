@@ -214,7 +214,8 @@ namespace ParserTests
                        "PRISMADB UPDATE KEYS;" +
                        "PRISMADB DECRYPT tt.col1;" +
                        "PRISMADB ENCRYPT tt.col1;" +
-                       "PRISMADB ENCRYPT tt.col1 FOR (STORE, SEARCH);";
+                       "PRISMADB ENCRYPT tt.col1 FOR (STORE, SEARCH);" +
+                       "PRISMADB DECRYPT tt.col1 STATUS;";
 
             // Act 
             var result = parser.ParseToAst(test);
@@ -224,13 +225,16 @@ namespace ParserTests
             Assert.Equal("sherlock", ((RegisterUserCommand)result[1]).UserId.strvalue);
             Assert.Equal("@22!B", ((RegisterUserCommand)result[1]).Password.strvalue);
             Assert.Equal(typeof(UpdateKeysCommand), result[2].GetType());
+            Assert.False(((UpdateKeysCommand)result[2]).StatusCheck);
             Assert.Equal(new ColumnRef("tt", "col1"), ((DecryptColumnCommand)result[3]).Column);
+            Assert.False(((DecryptColumnCommand)result[3]).StatusCheck);
             Assert.Equal(new ColumnRef("tt", "col1"), ((EncryptColumnCommand)result[4]).Column);
             Assert.Equal(ColumnEncryptionFlags.Store, ((EncryptColumnCommand)result[4]).EncryptionFlags);
             Assert.True(((EncryptColumnCommand)result[5]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Store));
             Assert.True(((EncryptColumnCommand)result[5]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Search));
             Assert.False(((EncryptColumnCommand)result[5]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Addition));
             Assert.False(((EncryptColumnCommand)result[5]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Multiplication));
+            Assert.True(((DecryptColumnCommand)result[6]).StatusCheck);
         }
 
         [Fact(DisplayName = "Parse SELECT w\\functions")]
@@ -387,6 +391,21 @@ namespace ParserTests
             // Assert
             var actual = (UseStatement)result[0];
             Assert.Equal(new DatabaseRef("ThisDB"), actual.Database);
+        }
+
+        [Fact(DisplayName = "Parse DROP TABLE")]
+        public void Parse_DropTable()
+        {
+            // Setup
+            var parser = new MySqlParser();
+            var test = "DROP TABLE tt";
+
+            // Act
+            var result = parser.ParseToAst(test);
+
+            // Assert
+            var actual = (DropTableQuery)result[0];
+            Assert.Equal(new TableRef("tt"), actual.TableName);
         }
 
         [Fact(DisplayName = "Parse variables")]
