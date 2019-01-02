@@ -393,6 +393,21 @@ namespace ParserTests
             Assert.Equal(new DatabaseRef("ThisDB"), actual.Database);
         }
 
+        [Fact(DisplayName = "Parse DROP TABLE")]
+        public void Parse_DropTable()
+        {
+            // Setup
+            var parser = new MySqlParser();
+            var test = "DROP TABLE tt";
+
+            // Act
+            var result = parser.ParseToAst(test);
+
+            // Assert
+            var actual = (DropTableQuery)result[0];
+            Assert.Equal(new TableRef("tt"), actual.TableName);
+        }
+
         [Fact(DisplayName = "Parse variables")]
         public void Parse_Variables()
         {
