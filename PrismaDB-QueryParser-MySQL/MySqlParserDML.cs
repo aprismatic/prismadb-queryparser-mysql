@@ -161,16 +161,16 @@ namespace PrismaDB.QueryParser.MySQL
                 {
                     selQuery.Where = BuildWhereClause(mainNode);
                 }
+                // Check for ORDER BY 
+                else if (mainNode.Term.Name.Equals("orderClauseOpt"))
+                {
+                    selQuery.OrderBy = BuildOrderByClause(mainNode);
+                }
                 // Check for LIMIT
                 else if (mainNode.Term.Name.Equals("selRestrOpt"))
                 {
                     if (FindChildNode(mainNode, "LIMIT") != null)
                         selQuery.Limit = (uint)(BigInteger)FindChildNode(mainNode, "number").Token.Value;
-                }
-                // Check for ORDER BY 
-                else if (mainNode.Term.Name.Equals("orderClauseOpt"))
-                {
-                    selQuery.OrderBy = BuildOrderByClause(mainNode);
                 }
         }
 

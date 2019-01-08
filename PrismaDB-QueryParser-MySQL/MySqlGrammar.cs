@@ -238,7 +238,7 @@ namespace PrismaDB.QueryParser.MySQL
             deleteStmt.Rule = DELETE + FROM + Id + whereClauseOpt;
 
             // Select Statement
-            selectStmt.Rule = SELECT + selList + fromClauseOpt + whereClauseOpt + groupClauseOpt + selRestrOpt + orderClauseOpt;
+            selectStmt.Rule = SELECT + selList + fromClauseOpt + whereClauseOpt + groupClauseOpt + orderClauseOpt + selRestrOpt;
             selRestrOpt.Rule = Empty | (LIMIT + number);
             selList.Rule = columnItemList | STAR;
             columnItemList.Rule = MakePlusRule(columnItemList, comma, columnItem);
