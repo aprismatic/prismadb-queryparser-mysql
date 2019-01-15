@@ -13,7 +13,7 @@ namespace ParserTests
         [Fact(DisplayName = "Test")]
         public void Test()
         {
-            var q1 = MySqlParser.ParseToAst("SELECT `abc` FROM `def`;");
+            var q1 = MySqlParser.ParseToAst("select abc from def;");
 
             Assert.Single(q1);
 

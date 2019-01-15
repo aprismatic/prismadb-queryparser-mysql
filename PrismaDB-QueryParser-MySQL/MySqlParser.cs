@@ -15,7 +15,7 @@ namespace PrismaDB.QueryParser.MySQL
             try
             {
                 var inputStream = new AntlrInputStream(input);
-                var sqlLexer = new AntlrMySqlLexer(inputStream);
+                var sqlLexer = new AntlrMySqlLexer(new CaseChangingCharStream(inputStream, true));
                 var tokens = new CommonTokenStream(sqlLexer);
                 var sqlParser = new AntlrMySqlParser(tokens);
 
@@ -49,32 +49,12 @@ namespace PrismaDB.QueryParser.MySQL
             return queries;
         }
 
-        public override object VisitSqlStatement([NotNull] AntlrMySqlParser.SqlStatementContext context)
-        {
-            if (context.ddlStatement() != null)
-                return Visit(context.ddlStatement());
-            else if (context.dmlStatement() != null)
-                return Visit(context.ddlStatement());
-            else
-                return null;
-        }
-
-        public override object VisitDdlStatement([NotNull] AntlrMySqlParser.DdlStatementContext context)
-        {
-            return null;
-        }
-
-        public override object VisitDmlStatement([NotNull] AntlrMySqlParser.DmlStatementContext context)
-        {
-            return VisitChildren(context);
-        }
-
         public override object VisitCreateTable([NotNull] AntlrMySqlParser.CreateTableContext context)
         {
             return new CreateTableQuery();
         }
 
-        public override object VisitSelectStatement([NotNull] AntlrMySqlParser.SelectStatementContext context)
+        public override object VisitSimpleSelect([NotNull] AntlrMySqlParser.SimpleSelectContext context)
         {
             return new SelectQuery();
         }
