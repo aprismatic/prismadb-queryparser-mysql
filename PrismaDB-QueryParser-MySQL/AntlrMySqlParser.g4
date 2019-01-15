@@ -23,9 +23,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-parser grammar MySqlParser;
+parser grammar AntlrMySqlParser;
 
-options { tokenVocab=MySqlLexer; }
+options { tokenVocab=AntlrMySqlLexer; }
 
 
 // Top Level Description
@@ -611,7 +611,7 @@ alterSpecification
     | DROP FOREIGN KEY uid                                          #alterByDropForeignKey
     | DISABLE KEYS                                                  #alterByDisableKeys
     | ENABLE KEYS                                                   #alterByEnableKeys
-    | RENAME renameFormat=(TO | AS)? uid                            #alterByRename
+    | RENAME renameFormat=(TO | AS)? (uid | fullId)                 #alterByRename
     | ORDER BY uidList                                              #alterByOrder
     | CONVERT TO CHARACTER SET charsetName
       (COLLATE collationName)?                                      #alterByConvertCharset

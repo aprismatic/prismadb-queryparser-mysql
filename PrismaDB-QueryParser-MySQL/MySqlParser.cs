@@ -1,0 +1,82 @@
+﻿using Antlr4.Runtime;
+using Antlr4.Runtime.Misc;
+using PrismaDB.QueryAST;
+using PrismaDB.QueryAST.DDL;
+using PrismaDB.QueryAST.DML;
+using System;
+using System.Collections.Generic;
+
+namespace PrismaDB.QueryParser.MySQL
+{
+    public static class MySqlParser
+    {
+        public static List<Query> ParseToAst(String input)
+        {
+            try
+            {
+                var inputStream = new AntlrInputStream(input);
+                var sqlLexer = new AntlrMySqlLexer(inputStream);
+                var tokens = new CommonTokenStream(sqlLexer);
+                var sqlParser = new AntlrMySqlParser(tokens);
+
+                var visitor = new MySqlVisitor();
+                var res = visitor.Visit(sqlParser.root()) as List<Query>;
+                return res;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex);
+                return null;
+            }
+
+        }
+    }
+
+    public class MySqlVisitor : AntlrMySqlParserBaseVisitor<object>
+    {
+        public override object VisitRoot([NotNull] AntlrMySqlParser.RootContext context)
+        {
+            return Visit(context.sqlStatements());
+        }
+
+        public override object VisitSqlStatements([NotNull] AntlrMySqlParser.SqlStatementsContext context)
+        {
+            var queries = new List<Query>();
+            foreach (var stmt in context.sqlStatement())
+            {
+                queries.Add(Visit(stmt) as Query);
+            }
+            return queries;
+        }
+
+        public override object VisitSqlStatement([NotNull] AntlrMySqlParser.SqlStatementContext context)
+        {
+            if (context.ddlStatement() != null)
+                return Visit(context.ddlStatement());
+            else if (context.dmlStatement() != null)
+                return Visit(context.ddlStatement());
+            else
+                return null;
+        }
+
+        public override object VisitDdlStatement([NotNull] AntlrMySqlParser.DdlStatementContext context)
+        {
+            return null;
+        }
+
+        public override object VisitDmlStatement([NotNull] AntlrMySqlParser.DmlStatementContext context)
+        {
+            return VisitChildren(context);
+        }
+
+        public override object VisitCreateTable([NotNull] AntlrMySqlParser.CreateTableContext context)
+        {
+            return new CreateTableQuery();
+        }
+
+        public override object VisitSelectStatement([NotNull] AntlrMySqlParser.SelectStatementContext context)
+        {
+            return new SelectQuery();
+        }
+    }
+}
