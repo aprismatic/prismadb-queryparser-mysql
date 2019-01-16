@@ -12,23 +12,14 @@ namespace PrismaDB.QueryParser.MySQL
     {
         public static List<Query> ParseToAst(String input)
         {
-            try
-            {
-                var inputStream = new AntlrInputStream(input);
-                var sqlLexer = new AntlrMySqlLexer(new CaseChangingCharStream(inputStream, true));
-                var tokens = new CommonTokenStream(sqlLexer);
-                var sqlParser = new AntlrMySqlParser(tokens);
+            var inputStream = new AntlrInputStream(input);
+            var sqlLexer = new AntlrMySqlLexer(new CaseChangingCharStream(inputStream, true));
+            var tokens = new CommonTokenStream(sqlLexer);
+            var sqlParser = new AntlrMySqlParser(tokens);
 
-                var visitor = new MySqlVisitor();
-                var res = visitor.Visit(sqlParser.root()) as List<Query>;
-                return res;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error: " + ex);
-                return null;
-            }
-
+            var visitor = new MySqlVisitor();
+            var res = visitor.Visit(sqlParser.root()) as List<Query>;
+            return res;
         }
     }
 
