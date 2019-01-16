@@ -19,5 +19,19 @@ namespace ParserTests
 
             Assert.IsType<SelectQuery>(q1[0]);
         }
+
+        [Fact(DisplayName = "SpeedTest")]
+        public void SpeedTest()
+        {
+            for (var i = 0; i < 100; i++)
+            {
+                
+                var q1 = MySqlParser.ParseToAst($"select {PrismaDB.Commons.Helper.GetRandomString(12)} from {PrismaDB.Commons.Helper.GetRandomString(12)};");
+
+                Assert.Single(q1);
+
+                Assert.IsType<SelectQuery>(q1[0]);
+            }
+        }
     }
 }
