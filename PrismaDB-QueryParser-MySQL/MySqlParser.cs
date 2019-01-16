@@ -51,12 +51,35 @@ namespace PrismaDB.QueryParser.MySQL
 
         public override object VisitCreateTable([NotNull] AntlrMySqlParser.CreateTableContext context)
         {
-            return new CreateTableQuery();
+            var ctq = new CreateTableQuery();
+            return ctq;
         }
 
         public override object VisitSimpleSelect([NotNull] AntlrMySqlParser.SimpleSelectContext context)
         {
-            return new SelectQuery();
+            var sq = Visit(context.querySpecification()) as SelectQuery;
+            return sq;
+        }
+
+        public override object VisitQuerySpecification([NotNull] AntlrMySqlParser.QuerySpecificationContext context)
+        {
+            var sq = new SelectQuery();
+            sq.Limit = Visit(context.limitClause()) as uint?;
+            return sq;
+        }
+
+        public override object VisitLimitClause([NotNull] AntlrMySqlParser.LimitClauseContext context)
+        {
+            if (context.OFFSET() != null || context.decimalLiteral().Length > 1)
+                throw new ApplicationException("LIMIT clause currently does not support OFFSET.");
+
+            var res = Visit(context.decimalLiteral()[0]) as IntConstant;
+            return (uint?)res.intvalue;
+        }
+
+        public override object VisitDecimalLiteral([NotNull] AntlrMySqlParser.DecimalLiteralContext context)
+        {
+            return new IntConstant(Int64.Parse(context.GetText()));
         }
     }
 }
