@@ -1,8 +1,6 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
 using PrismaDB.QueryAST;
-using PrismaDB.QueryAST.DDL;
-using PrismaDB.QueryAST.DML;
 using System;
 using System.Collections.Generic;
 
@@ -18,12 +16,12 @@ namespace PrismaDB.QueryParser.MySQL
             var sqlParser = new AntlrMySqlParser(tokens);
 
             var visitor = new MySqlVisitor();
-            var res = visitor.Visit(sqlParser.root()) as List<Query>;
+            var res = (List<Query>)visitor.Visit(sqlParser.root());
             return res;
         }
     }
 
-    public class MySqlVisitor : AntlrMySqlParserBaseVisitor<object>
+    public partial class MySqlVisitor : AntlrMySqlParserBaseVisitor<object>
     {
         public override object VisitRoot([NotNull] AntlrMySqlParser.RootContext context)
         {
@@ -35,39 +33,9 @@ namespace PrismaDB.QueryParser.MySQL
             var queries = new List<Query>();
             foreach (var stmt in context.sqlStatement())
             {
-                queries.Add(Visit(stmt) as Query);
+                queries.Add((Query)Visit(stmt));
             }
             return queries;
-        }
-
-        public override object VisitCreateTable([NotNull] AntlrMySqlParser.CreateTableContext context)
-        {
-            var ctq = new CreateTableQuery();
-            return ctq;
-        }
-
-        public override object VisitSimpleSelect([NotNull] AntlrMySqlParser.SimpleSelectContext context)
-        {
-            var sq = Visit(context.querySpecification()) as SelectQuery;
-            return sq;
-        }
-
-        public override object VisitQuerySpecification([NotNull] AntlrMySqlParser.QuerySpecificationContext context)
-        {
-            var sq = new SelectQuery();
-            sq.Limit = Visit(context.limitClause()) as uint?;
-            return sq;
-        }
-
-        public override object VisitLimitClause([NotNull] AntlrMySqlParser.LimitClauseContext context)
-        {
-            var res = Visit(context.decimalLiteral()) as IntConstant;
-            return (uint?)res.intvalue;
-        }
-
-        public override object VisitDecimalLiteral([NotNull] AntlrMySqlParser.DecimalLiteralContext context)
-        {
-            return new IntConstant(Int64.Parse(context.GetText()));
         }
     }
 }

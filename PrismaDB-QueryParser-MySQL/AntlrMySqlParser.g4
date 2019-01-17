@@ -242,7 +242,7 @@ groupByItem
 limitClause
     : LIMIT
     (
-      limit=decimalLiteral
+      limit=intLiteral
     )
     ;
 
@@ -292,6 +292,10 @@ dottedId
 
 //    Literals
 
+intLiteral
+    : INT_LITERAL
+    ;
+
 decimalLiteral
     : DECIMAL_LITERAL
     ;
@@ -301,18 +305,16 @@ stringLiteral
     ;
 
 hexadecimalLiteral
-    : HEXADECIMAL_LITERAL;
+    : HEXADECIMAL_LITERAL
+    ;
 
 nullNotnull
     : NOT? NULL_LITERAL
     ;
 
 constant
-    : stringLiteral | decimalLiteral
-    | '-' decimalLiteral
-    | hexadecimalLiteral
-    | REAL_LITERAL
-    | NOT? nullLiteral=NULL_LITERAL
+    : intLiteral | stringLiteral
+    | decimalLiteral | hexadecimalLiteral
     ;
 
 
@@ -336,15 +338,15 @@ dataType
     ;
 
 lengthOneDimension
-    : '(' decimalLiteral ')'
+    : '(' intLiteral ')'
     ;
 
 lengthTwoDimension
-    : '(' decimalLiteral ',' decimalLiteral ')'
+    : '(' intLiteral ',' intLiteral ')'
     ;
 
 lengthTwoOptionalDimension
-    : '(' decimalLiteral (',' decimalLiteral)? ')'
+    : '(' intLiteral (',' intLiteral)? ')'
     ;
 
 
@@ -414,10 +416,10 @@ scalarFunctionName
     ;
 
 functionArgs
-    : (constant | fullColumnName | functionCall | expression)
+    : functionArg
     (
       ','
-      (constant | fullColumnName | functionCall | expression)
+      functionArg
     )*
     ;
 
@@ -436,7 +438,7 @@ expression
     ;
 
 predicate
-    : predicate NOT? IN '(' (selectStatement | expressions) ')'     #inPredicate
+    : predicate NOT? IN '(' (expressions) ')'                       #inPredicate
     | predicate IS nullNotnull                                      #isNullPredicate
     | left=predicate comparisonOperator right=predicate             #binaryComparasionPredicate
     | predicate NOT? LIKE predicate                                 #likePredicate
@@ -451,7 +453,6 @@ expressionAtom
     | functionCall                                                  #functionCallExpressionAtom
     | mysqlVariable                                                 #mysqlVariableExpressionAtom
     | unaryOperator expressionAtom                                  #unaryExpressionAtom
-    | '(' expression (',' expression)* ')'                          #nestedExpressionAtom
     | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
     ;
 

@@ -164,11 +164,10 @@ COLON_SYMB:                          ':';
 
 
 STRING_LITERAL:                      DQUOTA_STRING | SQUOTA_STRING;
-DECIMAL_LITERAL:                     DEC_DIGIT+;
+INT_LITERAL:                         '-'? DEC_DIGIT+;
+DECIMAL_LITERAL:                     '-'? (DEC_DIGIT+)? '.' DEC_DIGIT+;
 HEXADECIMAL_LITERAL:                 'X' '\'' (HEX_DIGIT HEX_DIGIT)+ '\''
                                      | '0X' HEX_DIGIT+;
-
-REAL_LITERAL:                        (DEC_DIGIT+)? '.' DEC_DIGIT+;
 
 
 
