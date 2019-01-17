@@ -45,7 +45,7 @@ namespace ParserBenchmark
                 MySqlParser.ParseToAst($"select {PrismaDB.Commons.Helper.GetRandomString(12)} from {PrismaDB.Commons.Helper.GetRandomString(12)} LIMIT 1;");
             }
             watch.Stop();
-            Console.WriteLine($"100000 similar queries: {watch.ElapsedMilliseconds}");
+            Console.WriteLine($"1000000 similar queries: {watch.ElapsedMilliseconds}");
 
         }
     }

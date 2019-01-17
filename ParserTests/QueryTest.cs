@@ -27,7 +27,7 @@ namespace ParserTests
             for (var i = 0; i < 10000; i++)
             {
                 
-                var q1 = MySqlParser.ParseToAst($"select {PrismaDB.Commons.Helper.GetRandomString(12)} from {PrismaDB.Commons.Helper.GetRandomString(12)};");
+                var q1 = MySqlParser.ParseToAst($"select {PrismaDB.Commons.Helper.GetRandomString(12)} from {PrismaDB.Commons.Helper.GetRandomString(12)} LIMIT 1;");
 
                 Assert.Single(q1);
 

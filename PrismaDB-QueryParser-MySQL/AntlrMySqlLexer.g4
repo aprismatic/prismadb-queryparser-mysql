@@ -46,6 +46,8 @@ ALTER:                               'ALTER';
 AND:                                 'AND';
 AS:                                  'AS';
 ASC:                                 'ASC';
+AUTO_INCREMENT:                      'AUTO_INCREMENT';
+BY:                                  'BY';
 COLUMN:                              'COLUMN';
 CREATE:                              'CREATE';
 CROSS:                               'CROSS';
@@ -67,6 +69,7 @@ KEYS:                                'KEYS';
 LEFT:                                'LEFT';
 LIKE:                                'LIKE';
 LIMIT:                               'LIMIT';
+MODIFY:                              'MODIFY';
 NOT:                                 'NOT';
 NULL_LITERAL:                        'NULL';
 ON:                                  'ON';
@@ -106,10 +109,17 @@ TEXT:                                'TEXT';
 ENUM:                                'ENUM';
 
 
-// Group function Keywords
+// Common function names
 
-COUNT:                               'COUNT';
 SUM:                                 'SUM';
+AVG:                                 'AVG';
+ABS:                                 'ABS';
+COUNT:                               'COUNT';
+MIN:                                 'MIN';
+MAX:                                 'MAX';
+NOW:                                 'NOW';
+UTC_TIMESTAMP:                       'UTC_TIMESTAMP';
+TIMEDIFF:                            'TIMEDIFF';
 
 
 // Common function Keywords
@@ -143,9 +153,6 @@ RR_BRACKET:                          ')';
 COMMA:                               ',';
 SEMI:                                ';';
 AT_SIGN:                             '@';
-ZERO_DECIMAL:                        '0';
-ONE_DECIMAL:                         '1';
-TWO_DECIMAL:                         '2';
 SINGLE_QUOTE_SYMB:                   '\'';
 DOUBLE_QUOTE_SYMB:                   '"';
 REVERSE_QUOTE_SYMB:                  '`';
@@ -178,6 +185,11 @@ DOT_ID:                              '.' ID_LITERAL;
 
 ID:                                  ID_LITERAL;
 REVERSE_QUOTE_ID:                    '`' ~'`'+ '`';
+GLOBAL_ID:                           '@' '@' 
+                                (
+                                  [A-Z0-9._$]+ 
+                                  | BQUOTA_STRING
+                                );
 
 
 // Fragments for Literal primitives

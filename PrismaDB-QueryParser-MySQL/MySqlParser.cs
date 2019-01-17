@@ -61,10 +61,7 @@ namespace PrismaDB.QueryParser.MySQL
 
         public override object VisitLimitClause([NotNull] AntlrMySqlParser.LimitClauseContext context)
         {
-            if (context.OFFSET() != null || context.decimalLiteral().Length > 1)
-                throw new ApplicationException("LIMIT clause currently does not support OFFSET.");
-
-            var res = Visit(context.decimalLiteral()[0]) as IntConstant;
+            var res = Visit(context.decimalLiteral()) as IntConstant;
             return (uint?)res.intvalue;
         }
 
