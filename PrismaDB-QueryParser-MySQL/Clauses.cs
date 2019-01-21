@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using PrismaDB.QueryAST.DML;
 using PrismaDB.QueryAST.Result;
 
@@ -16,43 +17,16 @@ namespace PrismaDB.QueryParser.MySQL
 
         public override object Clone()
         {
-            throw new System.NotImplementedException();
+            return new AndClause((Expression)left.Clone(), (Expression)right.Clone());
         }
 
-        public override bool Equals(object other)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override object Eval(ResultRow r)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override List<ColumnRef> GetColumns()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override int GetHashCode()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override List<ColumnRef> GetNoCopyColumns()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override void setValue(params object[] value)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override string ToString()
-        {
-            throw new System.NotImplementedException();
-        }
+        public override bool Equals(object other) { throw new NotImplementedException(); }
+        public override object Eval(ResultRow r) { throw new NotImplementedException(); }
+        public override List<ColumnRef> GetColumns() { throw new NotImplementedException(); }
+        public override int GetHashCode() { throw new NotImplementedException(); }
+        public override List<ColumnRef> GetNoCopyColumns() { throw new NotImplementedException(); }
+        public override void setValue(params object[] value) { throw new NotImplementedException(); }
+        public override string ToString() { throw new NotImplementedException(); }
     }
 
     internal class OrClause : Expression
@@ -67,42 +41,15 @@ namespace PrismaDB.QueryParser.MySQL
 
         public override object Clone()
         {
-            throw new System.NotImplementedException();
+            return new OrClause((Expression)left.Clone(), (Expression)right.Clone());
         }
 
-        public override bool Equals(object other)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override object Eval(ResultRow r)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override List<ColumnRef> GetColumns()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override int GetHashCode()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override List<ColumnRef> GetNoCopyColumns()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override void setValue(params object[] value)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override string ToString()
-        {
-            throw new System.NotImplementedException();
-        }
+        public override bool Equals(object other) { throw new NotImplementedException(); }
+        public override object Eval(ResultRow r) { throw new NotImplementedException(); }
+        public override List<ColumnRef> GetColumns() { throw new NotImplementedException(); }
+        public override int GetHashCode() { throw new NotImplementedException(); }
+        public override List<ColumnRef> GetNoCopyColumns() { throw new NotImplementedException(); }
+        public override void setValue(params object[] value) { throw new NotImplementedException(); }
+        public override string ToString() { throw new NotImplementedException(); }
     }
 }

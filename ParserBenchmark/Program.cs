@@ -9,43 +9,42 @@ namespace ParserBenchmark
         static void Main(string[] args)
         {
             var watch = Stopwatch.StartNew();
-            MySqlParser.ParseToAst("select abc from def LIMIT 1;");
+            MySqlParser.ParseToAst("SELECT NULL;");
             watch.Stop();
             Console.WriteLine($"Run 1: {watch.ElapsedMilliseconds}");
 
             watch = Stopwatch.StartNew();
-            MySqlParser.ParseToAst("select def from def LIMIT 1;");
+            MySqlParser.ParseToAst("SELECT (a+b)*(a+b), ((a+b)*(a+b)), (((a+b)*(a+b))) FROM t WHERE (a < b) AND (t.b <= a) AND c IN ('abc', 'def') AND d NOT IN (123, 456) GROUP BY t.a, b ORDER BY a ASC, b DESC, c");
             watch.Stop();
             Console.WriteLine($"Run 2: {watch.ElapsedMilliseconds}");
 
-
             watch = Stopwatch.StartNew();
-            MySqlParser.ParseToAst("select tyrtyrtyrtyr from def LIMIT 1;");
+            MySqlParser.ParseToAst("SELECT * FROM tbl1 WHERE col1 IS NOT NULL AND col2 IS NULL");
             watch.Stop();
             Console.WriteLine($"Run 3: {watch.ElapsedMilliseconds}");
 
             watch = Stopwatch.StartNew();
-            MySqlParser.ParseToAst("select 76543 from def LIMIT 1;");
+            MySqlParser.ParseToAst("SELECT CONNECTION_ID()");
             watch.Stop();
-            Console.WriteLine($"Diff query type run 1: {watch.ElapsedMilliseconds}");
+            Console.WriteLine($"Run 4: {watch.ElapsedMilliseconds}");
 
             watch = Stopwatch.StartNew();
-            MySqlParser.ParseToAst("select 123 from def LIMIT 1;");
+            MySqlParser.ParseToAst("SELECT COUNT(tt.col1) AS Num, TEST('string',12)");
             watch.Stop();
-            Console.WriteLine($"Diff query type run 2: {watch.ElapsedMilliseconds}");
+            Console.WriteLine($"Run 5: {watch.ElapsedMilliseconds}");
 
             watch = Stopwatch.StartNew();
-            MySqlParser.ParseToAst("select abc, 123, gsdfgkljsdfg from def LIMIT 1;");
+            MySqlParser.ParseToAst("SELECT RandomFunc(), SuM(col1), CoUNt(col2), coUNT(*), avg (col3)");
             watch.Stop();
-            Console.WriteLine($"Diff query type run 1: {watch.ElapsedMilliseconds}");
+            Console.WriteLine($"Run 6: {watch.ElapsedMilliseconds}");
 
             watch = Stopwatch.StartNew();
             for (var i = 0; i < 100000; i++)
             {
-                MySqlParser.ParseToAst($"select {PrismaDB.Commons.Helper.GetRandomString(12)} from {PrismaDB.Commons.Helper.GetRandomString(12)} LIMIT 1;");
+                MySqlParser.ParseToAst($"SELECT `{PrismaDB.Commons.Helper.GetRandomString(12)}`, '{PrismaDB.Commons.Helper.GetRandomString(12)}', {PrismaDB.Commons.Helper.GetRandomString(12)} FROM {PrismaDB.Commons.Helper.GetRandomString(12)} WHERE `{PrismaDB.Commons.Helper.GetRandomString(12)}` = \"{PrismaDB.Commons.Helper.GetRandomString(12)}\";");
             }
             watch.Stop();
-            Console.WriteLine($"100000 similar queries: {watch.ElapsedMilliseconds}");
+            Console.WriteLine($"100000 runs: {watch.ElapsedMilliseconds}");
 
         }
     }

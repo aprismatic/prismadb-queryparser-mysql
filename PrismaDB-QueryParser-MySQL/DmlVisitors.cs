@@ -89,8 +89,8 @@ namespace PrismaDB.QueryParser.MySQL
             if (context.expression() != null)
             {
                 var expr = (Expression)Visit(context.expression());
-                while (!CnfConverter.CheckCNF(expr)) expr = CnfConverter.ConvertToCNF(expr);
-                res.Where.CNF = CnfConverter.BuildCNF(expr);
+                while (!CnfConverter.CheckCnf(expr)) expr = CnfConverter.ConvertToCnf(expr);
+                res.Where.CNF = CnfConverter.BuildCnf(expr);
             }
             res.GroupBy.GroupColumns = new List<ColumnRef>();
             foreach (var groupByItem in context.groupByItem())

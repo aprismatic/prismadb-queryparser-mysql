@@ -4,58 +4,17 @@ namespace PrismaDB.QueryParser.MySQL
 {
     public static class CnfConverter
     {
-        /// <summary>
-        ///     Checks if expression tree is in full CNF form recursively.
-        /// </summary>
-        /// <param name="expr">Expression tree root</param>
-        /// <returns>Whether expression tree is in CNF</returns>
-        public static bool CheckCNF(Expression expr)
-        {
-            // If expression is empty, it is in CNF
-            // Or terminates if is a leaf 
-            if (expr == null)
-                return true;
-
-            if (expr.GetType() == typeof(OrClause))
-            {
-                var or = (OrClause)expr;
-                // If a child of an OrClause is an AndClause, it is not in CNF
-                if (or.left.GetType() == typeof(AndClause))
-                    return false;
-                if (or.right.GetType() == typeof(AndClause))
-                    return false;
-
-                // Continue checking children (of children)
-                return CheckCNF(or.left) && CheckCNF(or.right);
-            }
-
-            if (expr.GetType() == typeof(AndClause))
-            {
-                // AndClause can have either OrClause or AndClause as children
-                var and = (AndClause)expr;
-                return CheckCNF(and.left) && CheckCNF(and.right);
-            }
-
-            return true;
-        }
-
-
-        /// <summary>
-        ///     Build ConjunctiveNormalForm object from Expression tree.
-        /// </summary>
-        /// <param name="expr">Expression tree</param>
-        /// <returns>ConjunctiveNormalForm object</returns>
-        public static ConjunctiveNormalForm BuildCNF(Expression expr)
+        public static ConjunctiveNormalForm BuildCnf(Expression expr)
         {
             var cnf = new ConjunctiveNormalForm();
 
             if (expr != null)
             {
                 // If expression node is an AndClause, call BuildCNF recursively to add ANDs
-                if (expr.GetType() == typeof(AndClause))
+                if (expr is AndClause and)
                 {
-                    cnf.AND.AddRange(BuildCNF(((AndClause)expr).left).AND);
-                    cnf.AND.AddRange(BuildCNF(((AndClause)expr).right).AND);
+                    cnf.AND.AddRange(BuildCnf(and.left).AND);
+                    cnf.AND.AddRange(BuildCnf(and.right).AND);
                 }
                 else
                 {
@@ -67,22 +26,16 @@ namespace PrismaDB.QueryParser.MySQL
             return cnf;
         }
 
-
-        /// <summary>
-        ///     Build Disjunction object from Expression tree.
-        /// </summary>
-        /// <param name="expr">OR Expression tree</param>
-        /// <returns>Disjunction object</returns>
         public static Disjunction BuildDisjunction(Expression expr)
         {
             var disjunction = new Disjunction();
             if (expr != null)
             {
-                if (expr.GetType() == typeof(OrClause))
+                if (expr is OrClause or)
                 {
                     // If expression has more OR children, call BuildDisjunction recursively to add ORs
-                    disjunction.OR.AddRange(BuildDisjunction(((OrClause)expr).left).OR);
-                    disjunction.OR.AddRange(BuildDisjunction(((OrClause)expr).right).OR);
+                    disjunction.OR.AddRange(BuildDisjunction(or.left).OR);
+                    disjunction.OR.AddRange(BuildDisjunction(or.right).OR);
                 }
 
                 if (expr is BooleanExpression boolExpr)
@@ -92,59 +45,74 @@ namespace PrismaDB.QueryParser.MySQL
             return disjunction;
         }
 
+        // Checks if expression tree is in full CNF form recursively.
+        public static bool CheckCnf(Expression expr)
+        {
+            // If expression is empty, it is in CNF
+            if (expr == null)
+                return true;
 
-        /// <summary>
-        ///     Converts Expression tree to CNF form recursively.
-        ///     May require several runs to reach full CNF form.
-        /// </summary>
-        /// <param name="expr">Expression tree node</param>
-        /// <returns>Expression tree in CNF form</returns>
-        public static Expression ConvertToCNF(Expression expr)
+            if (expr is OrClause or)
+            {
+                // If a child of an OrClause is an AndClause, it is not in CNF
+                if (or.left is AndClause || or.right is AndClause)
+                    return false;
+
+                // Continue checking children (of children)
+                return CheckCnf(or.left) && CheckCnf(or.right);
+            }
+
+            if (expr is AndClause and)
+            {
+                // AndClause can have either OrClause or AndClause as children
+                return CheckCnf(and.left) && CheckCnf(and.right);
+            }
+
+            return true;
+        }
+
+        // Converts Expression tree to CNF form recursively.
+        // May require several runs to reach full CNF form.
+        public static Expression ConvertToCnf(Expression expr)
         {
             // If a child of an OrClause is an AndClause
             // Convert to CNF using distributive law
-            // And continue to call ConvertToCNF recursively for the children
-            if (expr.GetType() == typeof(OrClause))
+            // And continue to call ConvertToCnf recursively for the children
+            if (expr is OrClause or)
             {
-                var or = (OrClause)expr;
-                if (or.left.GetType() == typeof(AndClause))
+                if (or.left is AndClause leftAnd)
                 {
-                    var childAnd = (AndClause)or.left;
-
-                    var q = childAnd.left.Clone() as Expression;
-                    var r = childAnd.right.Clone() as Expression;
+                    var q = leftAnd.left.Clone() as Expression;
+                    var r = leftAnd.right.Clone() as Expression;
                     var p = or.right.Clone() as Expression;
 
                     var newAnd = new AndClause(new OrClause(p, q), new OrClause(p, r));
-                    newAnd.left = ConvertToCNF(newAnd.left);
-                    newAnd.right = ConvertToCNF(newAnd.right);
+                    newAnd.left = ConvertToCnf(newAnd.left);
+                    newAnd.right = ConvertToCnf(newAnd.right);
                     return newAnd;
                 }
 
-                if (or.right.GetType() == typeof(AndClause))
+                if (or.right is AndClause rightAnd)
                 {
-                    var childAnd = (AndClause)or.right;
-
-                    var q = childAnd.left.Clone() as Expression;
-                    var r = childAnd.right.Clone() as Expression;
+                    var q = rightAnd.left.Clone() as Expression;
+                    var r = rightAnd.right.Clone() as Expression;
                     var p = or.left.Clone() as Expression;
 
                     var newAnd = new AndClause(new OrClause(p, q), new OrClause(p, r));
-                    newAnd.left = ConvertToCNF(newAnd.left);
-                    newAnd.right = ConvertToCNF(newAnd.right);
+                    newAnd.left = ConvertToCnf(newAnd.left);
+                    newAnd.right = ConvertToCnf(newAnd.right);
                     return newAnd;
                 }
 
-                or.left = ConvertToCNF(or.left);
-                or.right = ConvertToCNF(or.right);
+                or.left = ConvertToCnf(or.left);
+                or.right = ConvertToCnf(or.right);
                 return or;
             }
 
-            if (expr.GetType() == typeof(AndClause))
+            if (expr is AndClause and)
             {
-                var and = (AndClause)expr;
-                and.left = ConvertToCNF(and.left);
-                and.right = ConvertToCNF(and.right);
+                and.left = ConvertToCnf(and.left);
+                and.right = ConvertToCnf(and.right);
                 return and;
             }
 
