@@ -8,14 +8,6 @@ namespace PrismaDB.QueryParser.MySQL
 {
     public partial class MySqlVisitor : AntlrMySqlParserBaseVisitor<object>
     {
-        public override object VisitFullId([NotNull] AntlrMySqlParser.FullIdContext context)
-        {
-            var res = new List<Identifier>();
-            foreach (var uid in context.uid())
-                res.Add((Identifier)Visit(uid));
-            return res;
-        }
-
         public override object VisitUid([NotNull] AntlrMySqlParser.UidContext context)
         {
             if (context.simpleId() != null)
@@ -57,6 +49,14 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
+        public override object VisitConstant([NotNull] AntlrMySqlParser.ConstantContext context)
+        {
+            if (context.nullLiteral != null)
+                return new NullConstant();
+            else
+                return base.VisitConstant(context);
+        }
+
         public override object VisitIntLiteral([NotNull] AntlrMySqlParser.IntLiteralContext context)
         {
             return new IntConstant(Int64.Parse(context.INT_LITERAL().GetText()));
@@ -89,17 +89,17 @@ namespace PrismaDB.QueryParser.MySQL
             return true;
         }
 
+        public override object VisitTableName([NotNull] AntlrMySqlParser.TableNameContext context)
+        {
+            return new TableRef(((Identifier)Visit(context.uid())).id);
+        }
+
         public override object VisitFullColumnName([NotNull] AntlrMySqlParser.FullColumnNameContext context)
         {
-            switch (context.dottedId().Length)
-            {
-                case 0:
-                    return new ColumnRef((Identifier)Visit(context.uid()));
-                case 1:
-                    return new ColumnRef(((Identifier)Visit(context.uid())).id, (Identifier)Visit(context.dottedId()[0]));
-                default:
-                    return null;
-            }
+            if (context.dottedId() == null)
+                return new ColumnRef((Identifier)Visit(context.uid()));
+            else
+                return new ColumnRef(((Identifier)Visit(context.uid())).id, (Identifier)Visit(context.dottedId()));
         }
 
         public override object VisitNotExpression([NotNull] AntlrMySqlParser.NotExpressionContext context)
@@ -155,7 +155,7 @@ namespace PrismaDB.QueryParser.MySQL
                 case ">":
                     return new BooleanGreaterThan((Expression)Visit(context.left), (Expression)Visit(context.right));
                 case "<":
-                    return new BooleanLessThan((Expression)Visit(context.left), (Expression)Visit(context.right));
+                    return new BooleanGreaterThan((Expression)Visit(context.right), (Expression)Visit(context.left));
                 case ">=":
                     {
                         var exprLeft = new BooleanGreaterThan((Expression)Visit(context.left), (Expression)Visit(context.right));
@@ -164,8 +164,8 @@ namespace PrismaDB.QueryParser.MySQL
                     }
                 case "<=":
                     {
-                        var exprLeft = new BooleanLessThan((Expression)Visit(context.left), (Expression)Visit(context.right));
-                        var exprRight = new BooleanEquals((Expression)Visit(context.left), (Expression)Visit(context.right));
+                        var exprLeft = new BooleanGreaterThan((Expression)Visit(context.right), (Expression)Visit(context.left));
+                        var exprRight = new BooleanEquals((Expression)Visit(context.right), (Expression)Visit(context.left));
                         return new OrClause(exprLeft, exprRight);
                     }
                 case "<>":
@@ -186,6 +186,11 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
+        public override object VisitFunctionCallExpressionAtom([NotNull] AntlrMySqlParser.FunctionCallExpressionAtomContext context)
+        {
+            return Visit(context.functionCall());
+        }
+
         public override object VisitSimpleFunctionCall([NotNull] AntlrMySqlParser.SimpleFunctionCallContext context)
         {
             return new ScalarFunction(context.GetText());
@@ -193,22 +198,30 @@ namespace PrismaDB.QueryParser.MySQL
 
         public override object VisitScalarFunctionCall([NotNull] AntlrMySqlParser.ScalarFunctionCallContext context)
         {
-            return new ScalarFunction(context.scalarFunctionName().GetText(), (List<Expression>)Visit(context.functionArgs()));
+            if (context.scalarFunctionName().SUM() != null)
+                return new SumAggregationFunction(context.scalarFunctionName().GetText(), (List<Expression>)Visit(context.functionArgs()));
+            else if (context.scalarFunctionName().COUNT() != null)
+                return new CountAggregationFunction(context.scalarFunctionName().GetText(), (List<Expression>)Visit(context.functionArgs()));
+            else if (context.scalarFunctionName().AVG() != null)
+                return new AvgAggregationFunction(context.scalarFunctionName().GetText(), (List<Expression>)Visit(context.functionArgs()));
+            else
+                return new ScalarFunction(context.scalarFunctionName().GetText(), (List<Expression>)Visit(context.functionArgs()));
         }
 
         public override object VisitUdfFunctionCall([NotNull] AntlrMySqlParser.UdfFunctionCallContext context)
         {
-            var ids = (List<Identifier>)Visit(context.fullId());
-            if (ids.Count == 1)
-                return new ScalarFunction(ids[0], (List<Expression>)Visit(context.functionArgs()));
-            return null;
+            var res = new ScalarFunction((Identifier)Visit(context.uid()));
+            if (context.functionArgs() != null)
+                res.Parameters = (List<Expression>)Visit(context.functionArgs());
+            return res;
         }
 
         public override object VisitFunctionArgs([NotNull] AntlrMySqlParser.FunctionArgsContext context)
         {
             var res = new List<Expression>();
             foreach (var arg in context.functionArg())
-                res.Add((Expression)Visit(arg));
+                if (arg.star == null)
+                    res.Add((Expression)Visit(arg));
             return res;
         }
 
@@ -216,7 +229,7 @@ namespace PrismaDB.QueryParser.MySQL
         {
             var str = context.GLOBAL_ID().GetText().TrimStart('@');
             if (str.StartsWith("`"))
-                str.Trim('`');
+                str = str.Trim('`');
             return new MySqlVariable(str);
         }
 
@@ -242,6 +255,21 @@ namespace PrismaDB.QueryParser.MySQL
                 default:
                     return null;
             }
+        }
+
+        public override object VisitNestedExpression([NotNull] AntlrMySqlParser.NestedExpressionContext context)
+        {
+            return Visit(context.expression());
+        }
+
+        public override object VisitNestedPredicate([NotNull] AntlrMySqlParser.NestedPredicateContext context)
+        {
+            return Visit(context.predicate());
+        }
+
+        public override object VisitNestedExpressionAtom([NotNull] AntlrMySqlParser.NestedExpressionAtomContext context)
+        {
+            return Visit(context.expressionAtom());
         }
     }
 }

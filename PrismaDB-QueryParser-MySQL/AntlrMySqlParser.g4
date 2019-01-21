@@ -178,11 +178,7 @@ orderByExpression
     ;
 
 tableSources
-    : tableSource (',' tableSource)*
-    ;
-
-tableSource
-    : tableSourceItem joinPart*                                     #tableSourceBase
+    : tableSourceItem (',' tableSourceItem)*
     ;
 
 tableSourceItem
@@ -220,14 +216,14 @@ selectElements
     ;
 
 selectElement
-    : fullId '.' '*'                                                #selectStarElement
+    : uid '.' '*'                                                   #selectStarElement
     | fullColumnName (AS? uid)?                                     #selectColumnElement
     | functionCall (AS? uid)?                                       #selectFunctionElement
     | expression (AS? uid)?                                         #selectExpressionElement
     ;
 
 fromClause
-    : FROM tableSources
+    : FROM tableSources joinPart*
       (WHERE whereExpr=expression)?
       (
         GROUP BY
@@ -236,7 +232,7 @@ fromClause
     ;
 
 groupByItem
-    : expression order=(ASC | DESC)?
+    : expression
     ;
 
 limitClause
@@ -259,16 +255,12 @@ useStatement
 
 //    DB Objects
 
-fullId
-    : uid (DOT_ID | '.' uid)?
-    ;
-
 tableName
-    : fullId
+    : uid
     ;
 
 fullColumnName
-    : uid (dottedId dottedId? )?
+    : uid dottedId?
     ;
 
 mysqlVariable
@@ -309,12 +301,13 @@ hexadecimalLiteral
     ;
 
 nullNotnull
-    : NOT? NULL_LITERAL
+    : NOT? (NULL_LITERAL | NULL_SPEC_LITERAL)
     ;
 
 constant
     : intLiteral | stringLiteral
     | decimalLiteral | hexadecimalLiteral
+    | nullLiteral=(NULL_LITERAL | NULL_SPEC_LITERAL)
     ;
 
 
@@ -401,7 +394,7 @@ expressionOrDefault
 functionCall
     : specificFunction                                              #specificFunctionCall
     | scalarFunctionName '(' functionArgs? ')'                      #scalarFunctionCall
-    | fullId '(' functionArgs? ')'                                  #udfFunctionCall
+    | uid '(' functionArgs? ')'                                     #udfFunctionCall
     ;
 
 specificFunction
@@ -424,7 +417,7 @@ functionArgs
     ;
 
 functionArg
-    : constant | fullColumnName | functionCall | expression
+    : constant | fullColumnName | functionCall | expression | star='*'
     ;
 
 
@@ -435,6 +428,7 @@ expression
     : notOperator=(NOT | '!') expression                            #notExpression
     | expression logicalOperator expression                         #logicalExpression
     | predicate                                                     #predicateExpression
+	| '(' (expression) ')'                                          #nestedExpression
     ;
 
 predicate
@@ -443,6 +437,7 @@ predicate
     | left=predicate comparisonOperator right=predicate             #binaryComparasionPredicate
     | predicate NOT? LIKE predicate                                 #likePredicate
     | expressionAtom                                                #expressionAtomPredicate
+	| '(' (predicate) ')'                                           #nestedPredicate
     ;
 
 
@@ -454,6 +449,7 @@ expressionAtom
     | mysqlVariable                                                 #mysqlVariableExpressionAtom
     | unaryOperator expressionAtom                                  #unaryExpressionAtom
     | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
+	| '(' (expressionAtom) ')'                                      #nestedExpressionAtom
     ;
 
 unaryOperator

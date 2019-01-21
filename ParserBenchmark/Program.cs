@@ -40,12 +40,12 @@ namespace ParserBenchmark
             Console.WriteLine($"Diff query type run 1: {watch.ElapsedMilliseconds}");
 
             watch = Stopwatch.StartNew();
-            for (var i = 0; i < 1000000; i++)
+            for (var i = 0; i < 100000; i++)
             {
                 MySqlParser.ParseToAst($"select {PrismaDB.Commons.Helper.GetRandomString(12)} from {PrismaDB.Commons.Helper.GetRandomString(12)} LIMIT 1;");
             }
             watch.Stop();
-            Console.WriteLine($"1000000 similar queries: {watch.ElapsedMilliseconds}");
+            Console.WriteLine($"100000 similar queries: {watch.ElapsedMilliseconds}");
 
         }
     }

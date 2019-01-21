@@ -168,6 +168,7 @@ INT_LITERAL:                         '-'? DEC_DIGIT+;
 DECIMAL_LITERAL:                     '-'? (DEC_DIGIT+)? '.' DEC_DIGIT+;
 HEXADECIMAL_LITERAL:                 'X' '\'' (HEX_DIGIT HEX_DIGIT)+ '\''
                                      | '0X' HEX_DIGIT+;
+NULL_SPEC_LITERAL:                   '\\' 'N';
 
 
 
