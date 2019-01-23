@@ -8,29 +8,48 @@ namespace PrismaDB.QueryParser.MySQL
 {
     public partial class MySqlVisitor : AntlrMySqlParserBaseVisitor<object>
     {
+        public override object VisitInsertStatement([NotNull] AntlrMySqlParser.InsertStatementContext context)
+        {
+            var res = new InsertQuery();
+            res.Into = (TableRef)Visit(context.tableName());
+            if (context.uidList() != null)
+                foreach (var id in (List<Identifier>)Visit(context.uidList()))
+                    res.Columns.Add(new ColumnRef(id));
+            res.Values = (List<List<Expression>>)Visit(context.insertStatementValue());
+            return res;
+        }
+
+        public override object VisitInsertStatementValue([NotNull] AntlrMySqlParser.InsertStatementValueContext context)
+        {
+            var res = new List<List<Expression>>();
+            foreach (var exps in context.expressions())
+                res.Add((List<Expression>)Visit(exps));
+            return res;
+        }
+
         public override object VisitSimpleSelect([NotNull] AntlrMySqlParser.SimpleSelectContext context)
         {
-            var sq = (SelectQuery)Visit(context.querySpecification());
-            return sq;
+            var res = (SelectQuery)Visit(context.querySpecification());
+            return res;
         }
 
         public override object VisitQuerySpecification([NotNull] AntlrMySqlParser.QuerySpecificationContext context)
         {
-            var sq = new SelectQuery();
-            sq.SelectExpressions = (List<Expression>)Visit(context.selectElements());
+            var res = new SelectQuery();
+            res.SelectExpressions = (List<Expression>)Visit(context.selectElements());
             if (context.fromClause() != null)
             {
                 var from = (SelectQuery)Visit(context.fromClause());
-                sq.FromTables = from.FromTables;
-                sq.Joins = from.Joins;
-                sq.Where = from.Where;
-                sq.GroupBy = from.GroupBy;
+                res.FromTables = from.FromTables;
+                res.Joins = from.Joins;
+                res.Where = from.Where;
+                res.GroupBy = from.GroupBy;
             }
             if (context.orderByClause() != null)
-                sq.OrderBy = (OrderByClause)Visit(context.orderByClause());
+                res.OrderBy = (OrderByClause)Visit(context.orderByClause());
             if (context.limitClause() != null)
-                sq.Limit = (uint?)Visit(context.limitClause());
-            return sq;
+                res.Limit = (uint?)Visit(context.limitClause());
+            return res;
         }
 
         public override object VisitSelectElements([NotNull] AntlrMySqlParser.SelectElementsContext context)

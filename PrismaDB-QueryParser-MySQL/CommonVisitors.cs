@@ -79,14 +79,23 @@ namespace PrismaDB.QueryParser.MySQL
 
         public override object VisitHexadecimalLiteral([NotNull] AntlrMySqlParser.HexadecimalLiteralContext context)
         {
-            throw new NotImplementedException();
+            var str = context.HEXADECIMAL_LITERAL().GetText().ToUpper();
+            var length = 0;
+            if (str.StartsWith("0X"))
+                length = str.Length - 2;
+            else
+                length = str.Length - 3;
+            var bytes = new byte[length / 2];
+            for (var i = 0; i < bytes.Length; i++)
+                bytes[i] = Convert.ToByte(str.Substring((i * 2) + 2, 2), 16);
+            return new BinaryConstant(bytes);
         }
 
         public override object VisitNullNotnull([NotNull] AntlrMySqlParser.NullNotnullContext context)
         {
-            if (context.NOT() != null)
-                return false;
-            return true;
+            if (context.NOT() == null)
+                return true;
+            return false;
         }
 
         public override object VisitTableName([NotNull] AntlrMySqlParser.TableNameContext context)
@@ -143,7 +152,7 @@ namespace PrismaDB.QueryParser.MySQL
 
         public override object VisitIsNullPredicate([NotNull] AntlrMySqlParser.IsNullPredicateContext context)
         {
-            return new BooleanIsNull((ColumnRef)Visit(context.predicate()), (bool)Visit(context.nullNotnull()));
+            return new BooleanIsNull((ColumnRef)Visit(context.predicate()), !(bool)Visit(context.nullNotnull()));
         }
 
         public override object VisitBinaryComparasionPredicate([NotNull] AntlrMySqlParser.BinaryComparasionPredicateContext context)

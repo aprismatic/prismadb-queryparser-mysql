@@ -141,8 +141,8 @@ updateStatement
 
 insertStatementValue
     : insertFormat=VALUES
-      '(' expressionsWithDefaults ')'
-        (',' '(' expressionsWithDefaults ')')*
+      '(' expressions ')'
+        (',' '(' expressions ')')*
     ;
 
 updatedElement
@@ -357,10 +357,6 @@ expressions
     : expression (',' expression)*
     ;
 
-expressionsWithDefaults
-    : expressionOrDefault (',' expressionOrDefault)*
-    ;
-
 constants
     : constant (',' constant)*
     ;
@@ -382,10 +378,6 @@ currentTimestamp
     (
       (CURRENT_TIMESTAMP)
     )
-    ;
-
-expressionOrDefault
-    : expression | DEFAULT
     ;
 
 
