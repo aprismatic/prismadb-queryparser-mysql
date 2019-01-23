@@ -274,6 +274,7 @@ uid
 
 simpleId
     : ID
+    | keywordsCanBeId
     ;
 
 dottedId
@@ -460,3 +461,10 @@ logicalOperator
 mathOperator
     : '*' | '/' | '+' | '-'
     ;
+
+keywordsCanBeId
+    : AUTO_INCREMENT
+
+	| ADDITION | SEARCH | STORE | MULTIPLICATION | WILDCARD
+    | PRISMADB | EXPORT | SETTINGS | ENCRYPT | DECRYPT
+    | STATUS | REGISTER | USER | PASSWORD ;

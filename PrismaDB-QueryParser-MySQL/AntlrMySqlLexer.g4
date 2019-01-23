@@ -55,6 +55,7 @@ DEFAULT:                             'DEFAULT';
 DELETE:                              'DELETE';
 DESC:                                'DESC';
 DROP:                                'DROP';
+ENCRYPTED:                           'ENCRYPTED';
 FOR:                                 'FOR';
 FROM:                                'FROM';
 GROUP:                               'GROUP';
@@ -65,7 +66,6 @@ INTO:                                'INTO';
 IS:                                  'IS';
 JOIN:                                'JOIN';
 KEY:                                 'KEY';
-KEYS:                                'KEYS';
 LEFT:                                'LEFT';
 LIKE:                                'LIKE';
 LIMIT:                               'LIMIT';
@@ -77,7 +77,6 @@ OR:                                  'OR';
 ORDER:                               'ORDER';
 OUTER:                               'OUTER';
 PRIMARY:                             'PRIMARY';
-RANGE:                               'RANGE';
 RIGHT:                               'RIGHT';
 SELECT:                              'SELECT';
 SET:                                 'SET';
@@ -107,6 +106,30 @@ VARBINARY:                           'VARBINARY';
 BLOB:                                'BLOB';
 TEXT:                                'TEXT';
 ENUM:                                'ENUM';
+
+
+// Encryption types
+
+ADDITION:                            'ADDITION';
+SEARCH:                              'SEARCH';
+STORE:                               'STORE';
+MULTIPLICATION:                      'MULTIPLICATION';
+RANGE:                               'RANGE';
+WILDCARD:                            'WILDCARD';
+
+
+// Command keywords
+
+PRISMADB:                            'PRISMADB';
+EXPORT:                              'EXPORT';
+SETTINGS:                            'SETTINGS';
+KEYS:                                'KEYS';
+ENCRYPT:                             'ENCRYPT';
+DECRYPT:                             'DECRYPT';
+STATUS:                              'STATUS';
+REGISTER:                            'REGISTER';
+USER:                                'USER';
+PASS:                                'PASS';
 
 
 // Common function names
