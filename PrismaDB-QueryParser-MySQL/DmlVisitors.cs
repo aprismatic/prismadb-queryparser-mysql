@@ -27,13 +27,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitSimpleSelect([NotNull] AntlrMySqlParser.SimpleSelectContext context)
-        {
-            var res = (SelectQuery)Visit(context.querySpecification());
-            return res;
-        }
-
-        public override object VisitQuerySpecification([NotNull] AntlrMySqlParser.QuerySpecificationContext context)
+        public override object VisitSelectStatement([NotNull] AntlrMySqlParser.SelectStatementContext context)
         {
             var res = new SelectQuery();
             res.SelectExpressions = (List<Expression>)Visit(context.selectElements());

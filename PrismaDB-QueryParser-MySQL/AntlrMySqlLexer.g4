@@ -55,7 +55,6 @@ DEFAULT:                             'DEFAULT';
 DELETE:                              'DELETE';
 DESC:                                'DESC';
 DROP:                                'DROP';
-ENCRYPTED:                           'ENCRYPTED';
 FOR:                                 'FOR';
 FROM:                                'FROM';
 GROUP:                               'GROUP';
@@ -108,8 +107,9 @@ TEXT:                                'TEXT';
 ENUM:                                'ENUM';
 
 
-// Encryption types
+// Encryption keywords
 
+ENCRYPTED:                           'ENCRYPTED';
 ADDITION:                            'ADDITION';
 SEARCH:                              'SEARCH';
 STORE:                               'STORE';
@@ -129,7 +129,7 @@ DECRYPT:                             'DECRYPT';
 STATUS:                              'STATUS';
 REGISTER:                            'REGISTER';
 USER:                                'USER';
-PASS:                                'PASS';
+PASSWORD:                            'PASSWORD';
 
 
 // Common function names

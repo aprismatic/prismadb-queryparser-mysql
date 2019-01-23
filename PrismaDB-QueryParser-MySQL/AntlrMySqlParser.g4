@@ -40,7 +40,7 @@ sqlStatements
     ;
 
 sqlStatement
-    : ddlStatement | dmlStatement
+    : ddlStatement | dmlStatement | dclStatement
     ;
 
 emptyStatement
@@ -55,6 +55,11 @@ dmlStatement
     : selectStatement | insertStatement | updateStatement
     | deleteStatement
     ;
+
+dclStatement
+	: exportSettingsCommand | updateKeysCommand | encyrptCommand
+    | decryptCommand | registerUserCommand
+	;
 
 
 // Data Definition Language
@@ -82,7 +87,8 @@ columnDefinition
     ;
 
 columnConstraint
-    : nullNotnull                                                   #nullColumnConstraint
+    : ENCRYPTED encryptionOptions?                                  #encryptionConstraint
+	| nullNotnull                                                   #nullColumnConstraint
     | DEFAULT defaultValue                                          #defaultColumnConstraint
     | AUTO_INCREMENT                                                #autoIncrementColumnConstraint
     | PRIMARY? KEY                                                  #primaryKeyColumnConstraint
@@ -130,8 +136,9 @@ insertStatement
     ;
 
 selectStatement
-    : querySpecification                                            #simpleSelect
-    ;
+    : SELECT selectElements
+      fromClause? orderByClause? limitClause?
+	;
 
 updateStatement
     : singleUpdateStatement
@@ -197,20 +204,6 @@ joinPart
         )                                                           #outerJoin
     ;
 
-//    Select Statement's Details
-
-queryExpression
-    : '(' querySpecification ')'
-    | '(' queryExpression ')'
-    ;
-
-querySpecification
-    : SELECT selectElements
-      fromClause? orderByClause? limitClause?
-    ;
-
-// details
-
 selectElements
     : (star='*' | selectElement ) (',' selectElement)*
     ;
@@ -249,6 +242,39 @@ limitClause
 useStatement
     : USE uid
     ;
+
+
+// Prisma/DB Data Control Language
+
+exportSettingsCommand
+	: PRISMADB EXPORT SETTINGS TO stringLiteral
+	;
+
+updateKeysCommand
+	: PRISMADB UPDATE KEYS
+	;
+
+encyrptCommand
+	: PRISMADB ENCRYPT fullColumnName encryptionOptions?
+	;
+
+decryptCommand
+	: PRISMADB DECRYPT fullColumnName
+	;
+
+registerUserCommand
+	: PRISMADB REGISTER USER
+    user=stringLiteral PASSWORD password=stringLiteral
+	;
+
+encryptionOptions
+	: FOR '(' encryptionType (',' encryptionType)* ')'
+	;
+
+encryptionType
+	: ADDITION | SEARCH | STORE | MULTIPLICATION
+    | RANGE | WILDCARD
+	;
 
 
 // Common Clauses
@@ -463,8 +489,7 @@ mathOperator
     ;
 
 keywordsCanBeId
-    : AUTO_INCREMENT
-
+    : AUTO_INCREMENT | ENCRYPTED | MODIFY
 	| ADDITION | SEARCH | STORE | MULTIPLICATION | WILDCARD
     | PRISMADB | EXPORT | SETTINGS | ENCRYPT | DECRYPT
     | STATUS | REGISTER | USER | PASSWORD ;
