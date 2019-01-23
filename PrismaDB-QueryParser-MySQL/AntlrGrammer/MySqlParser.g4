@@ -23,9 +23,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-parser grammar AntlrMySqlParser;
+parser grammar MySqlParser;
 
-options { tokenVocab=AntlrMySqlLexer; }
+options { tokenVocab=MySqlLexer; }
 
 
 // Top Level Description
@@ -40,7 +40,7 @@ sqlStatements
     ;
 
 sqlStatement
-    : ddlStatement | dmlStatement | dclStatement
+    : ddlStatement | dmlStatement | dclStatement | utilityStatement
     ;
 
 emptyStatement
@@ -59,6 +59,10 @@ dmlStatement
 dclStatement
 	: exportSettingsCommand | updateKeysCommand | encyrptCommand
     | decryptCommand | registerUserCommand
+	;
+
+utilityStatement
+	: useStatement
 	;
 
 
@@ -83,16 +87,15 @@ createDefinition
     ;
 
 columnDefinition
-    : dataType columnConstraint*
+    : dataType
+	( ENCRYPTED encryptionOptions? )?
+	nullNotnull?
+	(
+	  ( DEFAULT defaultValue )
+      | AUTO_INCREMENT PRIMARY KEY
+	)?
     ;
 
-columnConstraint
-    : ENCRYPTED encryptionOptions?                                  #encryptionConstraint
-	| nullNotnull                                                   #nullColumnConstraint
-    | DEFAULT defaultValue                                          #defaultColumnConstraint
-    | AUTO_INCREMENT                                                #autoIncrementColumnConstraint
-    | PRIMARY? KEY                                                  #primaryKeyColumnConstraint
-    ;
 
 //    Alter statements
 
@@ -153,11 +156,7 @@ insertStatementValue
     ;
 
 updatedElement
-    : fullColumnName '=' (expression | DEFAULT)
-    ;
-
-assignmentField
-    : uid
+    : fullColumnName '=' expression
     ;
 
 //    Detailed DML Statements
@@ -240,7 +239,7 @@ limitClause
 
 
 useStatement
-    : USE uid
+    : USE databaseName
     ;
 
 
@@ -251,15 +250,15 @@ exportSettingsCommand
 	;
 
 updateKeysCommand
-	: PRISMADB UPDATE KEYS
+	: PRISMADB UPDATE KEYS STATUS?
 	;
 
 encyrptCommand
-	: PRISMADB ENCRYPT fullColumnName encryptionOptions?
+	: PRISMADB ENCRYPT fullColumnName encryptionOptions? STATUS?
 	;
 
 decryptCommand
-	: PRISMADB DECRYPT fullColumnName
+	: PRISMADB DECRYPT fullColumnName STATUS?
 	;
 
 registerUserCommand
@@ -267,19 +266,14 @@ registerUserCommand
     user=stringLiteral PASSWORD password=stringLiteral
 	;
 
-encryptionOptions
-	: FOR '(' encryptionType (',' encryptionType)* ')'
-	;
-
-encryptionType
-	: ADDITION | SEARCH | STORE | MULTIPLICATION
-    | RANGE | WILDCARD
-	;
-
 
 // Common Clauses
 
 //    DB Objects
+
+databaseName
+	: uid
+	;
 
 tableName
     : uid
@@ -346,7 +340,7 @@ dataType
       )
       lengthOneDimension?                                           #stringDataType
     | typeName=(
-        TINYINT | SMALLINT | MEDIUMINT | INT | BIGINT | DOUBLE |
+        TINYINT | SMALLINT | INT | BIGINT | DOUBLE |
         DATE | TIMESTAMP | DATETIME | BLOB
       )                                                             #simpleDataType
     | typeName=(
@@ -354,7 +348,7 @@ dataType
       )
       lengthOneDimension?                                           #dimensionDataType
     |  typeName=ENUM
-      '(' STRING_LITERAL (',' STRING_LITERAL)* ')'                  #collectionDataType
+      '(' stringLiteral (',' stringLiteral)* ')'                    #collectionDataType
     ;
 
 lengthOneDimension
@@ -386,10 +380,6 @@ expressions
 
 constants
     : constant (',' constant)*
-    ;
-
-simpleStrings
-    : STRING_LITERAL (',' STRING_LITERAL)*
     ;
 
 
@@ -493,3 +483,16 @@ keywordsCanBeId
 	| ADDITION | SEARCH | STORE | MULTIPLICATION | WILDCARD
     | PRISMADB | EXPORT | SETTINGS | ENCRYPT | DECRYPT
     | STATUS | REGISTER | USER | PASSWORD ;
+
+
+
+//    Encryption
+
+encryptionOptions
+	: FOR '(' encryptionType (',' encryptionType)* ')'
+	;
+
+encryptionType
+	: ADDITION | SEARCH | STORE | MULTIPLICATION
+    | RANGE | WILDCARD
+	;

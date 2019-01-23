@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-lexer grammar AntlrMySqlLexer;
+lexer grammar MySqlLexer;
 
 channels { MYSQLCOMMENT, ERRORCHANNEL }
 
@@ -91,7 +91,6 @@ WHERE:                               'WHERE';
 
 TINYINT:                             'TINYINT';
 SMALLINT:                            'SMALLINT';
-MEDIUMINT:                           'MEDIUMINT';
 INT:                                 'INT';
 BIGINT:                              'BIGINT';
 DOUBLE:                              'DOUBLE';

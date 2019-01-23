@@ -18,7 +18,7 @@ namespace ParserTests
                        "MODIFY COLUMN col1 TEXT ENCRYPTED FOR (STORE, SEARCH) NULL";
 
             // Act
-            var result = MySqlParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (AlterTableQuery)result[0];
@@ -49,7 +49,7 @@ namespace ParserTests
                        "(col1 DATETIME NOT NULL)";
 
             // Act
-            var result = MySqlParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (CreateTableQuery)result[0];
@@ -72,21 +72,21 @@ namespace ParserTests
             var test3 = "SELECT * FROM tbl1 WHERE col1 IS NOT NULL AND col2 IS NULL";
 
             // Act
-            var result1 = MySqlParser.ParseToAst(test1)[0];
+            var result1 = MySqlQueryParser.ParseToAst(test1)[0];
 
             // Assert
             Assert.IsType<SelectQuery>(result1);
             Assert.IsType<NullConstant>(((SelectQuery)result1).SelectExpressions[0]);
 
             // Act
-            var result2 = MySqlParser.ParseToAst(test2)[0];
+            var result2 = MySqlQueryParser.ParseToAst(test2)[0];
 
             // Assert
             Assert.IsType<InsertQuery>(result2);
             Assert.IsType<NullConstant>(((InsertQuery)result2).Values[0][0]);
 
             // Act
-            var result3 = MySqlParser.ParseToAst(test3)[0];
+            var result3 = MySqlQueryParser.ParseToAst(test3)[0];
 
             // Assert
             Assert.IsType<SelectQuery>(result3);
@@ -103,7 +103,7 @@ namespace ParserTests
                        "col2 TEXT ENCRYPTED FOR (STORE, SEARCH) NULL)";
 
             // Act
-            var result = MySqlParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (CreateTableQuery)result[0];
@@ -145,7 +145,7 @@ namespace ParserTests
                        "hhh ENUM('ABC', 'def') ENCRYPTED NULL, " +
                        "iii TIMESTAMP ENCRYPTED DEFAULT CURRENT_TIMESTAMP" + ")";
             // Act
-            var result = MySqlParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (CreateTableQuery)result[0];
@@ -204,7 +204,7 @@ namespace ParserTests
         {
             // Setup 
             var test = "PRISMADB EXPORT SETTINGS TO '/home/user/settings.json';" +
-                       "PRISMADB REGISTER USER 'sherlock' PASS '@22!B';" +
+                       "PRISMADB REGISTER USER 'sherlock' PASSWORD '@22!B';" +
                        "PRISMADB UPDATE KEYS;" +
                        "PRISMADB DECRYPT tt.col1;" +
                        "PRISMADB ENCRYPT tt.col1;" +
@@ -212,7 +212,7 @@ namespace ParserTests
                        "PRISMADB DECRYPT tt.col1 STATUS;";
 
             // Act 
-            var result = MySqlParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert 
             Assert.Equal("/home/user/settings.json", ((ExportSettingsCommand)result[0]).FileUri.strvalue);
@@ -238,7 +238,7 @@ namespace ParserTests
             var test = "SELECT CONNECTION_ID()";
 
             // Act
-            var result = MySqlParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (SelectQuery)result[0];
@@ -255,7 +255,7 @@ namespace ParserTests
             var test = "SELECT COUNT(tt.col1) AS Num, TEST('string',12)";
 
             // Act
-            var result = MySqlParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (SelectQuery)result[0];
@@ -293,7 +293,7 @@ namespace ParserTests
                 "14ecc35bb8f37b8ece, 0x4202, 0xffff)";
 
             // Act
-            var result = MySqlParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (InsertQuery)result[0];
@@ -323,7 +323,7 @@ namespace ParserTests
             var test = "SELECT (a+b)*(a+b), ((a+b)*(a+b)), (((a+b)*(a+b))) FROM t WHERE (a <= b) AND (t.b <= a) AND c IN ('abc', 'def') AND d NOT IN (123, 456) GROUP BY t.a, b ORDER BY a ASC, b DESC, c";
 
             // Act
-            var result = MySqlParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (SelectQuery)result[0];
@@ -371,7 +371,7 @@ namespace ParserTests
             var test = "USE ThisDB";
 
             // Act
-            var result = MySqlParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (UseStatement)result[0];
@@ -385,7 +385,7 @@ namespace ParserTests
             var test = "DROP TABLE tt";
 
             // Act
-            var result = MySqlParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (DropTableQuery)result[0];
@@ -400,7 +400,7 @@ namespace ParserTests
                        "select @@`version_comment`";
 
             // Act
-            var result = MySqlParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             {
@@ -424,7 +424,7 @@ namespace ParserTests
                        "select tt1.a, tt2.b FROM tt1 CROSS JOIN tt2 LEFT OUTER JOIN tt3 ON tt3.c=tt2.c;";
 
             // Act
-            var result = MySqlParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             {
@@ -473,7 +473,7 @@ namespace ParserTests
                        "select t1.* from t1; ";
 
             // Act
-            var result = MySqlParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             {
@@ -493,7 +493,7 @@ namespace ParserTests
             var test = "SELECT RandomFunc(), SuM(col1), CoUNt(col2), coUNT(*), avg (col3)";
 
             // Act
-            var result = MySqlParser.ParseToAst(test)[0] as SelectQuery;
+            var result = MySqlQueryParser.ParseToAst(test)[0] as SelectQuery;
 
             // Assert
             Assert.IsType<ScalarFunction>(result.SelectExpressions[0]);
@@ -521,7 +521,7 @@ namespace ParserTests
             var test = "UPDATE tt SET a = NULL WHERE b = 'abc'; ";
 
             // Act
-            var result = MySqlParser.ParseToAst(test)[0] as UpdateQuery;
+            var result = MySqlQueryParser.ParseToAst(test)[0] as UpdateQuery;
 
             // Assert
             Assert.IsType<ColumnRef>(result.UpdateExpressions[0].First);
@@ -536,7 +536,7 @@ namespace ParserTests
                          FROM   numerictable";
 
             // Act
-            var result = MySqlParser.ParseToAst(test)[0] as SelectQuery;
+            var result = MySqlQueryParser.ParseToAst(test)[0] as SelectQuery;
 
             // Assert
             Assert.Equal(4, result.SelectExpressions.Count);
@@ -554,7 +554,7 @@ namespace ParserTests
                        "SELECT * FROM TT WHERE a NOT LIKE 'a_34'; ";
 
             // Act
-            var result = MySqlParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             Assert.Equal("a", (((BooleanLike)((SelectQuery)result[0]).Where.CNF.AND[0].OR[0]).Column.ColumnName.id));
