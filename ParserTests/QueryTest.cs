@@ -14,11 +14,12 @@ namespace ParserTests
         public void Parse_AlterTable()
         {
             // Setup
+            var parser = new MySqlParser();
             var test = "ALTER TABLE table1 " +
                        "MODIFY COLUMN col1 TEXT ENCRYPTED FOR (STORE, SEARCH) NULL";
 
             // Act
-            var result = MySqlQueryParser.ParseToAst(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (AlterTableQuery)result[0];
@@ -45,11 +46,12 @@ namespace ParserTests
         public void Parse_CreateTable_DATETIME()
         {
             // Setup
+            var parser = new MySqlParser();
             var test = "CREATE TABLE table1 " +
                        "(col1 DATETIME NOT NULL)";
 
             // Act
-            var result = MySqlQueryParser.ParseToAst(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (CreateTableQuery)result[0];
@@ -67,26 +69,27 @@ namespace ParserTests
         public void Parse_NULLExpressions()
         {
             // Setup
+            var parser = new MySqlParser();
             var test1 = "SELECT NULL";
             var test2 = "INSERT INTO tbl1 ( col1 ) VALUES ( NULL )";
             var test3 = "SELECT * FROM tbl1 WHERE col1 IS NOT NULL AND col2 IS NULL";
 
             // Act
-            var result1 = MySqlQueryParser.ParseToAst(test1)[0];
+            var result1 = parser.ParseToAst(test1)[0];
 
             // Assert
             Assert.IsType<SelectQuery>(result1);
             Assert.IsType<NullConstant>(((SelectQuery)result1).SelectExpressions[0]);
 
             // Act
-            var result2 = MySqlQueryParser.ParseToAst(test2)[0];
+            var result2 = parser.ParseToAst(test2)[0];
 
             // Assert
             Assert.IsType<InsertQuery>(result2);
             Assert.IsType<NullConstant>(((InsertQuery)result2).Values[0][0]);
 
             // Act
-            var result3 = MySqlQueryParser.ParseToAst(test3)[0];
+            var result3 = parser.ParseToAst(test3)[0];
 
             // Assert
             Assert.IsType<SelectQuery>(result3);
@@ -98,12 +101,13 @@ namespace ParserTests
         public void Parse_CreateTable_TEXT()
         {
             // Setup
+            var parser = new MySqlParser();
             var test = "CREATE TABLE table1 " +
                        "(col1 TEXT, " +
                        "col2 TEXT ENCRYPTED FOR (STORE, SEARCH) NULL)";
 
             // Act
-            var result = MySqlQueryParser.ParseToAst(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (CreateTableQuery)result[0];
@@ -134,6 +138,7 @@ namespace ParserTests
         public void Parse_CreateTable_WithPartialEncryption()
         {
             // Setup
+            var parser = new MySqlParser();
             var test = "CREATE TABLE ttt " +
                        "(aaa INT ENCRYPTED FOR (ADDITION, MULTIPLICATION) NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
                        "`bbb` BIGINT NULL, " +
@@ -145,7 +150,7 @@ namespace ParserTests
                        "hhh ENUM('ABC', 'def') ENCRYPTED NULL, " +
                        "iii TIMESTAMP ENCRYPTED DEFAULT CURRENT_TIMESTAMP" + ")";
             // Act
-            var result = MySqlQueryParser.ParseToAst(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (CreateTableQuery)result[0];
@@ -203,8 +208,9 @@ namespace ParserTests
         public void Parse_Commands()
         {
             // Setup 
+            var parser = new MySqlParser();
             var test = "PRISMADB EXPORT SETTINGS TO '/home/user/settings.json';" +
-                       "PRISMADB REGISTER USER 'sherlock' PASSWORD '@22!B';" +
+                       "PRISMADB REGISTER USER 'sherlock' PASS '@22!B';" +
                        "PRISMADB UPDATE KEYS;" +
                        "PRISMADB DECRYPT tt.col1;" +
                        "PRISMADB ENCRYPT tt.col1;" +
@@ -212,7 +218,7 @@ namespace ParserTests
                        "PRISMADB DECRYPT tt.col1 STATUS;";
 
             // Act 
-            var result = MySqlQueryParser.ParseToAst(test);
+            var result = parser.ParseToAst(test);
 
             // Assert 
             Assert.Equal("/home/user/settings.json", ((ExportSettingsCommand)result[0]).FileUri.strvalue);
@@ -235,10 +241,11 @@ namespace ParserTests
         public void Parse_Function()
         {
             // Setup
+            var parser = new MySqlParser();
             var test = "SELECT CONNECTION_ID()";
 
             // Act
-            var result = MySqlQueryParser.ParseToAst(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (SelectQuery)result[0];
@@ -252,10 +259,11 @@ namespace ParserTests
         public void Parse_FunctionWithParams()
         {
             // Setup
+            var parser = new MySqlParser();
             var test = "SELECT COUNT(tt.col1) AS Num, TEST('string',12)";
 
             // Act
-            var result = MySqlQueryParser.ParseToAst(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (SelectQuery)result[0];
@@ -279,8 +287,9 @@ namespace ParserTests
         public void Parse_InsertInto()
         {
             // Setup
+            var parser = new MySqlParser();
             var test =
-                "INSERT INTO `tt1` (col1, col2, `col3`, `col4`) " +
+                "INSERT INTO `tt1` (tt1.col1, `tt1`.col2, `tt1`.`col3`, tt1.`col4`) " +
                 "VALUES ( -1, 12.345 , 'hey', \"hi\" ), " +
                 "(0,050, 3147483647, '  ', '&'), " +
                 "(0xdec2976ac4fc39864683a83f7b9876f4b2cbc65b0b6ede9e74e9" +
@@ -293,16 +302,20 @@ namespace ParserTests
                 "14ecc35bb8f37b8ece, 0x4202, 0xffff)";
 
             // Act
-            var result = MySqlQueryParser.ParseToAst(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (InsertQuery)result[0];
 
             Assert.Equal(new TableRef("tt1"), actual.Into);
             Assert.Equal(new Identifier("col1"), actual.Columns[0].ColumnName);
+            Assert.Equal(new TableRef("tt1"), actual.Columns[0].Table);
             Assert.Equal(new Identifier("col2"), actual.Columns[1].ColumnName);
+            Assert.Equal(new TableRef("tt1"), actual.Columns[1].Table);
             Assert.Equal(new Identifier("col3"), actual.Columns[2].ColumnName);
+            Assert.Equal(new TableRef("tt1"), actual.Columns[2].Table);
             Assert.Equal(new Identifier("col4"), actual.Columns[3].ColumnName);
+            Assert.Equal(new TableRef("tt1"), actual.Columns[3].Table);
             Assert.Equal(3, actual.Values.Count);
             Assert.Equal(-1, (actual.Values[0][0] as IntConstant)?.intvalue);
             Assert.Equal(12.345m, (actual.Values[0][1] as FloatingPointConstant)?.floatvalue);
@@ -320,28 +333,29 @@ namespace ParserTests
         public void Parse_Select()
         {
             // Setup
-            var test = "SELECT (a+b)*(a+b), ((a+b)*(a+b)), (((a+b)*(a+b))) FROM t WHERE (a <= b) AND (t.b <= a) AND c IN ('abc', 'def') AND d NOT IN (123, 456) GROUP BY t.a, b ORDER BY a ASC, b DESC, c";
+            var parser = new MySqlParser();
+            var test = "SELECT (a+b)*(a+b), ((a+b)*(a+b)), (((a+b)*(a+b))) FROM t WHERE (a <= b) AND t.b !> a AND c IN ('abc', 'def') AND d NOT IN (123, 456) GROUP BY t.a, b ORDER BY a ASC, b DESC, c";
 
             // Act
-            var result = MySqlQueryParser.ParseToAst(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (SelectQuery)result[0];
 
             Assert.Equal("(a+b)*(a+b)", actual.SelectExpressions[0].Alias.id);
             Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[1].Alias.id);
-            Assert.Equal("(((a+b)*(a+b)))", actual.SelectExpressions[2].Alias.id);
+            Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[2].Alias.id);
 
             Assert.Equal(new ColumnRef("b"), ((BooleanGreaterThan)actual.Where.CNF.AND[0].OR[0]).left);
             Assert.Equal(new ColumnRef("a"), ((BooleanGreaterThan)actual.Where.CNF.AND[0].OR[0]).right);
-            Assert.Equal(new ColumnRef("b"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[1]).left);
-            Assert.Equal(new ColumnRef("a"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[1]).right);
+            Assert.Equal(new ColumnRef("a"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[1]).left);
+            Assert.Equal(new ColumnRef("b"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[1]).right);
             Assert.False(((BooleanGreaterThan)actual.Where.CNF.AND[0].OR[0]).NOT);
             Assert.False(((BooleanEquals)actual.Where.CNF.AND[0].OR[1]).NOT);
             Assert.Equal(new ColumnRef("a"), ((BooleanGreaterThan)actual.Where.CNF.AND[1].OR[0]).left);
             Assert.Equal(new ColumnRef("t", "b"), ((BooleanGreaterThan)actual.Where.CNF.AND[1].OR[0]).right);
-            Assert.Equal(new ColumnRef("t", "b"), ((BooleanEquals)actual.Where.CNF.AND[1].OR[1]).right);
-            Assert.Equal(new ColumnRef("a"), ((BooleanEquals)actual.Where.CNF.AND[1].OR[1]).left);
+            Assert.Equal(new ColumnRef("t", "b"), ((BooleanEquals)actual.Where.CNF.AND[1].OR[1]).left);
+            Assert.Equal(new ColumnRef("a"), ((BooleanEquals)actual.Where.CNF.AND[1].OR[1]).right);
             Assert.False(((BooleanGreaterThan)actual.Where.CNF.AND[1].OR[0]).NOT);
             Assert.False(((BooleanEquals)actual.Where.CNF.AND[1].OR[1]).NOT);
             Assert.Equal(new ColumnRef("c"), ((BooleanIn)actual.Where.CNF.AND[2].OR[0]).Column);
@@ -368,10 +382,11 @@ namespace ParserTests
         public void Parse_Use()
         {
             // Setup
+            var parser = new MySqlParser();
             var test = "USE ThisDB";
 
             // Act
-            var result = MySqlQueryParser.ParseToAst(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (UseStatement)result[0];
@@ -382,10 +397,11 @@ namespace ParserTests
         public void Parse_DropTable()
         {
             // Setup
+            var parser = new MySqlParser();
             var test = "DROP TABLE tt";
 
             // Act
-            var result = MySqlQueryParser.ParseToAst(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (DropTableQuery)result[0];
@@ -396,11 +412,12 @@ namespace ParserTests
         public void Parse_Variables()
         {
             // Setup
+            var parser = new MySqlParser();
             var test = "select @@version_comment limit 1; " +
                        "select @@`version_comment`";
 
             // Act
-            var result = MySqlQueryParser.ParseToAst(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             {
@@ -419,21 +436,22 @@ namespace ParserTests
         public void Parse_Join()
         {
             // Setup
-            var test = "select tt1.a AS abc, tt2.b FROM tt1 AS table1 INNER JOIN tt2 ON table1.c=tt2.c; " +
+            var parser = new MySqlParser();
+            var test = "select tt1.a AS abc, tt2.b FROM tt1 AS table INNER JOIN tt2 ON table.c=tt2.c; " +
                        "select tt1.a, tt2.b FROM tt1 JOIN tt2 ON tt1.c=tt2.c WHERE tt1.a=123; " +
                        "select tt1.a, tt2.b FROM tt1 CROSS JOIN tt2 LEFT OUTER JOIN tt3 ON tt3.c=tt2.c;";
 
             // Act
-            var result = MySqlQueryParser.ParseToAst(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             {
                 var actual = (SelectQuery)result[0];
                 Assert.Equal(new ColumnRef("tt1", "a", "abc"), actual.SelectExpressions[0]);
                 Assert.Equal(new ColumnRef("tt2", "b"), actual.SelectExpressions[1]);
-                Assert.Equal(new TableRef("tt1", AliasName: "table1"), actual.FromTables[0]);
+                Assert.Equal(new TableRef("tt1", AliasName:"table"), actual.FromTables[0]);
                 Assert.Equal(new TableRef("tt2"), actual.Joins[0].JoinTable);
-                Assert.Equal(new ColumnRef("table1", "c"), actual.Joins[0].FirstColumn);
+                Assert.Equal(new ColumnRef("table", "c"), actual.Joins[0].FirstColumn);
                 Assert.Equal(new ColumnRef("tt2", "c"), actual.Joins[0].SecondColumn);
                 Assert.Equal(JoinType.INNER, actual.Joins[0].JoinType);
             }
@@ -469,11 +487,12 @@ namespace ParserTests
         public void Parse_AllColumns()
         {
             // Setup
+            var parser = new MySqlParser();
             var test = "select * from tt; " +
                        "select t1.* from t1; ";
 
             // Act
-            var result = MySqlQueryParser.ParseToAst(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             {
@@ -490,10 +509,11 @@ namespace ParserTests
         public void Parse_KnownFuncs()
         {
             // Setup
+            var parser = new MySqlParser();
             var test = "SELECT RandomFunc(), SuM(col1), CoUNt(col2), coUNT(*), avg (col3)";
 
             // Act
-            var result = MySqlQueryParser.ParseToAst(test)[0] as SelectQuery;
+            var result = parser.ParseToAst(test)[0] as SelectQuery;
 
             // Assert
             Assert.IsType<ScalarFunction>(result.SelectExpressions[0]);
@@ -518,10 +538,11 @@ namespace ParserTests
         public void Parse_Update()
         {
             // Setup
+            var parser = new MySqlParser();
             var test = "UPDATE tt SET a = NULL WHERE b = 'abc'; ";
 
             // Act
-            var result = MySqlQueryParser.ParseToAst(test)[0] as UpdateQuery;
+            var result = parser.ParseToAst(test)[0] as UpdateQuery;
 
             // Assert
             Assert.IsType<ColumnRef>(result.UpdateExpressions[0].First);
@@ -532,11 +553,12 @@ namespace ParserTests
         public void Parse_Operators()
         {
             // Setup
+            var parser = new MySqlParser();
             var test = @"SELECT a+b, a-b, a*b, a/b
                          FROM   numerictable";
 
             // Act
-            var result = MySqlQueryParser.ParseToAst(test)[0] as SelectQuery;
+            var result = parser.ParseToAst(test)[0] as SelectQuery;
 
             // Assert
             Assert.Equal(4, result.SelectExpressions.Count);
@@ -550,11 +572,12 @@ namespace ParserTests
         public void Parse_Like()
         {
             // Setup
+            var parser = new MySqlParser();
             var test = "SELECT * FROM TT WHERE a LIKE 'abc%'; " +
                        "SELECT * FROM TT WHERE a NOT LIKE 'a_34'; ";
 
             // Act
-            var result = MySqlQueryParser.ParseToAst(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             Assert.Equal("a", (((BooleanLike)((SelectQuery)result[0]).Where.CNF.AND[0].OR[0]).Column.ColumnName.id));
