@@ -564,5 +564,70 @@ namespace ParserTests
             Assert.True(((BooleanLike)((SelectQuery)result[1]).Where.CNF.AND[0].OR[0]).NOT);
             Assert.Equal("a_34", (((BooleanLike)((SelectQuery)result[1]).Where.CNF.AND[0].OR[0]).SearchValue.strvalue));
         }
+
+        [Fact(DisplayName = "Parse escaped")]
+        public void Parse_Escaped()
+        {
+            // Setup
+            var test = "INSERT INTO TT1 (a, b, c, d, e) VALUES " +
+                       "('I\\'m', '\\\"escaped\"', \"\"\"and\", '''me ''too')";
+
+            // Act
+            var result = MySqlQueryParser.ParseToAst(test);
+
+            // Assert
+            Assert.Equal("I'm", ((StringConstant)((InsertQuery)result[0]).Values[0][0]).strvalue);
+            Assert.Equal("\\\"escaped\"", ((StringConstant)((InsertQuery)result[0]).Values[0][1]).strvalue);
+            Assert.Equal("\"and", ((StringConstant)((InsertQuery)result[0]).Values[0][2]).strvalue);
+            Assert.Equal("'me 'too", ((StringConstant)((InsertQuery)result[0]).Values[0][3]).strvalue);
+        }
+
+        [Fact(DisplayName = "Parse order of operations")]
+        public void Parse_OrderOfOperations()
+        {
+            // Setup
+            var test = "SELECT ( a + b ) + ( c + d ) ;" +
+                       "SELECT ( ( a + b ) + ( c + d ) ) ;" +
+                       "SELECT a + ( b + c ) ;" +
+                       "SELECT ( a + b ) + c ;" +
+                       "SELECT a + b + c ;" +
+                       "SELECT a * b + c ;" +
+                       "SELECT a + b * c ;";
+
+            // Act
+            var result = MySqlQueryParser.ParseToAst(test);
+
+            // Assert
+            Assert.Equal("a", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[0]).SelectExpressions[0]).left).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[0]).SelectExpressions[0]).left).right).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[0]).SelectExpressions[0]).right).left).ColumnName.id);
+            Assert.Equal("d", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[0]).SelectExpressions[0]).right).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[1]).SelectExpressions[0]).left).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[1]).SelectExpressions[0]).left).right).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[1]).SelectExpressions[0]).right).left).ColumnName.id);
+            Assert.Equal("d", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[1]).SelectExpressions[0]).right).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Addition)((SelectQuery)result[2]).SelectExpressions[0]).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[2]).SelectExpressions[0]).right).left).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[2]).SelectExpressions[0]).right).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[3]).SelectExpressions[0]).left).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[3]).SelectExpressions[0]).left).right).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Addition)((SelectQuery)result[3]).SelectExpressions[0]).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[4]).SelectExpressions[0]).left).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[4]).SelectExpressions[0]).left).right).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Addition)((SelectQuery)result[4]).SelectExpressions[0]).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Multiplication)((Addition)((SelectQuery)result[5]).SelectExpressions[0]).left).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Multiplication)((Addition)((SelectQuery)result[5]).SelectExpressions[0]).left).right).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Addition)((SelectQuery)result[5]).SelectExpressions[0]).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Addition)((SelectQuery)result[6]).SelectExpressions[0]).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Multiplication)((Addition)((SelectQuery)result[6]).SelectExpressions[0]).right).left).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Multiplication)((Addition)((SelectQuery)result[6]).SelectExpressions[0]).right).right).ColumnName.id);
+        }
+
     }
 }

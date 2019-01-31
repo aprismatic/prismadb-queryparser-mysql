@@ -1,4 +1,4 @@
-﻿using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Misc;
 using PrismaDB.QueryAST;
 using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
@@ -78,16 +78,22 @@ namespace PrismaDB.QueryParser.MySQL
         public override object VisitStringLiteral([NotNull] MySqlParser.StringLiteralContext context)
         {
             var str = context.STRING_LITERAL().GetText();
-            if (str.StartsWith("\'"))
-                return new StringConstant(str.Trim('\''));
+            if (str.StartsWith("'"))
+            {
+                str = str.Substring(1, str.Length - 2).Replace("\\'", "'").Replace("''", "'");
+                return new StringConstant(str);
+            }
             if (str.StartsWith("\""))
-                return new StringConstant(str.Trim('\"'));
+            {
+                str = str.Substring(1, str.Length - 2).Replace("\\\"", "\"").Replace("\"\"", "\"");
+                return new StringConstant(str);
+            }
             return null;
         }
 
         public override object VisitHexadecimalLiteral([NotNull] MySqlParser.HexadecimalLiteralContext context)
         {
-            var str = context.HEXADECIMAL_LITERAL().GetText().ToUpper();
+            var str = context.HEXADECIMAL_LITERAL().GetText().ToUpperInvariant();
             var length = 0;
             if (str.StartsWith("0X"))
                 length = str.Length - 2;
@@ -120,7 +126,7 @@ namespace PrismaDB.QueryParser.MySQL
         public override object VisitStringDataType([NotNull] MySqlParser.StringDataTypeContext context)
         {
             var res = new ColumnDefinition();
-            switch (context.typeName.Text.ToUpper())
+            switch (context.typeName.Text.ToUpperInvariant())
             {
                 case "CHAR":
                     res.DataType = SqlDataType.MySQL_CHAR;
@@ -140,7 +146,7 @@ namespace PrismaDB.QueryParser.MySQL
         public override object VisitSimpleDataType([NotNull] MySqlParser.SimpleDataTypeContext context)
         {
             var res = new ColumnDefinition();
-            switch (context.typeName.Text.ToUpper())
+            switch (context.typeName.Text.ToUpperInvariant())
             {
                 case "TINYINT":
                     res.DataType = SqlDataType.MySQL_TINYINT;
@@ -176,7 +182,7 @@ namespace PrismaDB.QueryParser.MySQL
         public override object VisitDimensionDataType([NotNull] MySqlParser.DimensionDataTypeContext context)
         {
             var res = new ColumnDefinition();
-            switch (context.typeName.Text.ToUpper())
+            switch (context.typeName.Text.ToUpperInvariant())
             {
                 case "BINARY":
                     res.DataType = SqlDataType.MySQL_BINARY;
@@ -193,7 +199,7 @@ namespace PrismaDB.QueryParser.MySQL
         public override object VisitCollectionDataType([NotNull] MySqlParser.CollectionDataTypeContext context)
         {
             var res = new ColumnDefinition();
-            switch (context.typeName.Text.ToUpper())
+            switch (context.typeName.Text.ToUpperInvariant())
             {
                 case "ENUM":
                     res.DataType = SqlDataType.MySQL_ENUM;
@@ -306,7 +312,7 @@ namespace PrismaDB.QueryParser.MySQL
 
         public override object VisitLogicalExpression([NotNull] MySqlParser.LogicalExpressionContext context)
         {
-            switch (context.logicalOperator().GetText().ToUpper())
+            switch (context.logicalOperator().GetText().ToUpperInvariant())
             {
                 case "AND":
                     return new AndClause((Expression)Visit(context.expression()[0]), (Expression)Visit(context.expression()[1]));
@@ -425,7 +431,7 @@ namespace PrismaDB.QueryParser.MySQL
 
         public override object VisitEncryptionType([NotNull] MySqlParser.EncryptionTypeContext context)
         {
-            switch (context.GetText().ToUpper())
+            switch (context.GetText().ToUpperInvariant())
             {
                 case "ADDITION":
                     return ColumnEncryptionFlags.Addition;
