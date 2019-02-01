@@ -446,9 +446,21 @@ predicate
     | left=predicate comparisonOperator right=predicate             #binaryComparasionPredicate
     | predicate NOT? LIKE predicate                                 #likePredicate
     | expressionAtom                                                #expressionAtomPredicate
+	| addSubExpression                                              #mathExpressionPredicate
 	| '(' (predicate) ')'                                           #nestedPredicate
     ;
 
+addSubExpression
+	: mulDivExpression                                              #nestedMulDivExpression
+	| left=addSubExpression addSubOperator right=addSubExpression   #addSubExpressionAtom
+	| '(' (addSubExpression) ')'                                    #nestedAddSubExpression
+	;
+
+mulDivExpression
+	: expressionAtom                                                #simpleExpressionAtom
+	| left=mulDivExpression mulDivOperator right=mulDivExpression   #mulDivExpressionAtom
+	| '(' (addSubExpression) ')'                                    #nestedAddSubExpressionInMulDiv
+	;
 
 // Add in ASTVisitor nullNotnull in constant
 expressionAtom
@@ -457,7 +469,6 @@ expressionAtom
     | functionCall                                                  #functionCallExpressionAtom
     | mysqlVariable                                                 #mysqlVariableExpressionAtom
     | unaryOperator expressionAtom                                  #unaryExpressionAtom
-    | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
 	| '(' (expressionAtom) ')'                                      #nestedExpressionAtom
     ;
 
@@ -474,8 +485,12 @@ logicalOperator
     : AND | OR
     ;
 
-mathOperator
-    : '*' | '/' | '+' | '-'
+addSubOperator
+    : '+' | '-'
+    ;
+
+mulDivOperator
+    : '*' | '/'
     ;
 
 keywordsCanBeId

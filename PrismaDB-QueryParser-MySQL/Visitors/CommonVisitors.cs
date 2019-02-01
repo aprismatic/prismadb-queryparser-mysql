@@ -384,26 +384,53 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
+        public override object VisitMathExpressionPredicate([NotNull] MySqlParser.MathExpressionPredicateContext context)
+        {
+            return Visit(context.addSubExpression());
+        }
+
         public override object VisitNestedPredicate([NotNull] MySqlParser.NestedPredicateContext context)
         {
             return Visit(context.predicate());
         }
 
-        public override object VisitUnaryExpressionAtom([NotNull] MySqlParser.UnaryExpressionAtomContext context)
+        public override object VisitNestedMulDivExpression([NotNull] MySqlParser.NestedMulDivExpressionContext context)
         {
-            var exp = Visit(context.expressionAtom());
-            ((BooleanExpression)exp).NOT = !((BooleanExpression)exp).NOT;
-            return exp;
+            return Visit(context.mulDivExpression());
         }
 
-        public override object VisitMathExpressionAtom([NotNull] MySqlParser.MathExpressionAtomContext context)
+        public override object VisitNestedAddSubExpression([NotNull] MySqlParser.NestedAddSubExpressionContext context)
         {
-            switch (context.mathOperator().GetText())
+            return Visit(context.addSubExpression());
+        }
+
+        public override object VisitSimpleExpressionAtom([NotNull] MySqlParser.SimpleExpressionAtomContext context)
+        {
+            return Visit(context.expressionAtom());
+        }
+
+        public override object VisitNestedAddSubExpressionInMulDiv([NotNull] MySqlParser.NestedAddSubExpressionInMulDivContext context)
+        {
+            return Visit(context.addSubExpression());
+        }
+
+        public override object VisitAddSubExpressionAtom([NotNull] MySqlParser.AddSubExpressionAtomContext context)
+        {
+            switch (context.addSubOperator().GetText())
             {
                 case "+":
                     return new Addition((Expression)Visit(context.left), (Expression)Visit(context.right));
                 case "-":
                     return new Subtraction((Expression)Visit(context.left), (Expression)Visit(context.right));
+                default:
+                    return null;
+            }
+        }
+
+        public override object VisitMulDivExpressionAtom([NotNull] MySqlParser.MulDivExpressionAtomContext context)
+        {
+            switch (context.mulDivOperator().GetText())
+            {
                 case "*":
                     return new Multiplication((Expression)Visit(context.left), (Expression)Visit(context.right));
                 case "/":
@@ -411,6 +438,13 @@ namespace PrismaDB.QueryParser.MySQL
                 default:
                     return null;
             }
+        }
+
+        public override object VisitUnaryExpressionAtom([NotNull] MySqlParser.UnaryExpressionAtomContext context)
+        {
+            var exp = Visit(context.expressionAtom());
+            ((BooleanExpression)exp).NOT = !((BooleanExpression)exp).NOT;
+            return exp;
         }
 
         public override object VisitNestedExpressionAtom([NotNull] MySqlParser.NestedExpressionAtomContext context)
