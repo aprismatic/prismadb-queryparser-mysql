@@ -592,7 +592,10 @@ namespace ParserTests
                        "SELECT ( a + b ) + c ;" +
                        "SELECT a + b + c ;" +
                        "SELECT a * b + c ;" +
-                       "SELECT a + b * c ;";
+                       "SELECT a + b * c ; " +
+                       "SELECT ( a + b ) * c ; " +
+                       "SELECT ( a + b ) * ( c - d ) ; " +
+                       "SELECT ( ( ( a + ( ( b * c ) ) ) / d ) ); ";
 
             // Act
             var result = MySqlQueryParser.ParseToAst(test);
@@ -627,6 +630,20 @@ namespace ParserTests
             Assert.Equal("a", ((ColumnRef)((Addition)((SelectQuery)result[6]).SelectExpressions[0]).left).ColumnName.id);
             Assert.Equal("b", ((ColumnRef)((Multiplication)((Addition)((SelectQuery)result[6]).SelectExpressions[0]).right).left).ColumnName.id);
             Assert.Equal("c", ((ColumnRef)((Multiplication)((Addition)((SelectQuery)result[6]).SelectExpressions[0]).right).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Addition)((Multiplication)((SelectQuery)result[7]).SelectExpressions[0]).left).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Addition)((Multiplication)((SelectQuery)result[7]).SelectExpressions[0]).left).right).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Multiplication)((SelectQuery)result[7]).SelectExpressions[0]).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Addition)((Multiplication)((SelectQuery)result[8]).SelectExpressions[0]).left).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Addition)((Multiplication)((SelectQuery)result[8]).SelectExpressions[0]).left).right).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Subtraction)((Multiplication)((SelectQuery)result[8]).SelectExpressions[0]).right).left).ColumnName.id);
+            Assert.Equal("d", ((ColumnRef)((Subtraction)((Multiplication)((SelectQuery)result[8]).SelectExpressions[0]).right).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Addition)((Division)((SelectQuery)result[9]).SelectExpressions[0]).left).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Multiplication)((Addition)((Division)((SelectQuery)result[9]).SelectExpressions[0]).left).right).left).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Multiplication)((Addition)((Division)((SelectQuery)result[9]).SelectExpressions[0]).left).right).right).ColumnName.id);
+            Assert.Equal("d", ((ColumnRef)((Division)((SelectQuery)result[9]).SelectExpressions[0]).right).ColumnName.id);
         }
 
     }
