@@ -574,7 +574,8 @@ namespace ParserTests
             // Setup
             var parser = new MySqlParser();
             var test = "SELECT * FROM TT WHERE a LIKE 'abc%'; " +
-                       "SELECT * FROM TT WHERE a NOT LIKE 'a_34'; ";
+                       "SELECT * FROM TT WHERE a NOT LIKE 'a_34'; " +
+                       "SELECT * FROM TT WHERE a LIKE 'abc%' ESCAPE '!'; ";
 
             // Act
             var result = parser.ParseToAst(test);
@@ -583,9 +584,13 @@ namespace ParserTests
             Assert.Equal("a", (((BooleanLike)((SelectQuery)result[0]).Where.CNF.AND[0].OR[0]).Column.ColumnName.id));
             Assert.False(((BooleanLike)((SelectQuery)result[0]).Where.CNF.AND[0].OR[0]).NOT);
             Assert.Equal("abc%", (((BooleanLike)((SelectQuery)result[0]).Where.CNF.AND[0].OR[0]).SearchValue.strvalue));
+            Assert.Null(((BooleanLike)((SelectQuery)result[0]).Where.CNF.AND[0].OR[0]).EscapeChar);
 
             Assert.True(((BooleanLike)((SelectQuery)result[1]).Where.CNF.AND[0].OR[0]).NOT);
             Assert.Equal("a_34", (((BooleanLike)((SelectQuery)result[1]).Where.CNF.AND[0].OR[0]).SearchValue.strvalue));
+            Assert.Null(((BooleanLike)((SelectQuery)result[1]).Where.CNF.AND[0].OR[0]).EscapeChar);
+
+            Assert.Equal('!', (((BooleanLike)((SelectQuery)result[2]).Where.CNF.AND[0].OR[0]).EscapeChar));
         }
     }
 }
