@@ -415,9 +415,9 @@ namespace PrismaDB.QueryParser.MySQL
                             {
                                 if (FindChildNode(opNode, "NOT") == null)
                                     expr = new BooleanIn((ColumnRef)BuildExpression(node.ChildNodes[0]),
-                                        BuildExpressions(node.ChildNodes[2]).Cast<Constant>().ToArray());
+                                        values: BuildExpressions(node.ChildNodes[2]).Cast<Constant>().ToArray());
                                 else
-                                    expr = new BooleanIn(true, (ColumnRef)BuildExpression(node.ChildNodes[0]),
+                                    expr = new BooleanIn((ColumnRef)BuildExpression(node.ChildNodes[0]), true,
                                         BuildExpressions(node.ChildNodes[2]).Cast<Constant>().ToArray());
                             }
                             else if (FindChildNode(opNode, "IS") != null)
