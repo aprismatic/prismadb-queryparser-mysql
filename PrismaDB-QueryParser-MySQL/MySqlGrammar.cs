@@ -90,6 +90,9 @@ namespace PrismaDB.QueryParser.MySQL
             var deleteStmt = new NonTerminal("deleteStmt");
             var useStmt = new NonTerminal("useStmt");
 
+            var showStmt = new NonTerminal("showStmt");
+            var describeStmt = new NonTerminal("describeStmt");
+
             var exportSettingsCmd = new NonTerminal("exportSettingsCmd");
             var registerUserCmd = new NonTerminal("registerUserCmd");
             var updateKeysCmd = new NonTerminal("updateKeysCmd");
@@ -220,6 +223,10 @@ namespace PrismaDB.QueryParser.MySQL
             decryptColumnCmd.Rule = PRISMADB + "DECRYPT" + Id + statusOpt;
             encryptColumnCmd.Rule = PRISMADB + "ENCRYPT" + Id + encryptTypePar + statusOpt;
             statusOpt.Rule = STATUS | Empty;
+
+            // Show / Describe Statements
+            showStmt.Rule = "SHOW" + "TABLES";
+            describeStmt.Rule = "DESCRIBE" + Id;
 
             // Use Statement
             useStmt.Rule = USE + Id;
