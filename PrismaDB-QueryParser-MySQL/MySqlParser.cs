@@ -135,6 +135,18 @@ namespace PrismaDB.QueryParser.MySQL
                                 var dropStmt = new DropTableQuery(BuildTableRef(FindChildNode(stmtNode, "Id")));
                                 queries.Add(dropStmt);
                             }
+
+                            else if (stmtNode.Term.Name.Equals("showTablesStmt"))
+                            {
+                                var showTablesStmt = new ShowTablesQuery();
+                                queries.Add(showTablesStmt);
+                            }
+
+                            else if (stmtNode.Term.Name.Equals("showColumnsStmt"))
+                            {
+                                var showColumnsStmt = new ShowColumnsQuery(BuildTableRef(FindChildNode(stmtNode, "Id")));
+                                queries.Add(showColumnsStmt);
+                            }
             }
             catch (ApplicationException)
             {
