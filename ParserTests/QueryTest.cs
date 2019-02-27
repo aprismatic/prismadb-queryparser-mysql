@@ -449,7 +449,7 @@ namespace ParserTests
                 var actual = (SelectQuery)result[0];
                 Assert.Equal(new ColumnRef("tt1", "a", "abc"), actual.SelectExpressions[0]);
                 Assert.Equal(new ColumnRef("tt2", "b"), actual.SelectExpressions[1]);
-                Assert.Equal(new TableRef("tt1", AliasName:"table"), actual.FromTables[0]);
+                Assert.Equal(new TableRef("tt1", AliasName: "table"), actual.FromTables[0]);
                 Assert.Equal(new TableRef("tt2"), actual.Joins[0].JoinTable);
                 Assert.Equal(new ColumnRef("table", "c"), actual.Joins[0].FirstColumn);
                 Assert.Equal(new ColumnRef("tt2", "c"), actual.Joins[0].SecondColumn);
@@ -591,6 +591,23 @@ namespace ParserTests
             Assert.Null(((BooleanLike)((SelectQuery)result[1]).Where.CNF.AND[0].OR[0]).EscapeChar);
 
             Assert.Equal('!', (((BooleanLike)((SelectQuery)result[2]).Where.CNF.AND[0].OR[0]).EscapeChar));
+        }
+
+        [Fact(DisplayName = "Parse SHOW")]
+        public void Parse_Show()
+        {
+            // Setup
+            var parser = new MySqlParser();
+            var test = "SHOW TABLES;" +
+                       "SHOW COLUMNS FROM abc;";
+
+            // Act
+            var result = parser.ParseToAst(test);
+
+            // Assert
+            Assert.True(result[0] is ShowTablesQuery);
+
+            Assert.Equal(new TableRef("abc"), ((ShowColumnsQuery)result[1]).TableName);
         }
     }
 }
