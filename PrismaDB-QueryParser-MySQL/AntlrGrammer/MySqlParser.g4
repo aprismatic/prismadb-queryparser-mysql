@@ -62,7 +62,7 @@ dclStatement
 	;
 
 utilityStatement
-	: useStatement
+	: useStatement | showTablesStatement | showColumnsStatement
 	;
 
 
@@ -140,7 +140,7 @@ insertStatement
 
 selectStatement
     : SELECT selectElements
-      fromClause? orderByClause? limitClause?
+      fromClause? whereClause? groupByClause? orderByClause? limitClause?
 	;
 
 updateStatement
@@ -216,12 +216,15 @@ selectElement
 
 fromClause
     : FROM tableSources joinPart*
-      (WHERE whereExpr=expression)?
-      (
-        GROUP BY
-        groupByItem (',' groupByItem)*
-      )?
     ;
+
+whereClause
+	: WHERE whereExpr=expression
+	;
+
+groupByClause
+	: GROUP BY groupByItem (',' groupByItem)*
+	;
 
 groupByItem
     : expression
@@ -240,6 +243,14 @@ limitClause
 
 useStatement
     : USE databaseName
+    ;
+
+showTablesStatement
+    : SHOW TABLES
+    ;
+
+showColumnsStatement
+    : SHOW COLUMNS FROM tableName
     ;
 
 
@@ -444,7 +455,7 @@ predicate
     : predicate NOT? IN '(' (expressions) ')'                       #inPredicate
     | predicate IS nullNotnull                                      #isNullPredicate
     | left=predicate comparisonOperator right=predicate             #binaryComparasionPredicate
-    | predicate NOT? LIKE predicate                                 #likePredicate
+    | predicate NOT? LIKE predicate (ESCAPE stringLiteral)?         #likePredicate
     | expressionAtom                                                #expressionAtomPredicate
 	| addSubExpression                                              #mathExpressionPredicate
 	| '(' (predicate) ')'                                           #nestedPredicate

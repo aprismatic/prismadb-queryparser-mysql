@@ -570,6 +570,22 @@ namespace ParserTests
             Assert.Equal('!', (((BooleanLike)((SelectQuery)result[2]).Where.CNF.AND[0].OR[0]).EscapeChar));
         }
 
+        [Fact(DisplayName = "Parse SHOW")]
+        public void Parse_Show()
+        {
+            // Setup
+            var test = "SHOW TABLES;" +
+                       "SHOW COLUMNS FROM abc;";
+
+            // Act
+            var result = MySqlQueryParser.ParseToAst(test);
+
+            // Assert
+            Assert.True(result[0] is ShowTablesQuery);
+
+            Assert.Equal(new TableRef("abc"), ((ShowColumnsQuery)result[1]).TableName);
+        }
+
         [Fact(DisplayName = "Parse escaped")]
         public void Parse_Escaped()
         {

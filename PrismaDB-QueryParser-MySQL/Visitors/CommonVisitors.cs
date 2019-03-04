@@ -269,13 +269,13 @@ namespace PrismaDB.QueryParser.MySQL
         public override object VisitScalarFunctionCall([NotNull] MySqlParser.ScalarFunctionCallContext context)
         {
             if (context.scalarFunctionName().SUM() != null)
-                return new SumAggregationFunction(context.scalarFunctionName().GetText(), (List<Expression>)Visit(context.functionArgs()));
+                return new SumAggregationFunction(context.scalarFunctionName().GetText(), parameters: (List<Expression>)Visit(context.functionArgs()));
             else if (context.scalarFunctionName().COUNT() != null)
-                return new CountAggregationFunction(context.scalarFunctionName().GetText(), (List<Expression>)Visit(context.functionArgs()));
+                return new CountAggregationFunction(context.scalarFunctionName().GetText(), parameters: (List<Expression>)Visit(context.functionArgs()));
             else if (context.scalarFunctionName().AVG() != null)
-                return new AvgAggregationFunction(context.scalarFunctionName().GetText(), (List<Expression>)Visit(context.functionArgs()));
+                return new AvgAggregationFunction(context.scalarFunctionName().GetText(), parameters: (List<Expression>)Visit(context.functionArgs()));
             else
-                return new ScalarFunction(context.scalarFunctionName().GetText(), (List<Expression>)Visit(context.functionArgs()));
+                return new ScalarFunction(context.scalarFunctionName().GetText(), parameters: (List<Expression>)Visit(context.functionArgs()));
         }
 
         public override object VisitUdfFunctionCall([NotNull] MySqlParser.UdfFunctionCallContext context)
@@ -381,6 +381,8 @@ namespace PrismaDB.QueryParser.MySQL
             res.SearchValue = (StringConstant)Visit(context.predicate()[1]);
             if (context.NOT() != null)
                 res.NOT = true;
+            if (context.stringLiteral() != null)
+                res.EscapeChar = ((StringConstant)Visit(context.stringLiteral())).strvalue[0];
             return res;
         }
 

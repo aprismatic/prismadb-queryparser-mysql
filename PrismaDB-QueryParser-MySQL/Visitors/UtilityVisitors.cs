@@ -11,5 +11,15 @@ namespace PrismaDB.QueryParser.MySQL
         {
             return new UseStatement((DatabaseRef)Visit(context.databaseName()));
         }
+
+        public override object VisitShowTablesStatement([NotNull] MySqlParser.ShowTablesStatementContext context)
+        {
+            return new ShowTablesQuery();
+        }
+
+        public override object VisitShowColumnsStatement([NotNull] MySqlParser.ShowColumnsStatementContext context)
+        {
+            return new ShowColumnsQuery((TableRef)Visit(context.tableName()));
+        }
     }
 }

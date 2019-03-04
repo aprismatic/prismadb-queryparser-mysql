@@ -29,9 +29,11 @@ namespace PrismaDB.QueryParser.MySQL
                 var from = (SelectQuery)Visit(context.fromClause());
                 res.FromTables = from.FromTables;
                 res.Joins = from.Joins;
-                res.Where = from.Where;
-                res.GroupBy = from.GroupBy;
             }
+            if (context.whereClause() != null)
+                res.Where = (WhereClause)Visit(context.whereClause());
+            if (context.groupByClause() != null)
+                res.GroupBy = (GroupByClause)Visit(context.groupByClause());
             if (context.orderByClause() != null)
                 res.OrderBy = (OrderByClause)Visit(context.orderByClause());
             if (context.limitClause() != null)
@@ -195,11 +197,19 @@ namespace PrismaDB.QueryParser.MySQL
             res.Joins = new List<JoinClause>();
             foreach (var joinPart in context.joinPart())
                 res.Joins.Add((JoinClause)Visit(joinPart));
-            if (context.expression() != null)
-                res.Where = ExpressionToCnfWhere(context.expression());
-            res.GroupBy.GroupColumns = new List<ColumnRef>();
+            return res;
+        }
+
+        public override object VisitWhereClause([NotNull] MySqlParser.WhereClauseContext context)
+        {
+            return ExpressionToCnfWhere(context.whereExpr);
+        }
+
+        public override object VisitGroupByClause([NotNull] MySqlParser.GroupByClauseContext context)
+        {
+            var res = new GroupByClause();
             foreach (var groupByItem in context.groupByItem())
-                res.GroupBy.GroupColumns.Add((ColumnRef)Visit(groupByItem));
+                res.GroupColumns.Add((ColumnRef)Visit(groupByItem));
             return res;
         }
 

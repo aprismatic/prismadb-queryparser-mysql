@@ -25,7 +25,6 @@ namespace PrismaDB.QueryParser.MySQL
         public override List<ColumnRef> GetColumns() { throw new NotImplementedException(); }
         public override int GetHashCode() { throw new NotImplementedException(); }
         public override List<ColumnRef> GetNoCopyColumns() { throw new NotImplementedException(); }
-        public override void setValue(params object[] value) { throw new NotImplementedException(); }
         public override string ToString() { throw new NotImplementedException(); }
     }
 
@@ -49,7 +48,6 @@ namespace PrismaDB.QueryParser.MySQL
         public override List<ColumnRef> GetColumns() { throw new NotImplementedException(); }
         public override int GetHashCode() { throw new NotImplementedException(); }
         public override List<ColumnRef> GetNoCopyColumns() { throw new NotImplementedException(); }
-        public override void setValue(params object[] value) { throw new NotImplementedException(); }
         public override string ToString() { throw new NotImplementedException(); }
     }
 }
