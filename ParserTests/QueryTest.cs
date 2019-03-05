@@ -490,7 +490,7 @@ namespace ParserTests
         public void Parse_KnownFuncs()
         {
             // Setup
-            var test = "SELECT RandomFunc(), SuM(col1), CoUNt(col2), coUNT(*), avg (col3)";
+            var test = "SELECT RandomFunc(), SuM(col1), CoUNt(col2), coUNT(*), avg (col3), NOW()";
 
             // Act
             var result = MySqlQueryParser.ParseToAst(test)[0] as SelectQuery;
@@ -512,6 +512,8 @@ namespace ParserTests
 
             Assert.IsType<AvgAggregationFunction>(result.SelectExpressions[4]);
             Assert.IsType<ColumnRef>((result.SelectExpressions[4] as ScalarFunction).Parameters[0]);
+
+            Assert.IsType<ScalarFunction>(result.SelectExpressions[5]);
         }
 
         [Fact(DisplayName = "Parse UPDATE")]
