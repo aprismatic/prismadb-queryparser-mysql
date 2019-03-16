@@ -21,7 +21,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitEncyrptCommand([NotNull] MySqlParser.EncyrptCommandContext context)
+        public override object VisitEncryptCommand([NotNull] MySqlParser.EncryptCommandContext context)
         {
             var res = new EncryptColumnCommand();
             res.Column = (ColumnRef)Visit(context.fullColumnName());

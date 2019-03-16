@@ -57,13 +57,13 @@ dmlStatement
     ;
 
 dclStatement
-	: exportSettingsCommand | updateKeysCommand | encyrptCommand
+    : exportSettingsCommand | updateKeysCommand | encryptCommand
     | decryptCommand | registerUserCommand
-	;
+    ;
 
 utilityStatement
-	: useStatement | showTablesStatement | showColumnsStatement
-	;
+    : useStatement | showTablesStatement | showColumnsStatement
+    ;
 
 
 // Data Definition Language
@@ -88,12 +88,12 @@ createDefinition
 
 columnDefinition
     : dataType
-	( ENCRYPTED encryptionOptions? )?
-	nullNotnull?
-	(
-	  ( DEFAULT defaultValue )
+    ( ENCRYPTED encryptionOptions? )?
+    nullNotnull?
+    (
+      ( DEFAULT defaultValue )
       | AUTO_INCREMENT PRIMARY KEY
-	)?
+    )?
     ;
 
 
@@ -141,7 +141,7 @@ insertStatement
 selectStatement
     : SELECT selectElements
       fromClause? whereClause? groupByClause? orderByClause? limitClause?
-	;
+    ;
 
 updateStatement
     : singleUpdateStatement
@@ -219,12 +219,12 @@ fromClause
     ;
 
 whereClause
-	: WHERE whereExpr=expression
-	;
+    : WHERE whereExpr=expression
+    ;
 
 groupByClause
-	: GROUP BY groupByItem (',' groupByItem)*
-	;
+    : GROUP BY groupByItem (',' groupByItem)*
+    ;
 
 groupByItem
     : expression
@@ -257,25 +257,25 @@ showColumnsStatement
 // Prisma/DB Data Control Language
 
 exportSettingsCommand
-	: PRISMADB EXPORT SETTINGS TO stringLiteral
-	;
+    : PRISMADB EXPORT SETTINGS TO stringLiteral
+    ;
 
 updateKeysCommand
-	: PRISMADB UPDATE KEYS STATUS?
-	;
+    : PRISMADB UPDATE KEYS STATUS?
+    ;
 
-encyrptCommand
-	: PRISMADB ENCRYPT fullColumnName encryptionOptions? STATUS?
-	;
+encryptCommand
+    : PRISMADB ENCRYPT fullColumnName encryptionOptions? STATUS?
+    ;
 
 decryptCommand
-	: PRISMADB DECRYPT fullColumnName STATUS?
-	;
+    : PRISMADB DECRYPT fullColumnName STATUS?
+    ;
 
 registerUserCommand
-	: PRISMADB REGISTER USER
+    : PRISMADB REGISTER USER
     user=stringLiteral PASSWORD password=stringLiteral
-	;
+    ;
 
 
 // Common Clauses
@@ -283,8 +283,8 @@ registerUserCommand
 //    DB Objects
 
 databaseName
-	: uid
-	;
+    : uid
+    ;
 
 tableName
     : uid
@@ -448,7 +448,7 @@ expression
     : notOperator=(NOT | '!') expression                            #notExpression
     | expression logicalOperator expression                         #logicalExpression
     | predicate                                                     #predicateExpression
-	| '(' (expression) ')'                                          #nestedExpression
+    | '(' (expression) ')'                                          #nestedExpression
     ;
 
 predicate
@@ -457,21 +457,21 @@ predicate
     | left=predicate comparisonOperator right=predicate             #binaryComparasionPredicate
     | predicate NOT? LIKE predicate (ESCAPE stringLiteral)?         #likePredicate
     | expressionAtom                                                #expressionAtomPredicate
-	| addSubExpression                                              #mathExpressionPredicate
-	| '(' (predicate) ')'                                           #nestedPredicate
+    | addSubExpression                                              #mathExpressionPredicate
+    | '(' (predicate) ')'                                           #nestedPredicate
     ;
 
 addSubExpression
-	: mulDivExpression                                              #nestedMulDivExpression
-	| left=addSubExpression addSubOperator right=addSubExpression   #addSubExpressionAtom
-	| '(' (addSubExpression) ')'                                    #nestedAddSubExpression
-	;
+    : mulDivExpression                                              #nestedMulDivExpression
+    | left=addSubExpression addSubOperator right=addSubExpression   #addSubExpressionAtom
+    | '(' (addSubExpression) ')'                                    #nestedAddSubExpression
+    ;
 
 mulDivExpression
-	: expressionAtom                                                #simpleExpressionAtom
-	| left=mulDivExpression mulDivOperator right=mulDivExpression   #mulDivExpressionAtom
-	| '(' (addSubExpression) ')'                                    #nestedAddSubExpressionInMulDiv
-	;
+    : expressionAtom                                                #simpleExpressionAtom
+    | left=mulDivExpression mulDivOperator right=mulDivExpression   #mulDivExpressionAtom
+    | '(' (addSubExpression) ')'                                    #nestedAddSubExpressionInMulDiv
+    ;
 
 // Add in ASTVisitor nullNotnull in constant
 expressionAtom
@@ -480,7 +480,7 @@ expressionAtom
     | functionCall                                                  #functionCallExpressionAtom
     | mysqlVariable                                                 #mysqlVariableExpressionAtom
     | unaryOperator expressionAtom                                  #unaryExpressionAtom
-	| '(' (expressionAtom) ')'                                      #nestedExpressionAtom
+    | '(' (expressionAtom) ')'                                      #nestedExpressionAtom
     ;
 
 unaryOperator
@@ -506,7 +506,7 @@ mulDivOperator
 
 keywordsCanBeId
     : AUTO_INCREMENT | ENCRYPTED | MODIFY
-	| ADDITION | SEARCH | STORE | MULTIPLICATION | WILDCARD
+    | ADDITION | SEARCH | STORE | MULTIPLICATION | WILDCARD
     | PRISMADB | EXPORT | SETTINGS | ENCRYPT | DECRYPT
     | STATUS | REGISTER | USER | PASSWORD ;
 
@@ -515,10 +515,10 @@ keywordsCanBeId
 //    Encryption
 
 encryptionOptions
-	: FOR '(' encryptionType (',' encryptionType)* ')'
-	;
+    : FOR '(' encryptionType (',' encryptionType)* ')'
+    ;
 
 encryptionType
-	: ADDITION | SEARCH | STORE | MULTIPLICATION
+    : ADDITION | SEARCH | STORE | MULTIPLICATION
     | RANGE | WILDCARD
-	;
+    ;
