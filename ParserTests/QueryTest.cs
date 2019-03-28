@@ -1,5 +1,4 @@
-﻿using System;
-using PrismaDB.QueryAST;
+﻿using PrismaDB.QueryAST;
 using PrismaDB.QueryAST.DCL;
 using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
@@ -490,7 +489,7 @@ namespace ParserTests
         public void Parse_KnownFuncs()
         {
             // Setup
-            var test = "SELECT RandomFunc(), SuM(col1), CoUNt(col2), coUNT(*), avg (col3), NOW()";
+            var test = "SELECT RandomFunc(), SuM(col1), CoUNt(col2), coUNT(*), avg (col3), NOW(), STDDEV_SAMP(col4)";
 
             // Act
             var result = MySqlQueryParser.ParseToAst(test)[0] as SelectQuery;
@@ -514,6 +513,9 @@ namespace ParserTests
             Assert.IsType<ColumnRef>((result.SelectExpressions[4] as ScalarFunction).Parameters[0]);
 
             Assert.IsType<ScalarFunction>(result.SelectExpressions[5]);
+
+            Assert.IsType<StDevAggregationFunction>(result.SelectExpressions[6]);
+            Assert.IsType<ColumnRef>((result.SelectExpressions[6] as ScalarFunction).Parameters[0]);
         }
 
         [Fact(DisplayName = "Parse UPDATE")]

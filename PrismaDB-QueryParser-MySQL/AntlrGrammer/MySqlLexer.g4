@@ -146,6 +146,7 @@ MAX:                                 'MAX';
 NOW:                                 'NOW';
 UTC_TIMESTAMP:                       'UTC_TIMESTAMP';
 TIMEDIFF:                            'TIMEDIFF';
+STDDEV_SAMP:                         'STDDEV_SAMP';
 
 
 // Common function Keywords

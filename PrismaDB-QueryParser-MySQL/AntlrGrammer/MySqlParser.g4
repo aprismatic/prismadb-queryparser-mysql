@@ -425,7 +425,7 @@ specificFunction
 
 scalarFunctionName
     : SUM | AVG | ABS | COUNT | MIN | MAX
-    | NOW | DATE | UTC_TIMESTAMP | TIMEDIFF
+    | NOW | DATE | UTC_TIMESTAMP | TIMEDIFF | STDDEV_SAMP
     ;
 
 functionArgs
