@@ -671,5 +671,29 @@ namespace ParserTests
             Assert.Equal("d", ((ColumnRef)((Division)((SelectQuery)result[9]).SelectExpressions[0]).right).ColumnName.id);
         }
 
+        [Fact(DisplayName = "Parse SELECT sub query")]
+        public void Parse_SelectSubQuery()
+        {
+            // Setup
+            var test = "SELECT a, b, c FROM (SELECT z FROM tt) AS t;" +
+                       "SELECT a, b, c FROM ss, (SELECT z FROM tt) AS t, uu as u;";
+
+            // Act
+            var result = MySqlQueryParser.ParseToAst(test);
+
+            Assert.Single(((SelectQuery)result[0]).FromSubQueries);
+            Assert.Equal("t", ((SelectQuery)result[0]).FromSubQueries[0].Alias.id);
+            Assert.Equal("tt", ((SelectQuery)result[0]).FromSubQueries[0].Select.FromTables[0].Table.id);
+            Assert.Single(((SelectQuery)result[0]).FromSubQueries[0].Select.SelectExpressions);
+
+            Assert.Single(((SelectQuery)result[1]).FromSubQueries);
+            Assert.Equal(2, ((SelectQuery)result[1]).FromTables.Count);
+            Assert.Equal("t", ((SelectQuery)result[1]).FromSubQueries[0].Alias.id);
+            Assert.Equal("tt", ((SelectQuery)result[1]).FromSubQueries[0].Select.FromTables[0].Table.id);
+            Assert.Single(((SelectQuery)result[1]).FromSubQueries[0].Select.SelectExpressions);
+            Assert.Equal("ss", ((SelectQuery)result[1]).FromTables[0].Table.id);
+            Assert.Equal("uu", ((SelectQuery)result[1]).FromTables[1].Table.id);
+            Assert.Equal("u", ((SelectQuery)result[1]).FromTables[1].Alias.id);
+        }
     }
 }
