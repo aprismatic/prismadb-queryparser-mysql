@@ -268,18 +268,22 @@ namespace PrismaDB.QueryParser.MySQL
 
         public override object VisitScalarFunctionCall([NotNull] MySqlParser.ScalarFunctionCallContext context)
         {
+            ScalarFunction res;
             if (context.scalarFunctionName().SUM() != null)
-                return new SumAggregationFunction(context.scalarFunctionName().GetText(), parameters: (List<Expression>)Visit(context.functionArgs()));
+                res = new SumAggregationFunction(context.scalarFunctionName().GetText());
             else if (context.scalarFunctionName().COUNT() != null)
-                return new CountAggregationFunction(context.scalarFunctionName().GetText(), parameters: (List<Expression>)Visit(context.functionArgs()));
+                res = new CountAggregationFunction(context.scalarFunctionName().GetText());
             else if (context.scalarFunctionName().AVG() != null)
-                return new AvgAggregationFunction(context.scalarFunctionName().GetText(), parameters: (List<Expression>)Visit(context.functionArgs()));
+                res = new AvgAggregationFunction(context.scalarFunctionName().GetText());
             else if (context.scalarFunctionName().STDDEV_SAMP() != null)
-                return new StDevAggregationFunction(context.scalarFunctionName().GetText(), parameters: (List<Expression>)Visit(context.functionArgs()));
+                res = new StDevAggregationFunction(context.scalarFunctionName().GetText());
+            else
+                res = new ScalarFunction(context.scalarFunctionName().GetText());
 
-            var res = new ScalarFunction(context.scalarFunctionName().GetText());
             if (context.functionArgs() != null)
-                res.Parameters = (List<Expression>)Visit(context.functionArgs());
+                foreach (var exp in (List<Expression>)Visit(context.functionArgs()))
+                    res.AddChild(exp);
+
             return res;
         }
 
@@ -287,7 +291,8 @@ namespace PrismaDB.QueryParser.MySQL
         {
             var res = new ScalarFunction((Identifier)Visit(context.uid()));
             if (context.functionArgs() != null)
-                res.Parameters = (List<Expression>)Visit(context.functionArgs());
+                foreach (var exp in (List<Expression>)Visit(context.functionArgs()))
+                    res.AddChild(exp);
             return res;
         }
 
