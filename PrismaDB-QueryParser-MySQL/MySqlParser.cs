@@ -1,5 +1,6 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
+using PrismaDB.Commons;
 using PrismaDB.QueryAST;
 using PrismaDB.QueryParser.MySQL.AntlrGrammer;
 using System;
@@ -11,14 +12,21 @@ namespace PrismaDB.QueryParser.MySQL
     {
         public static List<Query> ParseToAst(String input)
         {
-            var inputStream = new AntlrInputStream(input);
-            var sqlLexer = new MySqlLexer(new CaseChangingCharStream(inputStream, true));
-            var tokens = new CommonTokenStream(sqlLexer);
-            var sqlParser = new MySqlParser(tokens);
+            try
+            {
+                var inputStream = new AntlrInputStream(input);
+                var sqlLexer = new MySqlLexer(new CaseChangingCharStream(inputStream, true));
+                var tokens = new CommonTokenStream(sqlLexer);
+                var sqlParser = new MySqlParser(tokens);
 
-            var visitor = new MySqlVisitor();
-            var res = (List<Query>)visitor.Visit(sqlParser.root());
-            return res;
+                var visitor = new MySqlVisitor();
+                var res = (List<Query>)visitor.Visit(sqlParser.root());
+                return res;
+            }
+            catch (Exception ex) when (!(ex is PrismaParserException))
+            {
+                throw new PrismaParserException("Error occured while parsing query.", ex);
+            }
         }
     }
 
