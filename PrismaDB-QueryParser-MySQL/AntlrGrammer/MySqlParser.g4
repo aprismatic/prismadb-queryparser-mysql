@@ -352,7 +352,8 @@ dataType
       lengthOneDimension?                                           #stringDataType
     | typeName=(
         TINYINT | SMALLINT | INT | BIGINT | DOUBLE |
-        DATE | TIMESTAMP | DATETIME | BLOB
+        DATE | TIMESTAMP | DATETIME | BLOB |
+        DECIMAL | FLOAT
       )                                                             #simpleDataType
     | typeName=(
         BINARY | VARBINARY
