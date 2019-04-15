@@ -72,7 +72,7 @@ namespace PrismaDB.QueryParser.MySQL
 
         public override object VisitDecimalLiteral([NotNull] MySqlParser.DecimalLiteralContext context)
         {
-            return new FloatingPointConstant(Decimal.Parse(context.DECIMAL_LITERAL().GetText()));
+            return new DecimalConstant(Decimal.Parse(context.DECIMAL_LITERAL().GetText()));
         }
 
         public override object VisitStringLiteral([NotNull] MySqlParser.StringLiteralContext context)
@@ -174,6 +174,12 @@ namespace PrismaDB.QueryParser.MySQL
                     break;
                 case "BLOB":
                     res.DataType = SqlDataType.MySQL_BLOB;
+                    break;
+                case "DECIMAL":
+                    res.DataType = SqlDataType.MySQL_DECIMAL;
+                    break;
+                case "FLOAT":
+                    res.DataType = SqlDataType.MySQL_FLOAT;
                     break;
             }
             return res;
@@ -343,7 +349,7 @@ namespace PrismaDB.QueryParser.MySQL
             var res = new BooleanIn();
             res.Column = (ColumnRef)Visit(context.predicate());
             foreach (var exp in (List<Expression>)Visit(context.expressions()))
-                res.InValues.Add((Constant)exp);
+                res.AddChild((Constant)exp);
             if (context.NOT() != null)
                 res.NOT = true;
             return res;
