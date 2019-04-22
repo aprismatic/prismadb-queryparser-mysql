@@ -149,6 +149,7 @@ NOW:                                 'NOW';
 UTC_TIMESTAMP:                       'UTC_TIMESTAMP';
 TIMEDIFF:                            'TIMEDIFF';
 STDDEV_SAMP:                         'STDDEV_SAMP';
+LINREG:                              'LINREG';
 
 
 // Common function Keywords
