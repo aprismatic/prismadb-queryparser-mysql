@@ -281,10 +281,15 @@ namespace PrismaDB.QueryParser.MySQL
                 res = new CountAggregationFunction(context.scalarFunctionName().GetText());
             else if (context.scalarFunctionName().AVG() != null)
                 res = new AvgAggregationFunction(context.scalarFunctionName().GetText());
+            else if (context.scalarFunctionName().MIN() != null)
+                res = new MinAggregationFunction(context.scalarFunctionName().GetText());
+            else if (context.scalarFunctionName().MAX() != null)
+                res = new MaxAggregationFunction(context.scalarFunctionName().GetText());
             else if (context.scalarFunctionName().STDDEV_SAMP() != null)
                 res = new StDevAggregationFunction(context.scalarFunctionName().GetText());
             else if (context.scalarFunctionName().LINREG() != null)
-                res = new LinRegFunction(context.scalarFunctionName().GetText());
+                res = new LinRegAggregationFunction(context.scalarFunctionName().GetText());
+
             else
                 res = new ScalarFunction(context.scalarFunctionName().GetText());
 
