@@ -49,5 +49,10 @@ namespace PrismaDB.QueryParser.MySQL
             res.Password = (StringConstant)Visit(context.password);
             return res;
         }
+
+        public override object VisitRebalanceOpetreeCommand([NotNull] MySqlParser.RebalanceOpetreeCommandContext context)
+        {
+            return new RebalanceOpetreeCommand();
+        }
     }
 }

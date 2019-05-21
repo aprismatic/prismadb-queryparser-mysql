@@ -278,6 +278,10 @@ registerUserCommand
     user=stringLiteral PASSWORD password=stringLiteral
     ;
 
+rebalanceOpetreeCommand
+    : PRISMADB REBALANCE OPETREE
+    ;
+
 
 // Common Clauses
 

@@ -135,6 +135,8 @@ STATUS:                              'STATUS';
 REGISTER:                            'REGISTER';
 USER:                                'USER';
 PASSWORD:                            'PASSWORD';
+REBALANCE:                           'REBALANCE';
+OPETREE:                             'OPETREE';
 
 
 // Common function names
