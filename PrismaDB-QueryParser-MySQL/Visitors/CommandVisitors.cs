@@ -3,6 +3,7 @@ using PrismaDB.QueryAST.DCL;
 using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
 using PrismaDB.QueryParser.MySQL.AntlrGrammer;
+using System.Collections.Generic;
 
 namespace PrismaDB.QueryParser.MySQL
 {
@@ -52,7 +53,10 @@ namespace PrismaDB.QueryParser.MySQL
 
         public override object VisitRebalanceOpetreeCommand([NotNull] MySqlParser.RebalanceOpetreeCommandContext context)
         {
-            return new RebalanceOpetreeCommand();
+            var res = new RebalanceOpetreeCommand();
+            if (context.constants() != null)
+                res.WithValues = (List<Constant>)Visit(context.constants());
+            return res;
         }
     }
 }

@@ -208,7 +208,9 @@ namespace ParserTests
                        "PRISMADB DECRYPT tt.col1;" +
                        "PRISMADB ENCRYPT tt.col1;" +
                        "PRISMADB ENCRYPT tt.col1 FOR (STORE, SEARCH);" +
-                       "PRISMADB DECRYPT tt.col1 STATUS;";
+                       "PRISMADB DECRYPT tt.col1 STATUS;" +
+                       "PRISMADB REBALANCE OPETREE;" +
+                       "PRISMADB REBALANCE OPETREE WITH VALUES (1, 2);";
 
             // Act 
             var result = MySqlQueryParser.ParseToAst(test);
@@ -228,6 +230,8 @@ namespace ParserTests
             Assert.False(((EncryptColumnCommand)result[5]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Addition));
             Assert.False(((EncryptColumnCommand)result[5]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Multiplication));
             Assert.True(((DecryptColumnCommand)result[6]).StatusCheck);
+            Assert.Empty(((RebalanceOpetreeCommand)result[7]).WithValues);
+            Assert.Equal(2, ((RebalanceOpetreeCommand)result[8]).WithValues.Count);
         }
 
         [Fact(DisplayName = "Parse SELECT w\\functions")]
