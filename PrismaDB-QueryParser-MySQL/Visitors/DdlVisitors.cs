@@ -47,6 +47,8 @@ namespace PrismaDB.QueryParser.MySQL
                 res.DefaultValue = (Expression)Visit(context.defaultValue());
             else if (context.AUTO_INCREMENT() != null)
                 res.AutoIncrement = true;
+            if (context.PRIMARY() != null)
+                res.PrimaryKey = true;
             return res;
         }
 

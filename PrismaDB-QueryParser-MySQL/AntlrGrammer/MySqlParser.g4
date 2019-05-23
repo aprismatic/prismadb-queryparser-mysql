@@ -92,8 +92,9 @@ columnDefinition
     nullNotnull?
     (
       ( DEFAULT defaultValue )
-      | AUTO_INCREMENT PRIMARY KEY
+      | AUTO_INCREMENT
     )?
+    ( PRIMARY KEY )?
     ;
 
 
