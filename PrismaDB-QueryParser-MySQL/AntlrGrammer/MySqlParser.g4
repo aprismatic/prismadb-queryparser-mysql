@@ -363,6 +363,7 @@ dataType
     | typeName=(
         TINYINT | SMALLINT | INT | BIGINT | DOUBLE |
         DATE | TIMESTAMP | DATETIME | BLOB |
+		TINYBLOB | MEDIUMBLOB | LONGBLOB |
         DECIMAL | FLOAT
       )                                                             #simpleDataType
     | typeName=(

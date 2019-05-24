@@ -175,6 +175,15 @@ namespace PrismaDB.QueryParser.MySQL
                 case "BLOB":
                     res.DataType = SqlDataType.MySQL_BLOB;
                     break;
+                case "TINYBLOB":
+                    res.DataType = SqlDataType.MySQL_TINYBLOB;
+                    break;
+                case "MEDIUMBLOB":
+                    res.DataType = SqlDataType.MySQL_MEDIUMBLOB;
+                    break;
+                case "LONGBLOB":
+                    res.DataType = SqlDataType.MySQL_LONGBLOB;
+                    break;
                 case "DECIMAL":
                     res.DataType = SqlDataType.MySQL_DECIMAL;
                     break;
