@@ -140,6 +140,7 @@ REGISTER:                            'REGISTER';
 USER:                                'USER';
 PASSWORD:                            'PASSWORD';
 REBALANCE:                           'REBALANCE';
+SAVE:                                'SAVE';
 OPETREE:                             'OPETREE';
 
 

@@ -60,5 +60,10 @@ namespace PrismaDB.QueryParser.MySQL
                 res.StatusCheck = true;
             return res;
         }
+
+        public override object VisitSaveOpetreeCommand([NotNull] MySqlParser.SaveOpetreeCommandContext context)
+        {
+            return new SaveOpetreeCommand();
+        }
     }
 }
