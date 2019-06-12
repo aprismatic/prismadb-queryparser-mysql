@@ -78,14 +78,33 @@ namespace PrismaDB.QueryParser.MySQL
         public override object VisitStringLiteral([NotNull] MySqlParser.StringLiteralContext context)
         {
             var str = context.STRING_LITERAL().GetText();
+            var c = (char)26;
             if (str.StartsWith("'"))
             {
-                str = str.Substring(1, str.Length - 2).Replace("\\'", "'").Replace("''", "'");
+                str = str.Substring(1, str.Length - 2)
+                    .Replace("\\'", "'")
+                    .Replace("''", "'")
+                    .Replace("\\\\", "\\")
+                    .Replace("\\0", "\0")
+                    .Replace("\\b", "\b")
+                    .Replace("\\n", "\n")
+                    .Replace("\\r", "\r")
+                    .Replace("\\t", "\t")
+                    .Replace("\\Z", c.ToString());
                 return new StringConstant(str);
             }
             if (str.StartsWith("\""))
             {
-                str = str.Substring(1, str.Length - 2).Replace("\\\"", "\"").Replace("\"\"", "\"");
+                str = str.Substring(1, str.Length - 2)
+                    .Replace("\\\"", "\"")
+                    .Replace("\"\"", "\"")
+                    .Replace("\\\\","\\")
+                    .Replace("\\0", "\0")
+                    .Replace("\\b", "\b")
+                    .Replace("\\n", "\n")
+                    .Replace("\\r", "\r")
+                    .Replace("\\t", "\t")
+                    .Replace("\\Z", c.ToString());
                 return new StringConstant(str);
             }
             return null;
