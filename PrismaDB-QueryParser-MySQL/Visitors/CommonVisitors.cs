@@ -5,6 +5,9 @@ using PrismaDB.QueryAST.DML;
 using PrismaDB.QueryParser.MySQL.AntlrGrammer;
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Text;
+using System.Diagnostics;
 
 namespace PrismaDB.QueryParser.MySQL
 {
@@ -77,36 +80,69 @@ namespace PrismaDB.QueryParser.MySQL
 
         public override object VisitStringLiteral([NotNull] MySqlParser.StringLiteralContext context)
         {
+
             var str = context.STRING_LITERAL().GetText();
-            var c = (char)26;
+
             if (str.StartsWith("'"))
             {
                 str = str.Substring(1, str.Length - 2)
-                    .Replace("\\'", "'")
-                    .Replace("''", "'")
-                    .Replace("\\\\", "\\")
-                    .Replace("\\0", "\0")
-                    .Replace("\\b", "\b")
-                    .Replace("\\n", "\n")
-                    .Replace("\\r", "\r")
-                    .Replace("\\t", "\t")
-                    .Replace("\\Z", c.ToString());
-                return new StringConstant(str);
+                    .Replace("''", "'");
+
+                return new StringConstant(replace_common_sequences(str));
             }
+
             if (str.StartsWith("\""))
             {
                 str = str.Substring(1, str.Length - 2)
-                    .Replace("\\\"", "\"")
-                    .Replace("\"\"", "\"")
-                    .Replace("\\\\","\\")
-                    .Replace("\\0", "\0")
-                    .Replace("\\b", "\b")
-                    .Replace("\\n", "\n")
-                    .Replace("\\r", "\r")
-                    .Replace("\\t", "\t")
-                    .Replace("\\Z", c.ToString());
-                return new StringConstant(str);
+                    .Replace("\"\"", "\"");
+                return new StringConstant(replace_common_sequences(str));
             }
+
+            string replace_common_sequences(string replace)
+            {
+                var c = (char)26;
+                StringBuilder s = new StringBuilder();
+                for(int i = 0; i < replace.Length; i++)
+                {
+                    if(replace[i] == '\\' && (i <= replace.Length - 2))
+                    {
+                        switch(replace[i+1])
+                        {
+                            case '\\':
+                                s.Append("\\"); i++; break;
+                            case 'b':
+                                s.Append("\b"); i++; break;
+                            case 'n':
+                                s.Append("\n"); i++; break;
+                            case 'r':
+                                s.Append("\r"); i++; break;
+                            case 't':
+                                s.Append("\t"); i++;  break;
+                            case '0':
+                                s.Append("\0"); i++; break;
+                            case 'Z':
+                                s.Append(c); i++;  break;
+                            case '"':
+                                s.Append("\""); i++; break;
+                            case '\'':
+                                s.Append("'"); i++;  break;
+                            case '%':
+                            case '_':
+                                s.Append(replace[i]);
+                                break;
+                            default:
+                                s.Append(replace[i+1]); i++; break;
+                        }
+                    }
+                    else
+                    {
+                        s.Append(replace[i]);
+                    }
+                }
+
+                return s.ToString();
+            }
+
             return null;
         }
 
