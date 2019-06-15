@@ -5,9 +5,7 @@ using PrismaDB.QueryAST.DML;
 using PrismaDB.QueryParser.MySQL.AntlrGrammer;
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using System.Text;
-using System.Diagnostics;
 
 namespace PrismaDB.QueryParser.MySQL
 {
@@ -80,58 +78,54 @@ namespace PrismaDB.QueryParser.MySQL
 
         public override object VisitStringLiteral([NotNull] MySqlParser.StringLiteralContext context)
         {
-
             var str = context.STRING_LITERAL().GetText();
 
             if (str.StartsWith("'"))
             {
-                str = str.Substring(1, str.Length - 2)
-                    .Replace("''", "'");
-
-                return new StringConstant(replace_common_sequences(str));
+                str = str.Substring(1, str.Length - 2).Replace("''", "'");
+                return new StringConstant(replaceCommonSequences(str));
             }
 
             if (str.StartsWith("\""))
             {
-                str = str.Substring(1, str.Length - 2)
-                    .Replace("\"\"", "\"");
-                return new StringConstant(replace_common_sequences(str));
+                str = str.Substring(1, str.Length - 2).Replace("\"\"", "\"");
+                return new StringConstant(replaceCommonSequences(str));
             }
 
-            string replace_common_sequences(string replace)
+            string replaceCommonSequences(string replace)
             {
-                var c = (char)26;
-                StringBuilder s = new StringBuilder();
-                for(int i = 0; i < replace.Length; i++)
+                var s = new StringBuilder();
+
+                for (int i = 0; i < replace.Length; i++)
                 {
-                    if(replace[i] == '\\' && (i <= replace.Length - 2))
+                    if (replace[i] == '\\' && (i <= replace.Length - 2))
                     {
-                        switch(replace[i+1])
+                        switch (replace[i + 1])
                         {
                             case '\\':
-                                s.Append("\\"); i++; break;
+                                s.Append('\\'); i++; break;
                             case 'b':
-                                s.Append("\b"); i++; break;
+                                s.Append('\b'); i++; break;
                             case 'n':
-                                s.Append("\n"); i++; break;
+                                s.Append('\n'); i++; break;
                             case 'r':
-                                s.Append("\r"); i++; break;
+                                s.Append('\r'); i++; break;
                             case 't':
-                                s.Append("\t"); i++;  break;
+                                s.Append('\t'); i++; break;
                             case '0':
-                                s.Append("\0"); i++; break;
+                                s.Append('\0'); i++; break;
                             case 'Z':
-                                s.Append(c); i++;  break;
+                                s.Append('\x1A'); i++; break;
                             case '"':
-                                s.Append("\""); i++; break;
+                                s.Append('"'); i++; break;
                             case '\'':
-                                s.Append("'"); i++;  break;
+                                s.Append('\''); i++; break;
                             case '%':
                             case '_':
                                 s.Append(replace[i]);
                                 break;
                             default:
-                                s.Append(replace[i+1]); i++; break;
+                                s.Append(replace[i + 1]); i++; break;
                         }
                     }
                     else

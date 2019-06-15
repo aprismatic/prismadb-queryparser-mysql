@@ -4,7 +4,6 @@ using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
 using PrismaDB.QueryParser.MySQL;
 using Xunit;
-using System.Diagnostics;
 
 namespace ParserTests
 {
@@ -593,22 +592,21 @@ namespace ParserTests
         public void Parse_Escaped()
         {
             // Setup 1
-            
             // % and _ are automatically escaped outside of pattern-matching context; meaning that any \ before a % and _ is treated literally
             var test1 = "INSERT INTO TestTable (a, b, c, d, e, f, g, h, i, j, k, l) VALUES (" +
-            "'ascii_null_\\0 foo\\0foo'," +
-            "'single_quote_\\' '''," +
-            "'double_quote1_\" \\\"'," +
-            "\"double_quote2_\\\" \"\"\"," +
-            "'backspace_\\b'," +
-            "'newline_\\n'," +
-            "'carriage_return_\\r',"+
-            "'tab_\\t'," + 
-            "'ascii_26_\\Z'," +
-            "'backslash_\\\\'," + 
-            "'percentage_% \\%'," + 
-            "'underscore_ \\_'" + 
-            ")";
+                        "'ascii_null_\\0 foo\\0foo'," +
+                        "'single_quote_\\' '''," +
+                        "'double_quote1_\" \\\"'," +
+                        "\"double_quote2_\\\" \"\"\"," +
+                        "'backspace_\\b'," +
+                        "'newline_\\n'," +
+                        "'carriage_return_\\r'," +
+                        "'tab_\\t'," +
+                        "'ascii_26_\\Z'," +
+                        "'backslash_\\\\'," +
+                        "'percentage_% \\%'," +
+                        "'underscore_ \\_'" +
+                        ")";
 
             // Act 1
             var result1 = MySqlQueryParser.ParseToAst(test1);
@@ -617,47 +615,47 @@ namespace ParserTests
             Assert.Equal("ascii_null_\0 foo\0foo", ((StringConstant)((InsertQuery)result1[0]).Values[0][0]).strvalue);
             Assert.Equal("single_quote_' '", ((StringConstant)((InsertQuery)result1[0]).Values[0][1]).strvalue);
             Assert.Equal("double_quote1_\" \"", ((StringConstant)((InsertQuery)result1[0]).Values[0][2]).strvalue); // sql: \"
-            Assert.Equal("double_quote2_\" \"", ((StringConstant)((InsertQuery)result1[0]).Values[0][3]).strvalue); 
-            Assert.Equal("backspace_\b", ((StringConstant)((InsertQuery)result1[0]).Values[0][4]).strvalue); 
-            Assert.Equal("newline_\n", ((StringConstant)((InsertQuery)result1[0]).Values[0][5]).strvalue); 
+            Assert.Equal("double_quote2_\" \"", ((StringConstant)((InsertQuery)result1[0]).Values[0][3]).strvalue);
+            Assert.Equal("backspace_\b", ((StringConstant)((InsertQuery)result1[0]).Values[0][4]).strvalue);
+            Assert.Equal("newline_\n", ((StringConstant)((InsertQuery)result1[0]).Values[0][5]).strvalue);
             Assert.Equal("carriage_return_\r", ((StringConstant)((InsertQuery)result1[0]).Values[0][6]).strvalue);
             Assert.Equal("tab_\t", ((StringConstant)((InsertQuery)result1[0]).Values[0][7]).strvalue);
-            Assert.Equal("ascii_26_" + (char)26, ((StringConstant)((InsertQuery)result1[0]).Values[0][8]).strvalue);
+            Assert.Equal("ascii_26_\x1A", ((StringConstant)((InsertQuery)result1[0]).Values[0][8]).strvalue);
             Assert.Equal("backslash_\\", ((StringConstant)((InsertQuery)result1[0]).Values[0][9]).strvalue);
             Assert.Equal("percentage_% \\%", ((StringConstant)((InsertQuery)result1[0]).Values[0][10]).strvalue);
             Assert.Equal("underscore_ \\_", ((StringConstant)((InsertQuery)result1[0]).Values[0][11]).strvalue);
 
             // Setup 2
             var test2 = "INSERT INTO TT1 (a, b, c, d, e) VALUES " +
-                       "('I\\'m', '\\\"escaped\"', \"\"\"and\", '''me ''too')";
+                        "('I\\'m', '\\\"escaped\"', \"\"\"and\", '''me ''too')";
             // Act 2
             var result2 = MySqlQueryParser.ParseToAst(test2);
 
             // Assert 2
-            Assert.Equal("I'm", ((StringConstant)((InsertQuery)result2[0]).Values[0][0]).strvalue); 
-            Assert.Equal("\"escaped\"", ((StringConstant)((InsertQuery)result2[0]).Values[0][1]).strvalue); 
-            Assert.Equal("\"and", ((StringConstant)((InsertQuery)result2[0]).Values[0][2]).strvalue); 
+            Assert.Equal("I'm", ((StringConstant)((InsertQuery)result2[0]).Values[0][0]).strvalue);
+            Assert.Equal("\"escaped\"", ((StringConstant)((InsertQuery)result2[0]).Values[0][1]).strvalue);
+            Assert.Equal("\"and", ((StringConstant)((InsertQuery)result2[0]).Values[0][2]).strvalue);
             Assert.Equal("'me 'too", ((StringConstant)((InsertQuery)result2[0]).Values[0][3]).strvalue);
 
             // Setup 3
             // use wxy as most unambigious character range without escape character usages. the rest are used as SQL, C# or ASCII escape chars
             var test3 = "INSERT INTO TestTable(a,b,c,d) VALUES (" +
-                "'mixed_\\b\\0\\t\\r\\n\\\n \\\\w \\x \\y',"+
-                "'order_of_replacement_1_\\ \\n \\\n \\\\n \\\\\n \\\\\\n \\\\\\\n \\\\\\\\n'," +
-                "'order_of_replacement_2_\\\r \\\t \\\\\\n \\\\\\\\\\\\\\\\\\b \\\\n\\\\r'," +                
-                "'all_single_enclosed_\\0 \\\\\\\\ \\' '' \\t \\\" \\\\Z \\Z \\r\\n\\b \\\'\'\''," +
-                "\"all_double_enclosed_\\0 \\\\\\\\ \\' \\t \\\\\"\" \\\\Z \\Z \"\"\"\" \\r\\n\\b \\\"\"\"\"" +
-                ")";
-            // Act 3
+                        "'mixed_\\b\\0\\t\\r\\n\\\n \\\\w \\x \\y'," +
+                        "'order_of_replacement_1_\\ \\n \\\n \\\\n \\\\\n \\\\\\n \\\\\\\n \\\\\\\\n'," +
+                        "'order_of_replacement_2_\\\r \\\t \\\\\\n \\\\\\\\\\\\\\\\\\b \\\\n\\\\r'," +
+                        "'all_single_enclosed_\\0 \\\\\\\\ \\' '' \\t \\\" \\\\Z \\Z \\r\\n\\b \\\'\'\''," +
+                        "\"all_double_enclosed_\\0 \\\\\\\\ \\' \\t \\\\\"\" \\\\Z \\Z \"\"\"\" \\r\\n\\b \\\"\"\"\"" +
+                        ")";
 
+            // Act 3
             var result3 = MySqlQueryParser.ParseToAst(test3);
 
             // Assert 3
             Assert.Equal("mixed_\b\0\t\r\n\n \\w x y", ((StringConstant)((InsertQuery)result3[0]).Values[0][0]).strvalue);
             Assert.Equal("order_of_replacement_1_ \n \n \\n \\\n \\\n \\\n \\\\n", ((StringConstant)((InsertQuery)result3[0]).Values[0][1]).strvalue);
             Assert.Equal("order_of_replacement_2_\r \t \\\n \\\\\\\\\b \\n\\r", ((StringConstant)((InsertQuery)result3[0]).Values[0][2]).strvalue);
-            Assert.Equal("all_single_enclosed_\0 \\\\ \' \' \t \" \\Z " + (char)26 + " \r\n\b \'\'" , ((StringConstant)((InsertQuery)result3[0]).Values[0][3]).strvalue);
-            Assert.Equal("all_double_enclosed_\0 \\\\ \' \t \\\" \\Z " + (char)26 + " \"\" \r\n\b \"\"", ((StringConstant)((InsertQuery)result3[0]).Values[0][4]).strvalue);
+            Assert.Equal("all_single_enclosed_\0 \\\\ \' \' \t \" \\Z \x1A \r\n\b \'\'", ((StringConstant)((InsertQuery)result3[0]).Values[0][3]).strvalue);
+            Assert.Equal("all_double_enclosed_\0 \\\\ \' \t \\\" \\Z \x1A \"\" \r\n\b \"\"", ((StringConstant)((InsertQuery)result3[0]).Values[0][4]).strvalue);
 
         }
 
@@ -752,4 +750,3 @@ namespace ParserTests
         }
     }
 }
- 
