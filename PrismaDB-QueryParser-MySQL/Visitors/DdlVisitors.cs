@@ -20,7 +20,7 @@ namespace PrismaDB.QueryParser.MySQL
         public override object VisitCreateIndex([NotNull] MySqlParser.CreateIndexContext context)
         {
             var res = new CreateIndexQuery();
-            res.Name = (Identifier)Visit(context.indexName());
+            res.Name = (Identifier)Visit(context.uid());
             res.OnTable = (TableRef)Visit(context.tableName());
             foreach (var col in context.fullColumnName())
                 res.OnColumns.Add((ColumnRef)Visit(col));
