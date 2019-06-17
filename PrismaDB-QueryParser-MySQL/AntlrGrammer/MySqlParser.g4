@@ -48,7 +48,7 @@ emptyStatement
     ;
 
 ddlStatement
-    : createTable | alterTable | dropTable
+    : createTable | alterTable | dropTable | createIndex
     ;
 
 dmlStatement
@@ -75,6 +75,12 @@ createTable
     : CREATE TABLE
       tableName
       createDefinitions
+    ;
+
+createIndex
+    : CREATE INDEX
+      indexName ON tableName
+      '(' fullColumnName (',' fullColumnName)* ')'
     ;
 
 // details
@@ -302,6 +308,10 @@ databaseName
     ;
 
 tableName
+    : uid
+    ;
+
+indexName
     : uid
     ;
 
