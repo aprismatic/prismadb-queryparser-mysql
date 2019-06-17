@@ -83,16 +83,16 @@ namespace PrismaDB.QueryParser.MySQL
             if (str.StartsWith("'"))
             {
                 str = str.Substring(1, str.Length - 2).Replace("''", "'");
-                return new StringConstant(replaceCommonSequences(str));
+                return new StringConstant(replaceEscChars(str));
             }
 
             if (str.StartsWith("\""))
             {
                 str = str.Substring(1, str.Length - 2).Replace("\"\"", "\"");
-                return new StringConstant(replaceCommonSequences(str));
+                return new StringConstant(replaceEscChars(str));
             }
 
-            string replaceCommonSequences(string replace)
+            string replaceEscChars(string replace)
             {
                 var s = new StringBuilder();
 
