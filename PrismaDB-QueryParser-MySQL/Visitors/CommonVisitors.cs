@@ -81,63 +81,51 @@ namespace PrismaDB.QueryParser.MySQL
             var str = context.STRING_LITERAL().GetText();
 
             if (str.StartsWith("'"))
-            {
                 str = str.Substring(1, str.Length - 2).Replace("''", "'");
-                return new StringConstant(replaceEscChars(str));
-            }
 
-            if (str.StartsWith("\""))
-            {
+            else if (str.StartsWith("\""))
                 str = str.Substring(1, str.Length - 2).Replace("\"\"", "\"");
-                return new StringConstant(replaceEscChars(str));
-            }
 
-            string replaceEscChars(string replace)
+            var sb = new StringBuilder();
+
+            for (int i = 0; i < str.Length; i++)
             {
-                var s = new StringBuilder();
-
-                for (int i = 0; i < replace.Length; i++)
+                if (str[i] == '\\' && (i <= str.Length - 2))
                 {
-                    if (replace[i] == '\\' && (i <= replace.Length - 2))
+                    switch (str[i + 1])
                     {
-                        switch (replace[i + 1])
-                        {
-                            case '\\':
-                                s.Append('\\'); i++; break;
-                            case 'b':
-                                s.Append('\b'); i++; break;
-                            case 'n':
-                                s.Append('\n'); i++; break;
-                            case 'r':
-                                s.Append('\r'); i++; break;
-                            case 't':
-                                s.Append('\t'); i++; break;
-                            case '0':
-                                s.Append('\0'); i++; break;
-                            case 'Z':
-                                s.Append('\x1A'); i++; break;
-                            case '"':
-                                s.Append('"'); i++; break;
-                            case '\'':
-                                s.Append('\''); i++; break;
-                            case '%':
-                            case '_':
-                                s.Append(replace[i]);
-                                break;
-                            default:
-                                s.Append(replace[i + 1]); i++; break;
-                        }
-                    }
-                    else
-                    {
-                        s.Append(replace[i]);
+                        case '\\':
+                            sb.Append('\\'); i++; break;
+                        case 'b':
+                            sb.Append('\b'); i++; break;
+                        case 'n':
+                            sb.Append('\n'); i++; break;
+                        case 'r':
+                            sb.Append('\r'); i++; break;
+                        case 't':
+                            sb.Append('\t'); i++; break;
+                        case '0':
+                            sb.Append('\0'); i++; break;
+                        case 'Z':
+                            sb.Append('\x1A'); i++; break;
+                        case '"':
+                            sb.Append('"'); i++; break;
+                        case '\'':
+                            sb.Append('\''); i++; break;
+                        case '%':
+                        case '_':
+                            sb.Append(str[i]);
+                            break;
+                        default:
+                            sb.Append(str[i + 1]); i++; break;
                     }
                 }
-
-                return s.ToString();
+                else
+                {
+                    sb.Append(str[i]);
+                }
             }
-
-            return null;
+            return new StringConstant(sb.ToString());
         }
 
         public override object VisitHexadecimalLiteral([NotNull] MySqlParser.HexadecimalLiteralContext context)

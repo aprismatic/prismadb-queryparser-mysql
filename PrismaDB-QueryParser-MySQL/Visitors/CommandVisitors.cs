@@ -65,5 +65,15 @@ namespace PrismaDB.QueryParser.MySQL
         {
             return new SaveOpetreeCommand();
         }
+
+        public override object VisitLoadOpetreeCommand([NotNull] MySqlParser.LoadOpetreeCommandContext context)
+        {
+            return new LoadOpetreeCommand();
+        }
+
+        public override object VisitLoadSchemaCommand([NotNull] MySqlParser.LoadSchemaCommandContext context)
+        {
+            return new LoadSchemaCommand();
+        }
     }
 }

@@ -143,6 +143,8 @@ PASSWORD:                            'PASSWORD';
 REBALANCE:                           'REBALANCE';
 SAVE:                                'SAVE';
 OPETREE:                             'OPETREE';
+LOAD:                                'LOAD';
+SCHEMA:                              'SCHEMA';
 
 
 // Common function names

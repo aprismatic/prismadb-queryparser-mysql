@@ -59,7 +59,7 @@ dmlStatement
 dclStatement
     : exportSettingsCommand | updateKeysCommand | encryptCommand
     | decryptCommand | registerUserCommand | rebalanceOpetreeCommand
-    | saveOpetreeCommand
+    | saveOpetreeCommand | loadOpetreeCommand | loadSchemaCommand
     ;
 
 utilityStatement
@@ -291,11 +291,19 @@ rebalanceOpetreeCommand
       (
         WITH VALUES '(' constants ')'
       )?
-	  STATUS?
+      STATUS?
     ;
 
 saveOpetreeCommand
     : PRISMADB SAVE OPETREE
+    ;
+
+loadOpetreeCommand
+    : PRISMADB LOAD OPETREE
+    ;
+
+loadSchemaCommand
+    : PRISMADB LOAD SCHEMA
     ;
 
 
@@ -374,7 +382,7 @@ dataType
     | typeName=(
         TINYINT | SMALLINT | INT | BIGINT | DOUBLE |
         DATE | TIMESTAMP | DATETIME | BLOB |
-		TINYBLOB | MEDIUMBLOB | LONGBLOB |
+        TINYBLOB | MEDIUMBLOB | LONGBLOB |
         DECIMAL | FLOAT
       )                                                             #simpleDataType
     | typeName=(
