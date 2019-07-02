@@ -57,9 +57,10 @@ dmlStatement
     ;
 
 dclStatement
-    : exportSettingsCommand | updateKeysCommand | encryptCommand
+    : exportKeysCommand | updateKeysCommand | encryptCommand
     | decryptCommand | registerUserCommand | rebalanceOpetreeCommand
     | saveOpetreeCommand | loadOpetreeCommand | loadSchemaCommand
+    | saveSettingsCommand | loadSettingsCommand
     ;
 
 utilityStatement
@@ -265,8 +266,8 @@ showColumnsStatement
 
 // Prisma/DB Data Control Language
 
-exportSettingsCommand
-    : PRISMADB EXPORT SETTINGS TO stringLiteral
+exportKeysCommand
+    : PRISMADB EXPORT KEYS TO stringLiteral
     ;
 
 updateKeysCommand
@@ -304,6 +305,14 @@ loadOpetreeCommand
 
 loadSchemaCommand
     : PRISMADB LOAD SCHEMA
+    ;
+
+saveSettingsCommand
+    : PRISMADB SAVE SETTINGS
+    ;
+
+loadSettingsCommand
+    : PRISMADB LOAD SETTINGS
     ;
 
 

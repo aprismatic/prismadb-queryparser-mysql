@@ -222,7 +222,7 @@ namespace ParserTests
         public void Parse_Commands()
         {
             // Setup 
-            var test = "PRISMADB EXPORT SETTINGS TO '/home/user/settings.json';" +
+            var test = "PRISMADB EXPORT KEYS TO '/home/user/settings.json';" +
                        "PRISMADB REGISTER USER 'sherlock' PASSWORD '@22!B';" +
                        "PRISMADB UPDATE KEYS;" +
                        "PRISMADB DECRYPT tt.col1;" +
@@ -239,7 +239,7 @@ namespace ParserTests
             var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert 
-            Assert.Equal("/home/user/settings.json", ((ExportSettingsCommand)result[0]).FileUri.strvalue);
+            Assert.Equal("/home/user/settings.json", ((ExportKeysCommand)result[0]).FileUri.strvalue);
             Assert.Equal("sherlock", ((RegisterUserCommand)result[1]).UserId.strvalue);
             Assert.Equal("@22!B", ((RegisterUserCommand)result[1]).Password.strvalue);
             Assert.Equal(typeof(UpdateKeysCommand), result[2].GetType());

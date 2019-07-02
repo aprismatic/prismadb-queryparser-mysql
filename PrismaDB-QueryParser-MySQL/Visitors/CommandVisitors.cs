@@ -9,9 +9,9 @@ namespace PrismaDB.QueryParser.MySQL
 {
     public partial class MySqlVisitor : MySqlParserBaseVisitor<object>
     {
-        public override object VisitExportSettingsCommand([NotNull] MySqlParser.ExportSettingsCommandContext context)
+        public override object VisitExportKeysCommand([NotNull] MySqlParser.ExportKeysCommandContext context)
         {
-            return new ExportSettingsCommand(((StringConstant)Visit(context.stringLiteral())).strvalue);
+            return new ExportKeysCommand(((StringConstant)Visit(context.stringLiteral())).strvalue);
         }
 
         public override object VisitUpdateKeysCommand([NotNull] MySqlParser.UpdateKeysCommandContext context)
@@ -74,6 +74,16 @@ namespace PrismaDB.QueryParser.MySQL
         public override object VisitLoadSchemaCommand([NotNull] MySqlParser.LoadSchemaCommandContext context)
         {
             return new LoadSchemaCommand();
+        }
+
+        public override object VisitSaveSettingsCommand([NotNull] MySqlParser.SaveSettingsCommandContext context)
+        {
+            return new SaveSettingsCommand();
+        }
+
+        public override object VisitLoadSettingsCommand([NotNull] MySqlParser.LoadSettingsCommandContext context)
+        {
+            return new LoadSettingsCommand();
         }
     }
 }
