@@ -233,7 +233,8 @@ namespace ParserTests
                        "PRISMADB REBALANCE OPETREE WITH VALUES (1, 2);" +
                        "PRISMADB SAVE OPETREE;" +
                        "PRISMADB LOAD OPETREE;" +
-                       "PRISMADB LOAD SCHEMA;";
+                       "PRISMADB LOAD SCHEMA;" +
+                       "PRISMADB BYPASS SELECT * FROM tt;";
 
             // Act 
             var result = MySqlQueryParser.ParseToAst(test);
@@ -258,6 +259,7 @@ namespace ParserTests
             Assert.IsType<SaveOpetreeCommand>(result[9]);
             Assert.IsType<LoadOpetreeCommand>(result[10]);
             Assert.IsType<LoadSchemaCommand>(result[11]);
+            Assert.Equal(new TableRef("tt"), ((SelectQuery)((BypassCommand)result[12]).Query).GetTables()[0]);
         }
 
         [Fact(DisplayName = "Parse SELECT w\\functions")]

@@ -85,5 +85,18 @@ namespace PrismaDB.QueryParser.MySQL
         {
             return new LoadSettingsCommand();
         }
+
+        public override object VisitBypassCommand([NotNull] MySqlParser.BypassCommandContext context)
+        {
+            var res = new BypassCommand();
+
+            if (context.ddlStatement() != null)
+                res.Query = (DdlQuery)Visit(context.ddlStatement());
+
+            if (context.dmlStatement() != null)
+                res.Query = (DmlQuery)Visit(context.dmlStatement());
+
+            return res;
+        }
     }
 }

@@ -60,7 +60,7 @@ dclStatement
     : exportKeysCommand | updateKeysCommand | encryptCommand
     | decryptCommand | registerUserCommand | rebalanceOpetreeCommand
     | saveOpetreeCommand | loadOpetreeCommand | loadSchemaCommand
-    | saveSettingsCommand | loadSettingsCommand
+    | saveSettingsCommand | loadSettingsCommand | bypassCommand
     ;
 
 utilityStatement
@@ -313,6 +313,11 @@ saveSettingsCommand
 
 loadSettingsCommand
     : PRISMADB LOAD SETTINGS
+    ;
+
+bypassCommand
+    : PRISMADB BYPASS
+	  (ddlStatement | dmlStatement)
     ;
 
 
