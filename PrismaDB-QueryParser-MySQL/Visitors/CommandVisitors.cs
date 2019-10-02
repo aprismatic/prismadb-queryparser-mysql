@@ -55,7 +55,7 @@ namespace PrismaDB.QueryParser.MySQL
         {
             var res = new RebalanceOpetreeCommand();
             if (context.constants() != null)
-                res.WithValues = (List<Constant>)Visit(context.constants());
+                res.WithValues = (List<ConstantContainer>)Visit(context.constants());
             if (context.STATUS() != null)
                 res.StatusCheck = true;
             return res;
